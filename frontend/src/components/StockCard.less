@@ -215,6 +215,38 @@
       height: 14px;
     }
   }
+
+  &--flash-up {
+    animation: card-flash-up 1.5s ease-out;
+  }
+
+  &--flash-down {
+    animation: card-flash-down 1.5s ease-out;
+  }
+}
+
+@keyframes card-flash-up {
+  0%,
+  15% {
+    box-shadow: inset 0 0 0 2px rgba(231, 76, 60, 0.5);
+    background: rgba(231, 76, 60, 0.04);
+  }
+  100% {
+    box-shadow: none;
+    background: @bg;
+  }
+}
+
+@keyframes card-flash-down {
+  0%,
+  15% {
+    box-shadow: inset 0 0 0 2px rgba(39, 174, 96, 0.5);
+    background: rgba(39, 174, 96, 0.04);
+  }
+  100% {
+    box-shadow: none;
+    background: @bg;
+  }
 }
 
 @keyframes sk-shimmer {

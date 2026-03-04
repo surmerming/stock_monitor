@@ -36,8 +36,8 @@ dependencies:
     specifier: ^0.3.28
     version: 0.3.28(mysql2@3.18.2)(ts-node@10.9.1)
   yahoo-finance2:
-    specifier: ^3.13.1
-    version: 3.13.1
+    specifier: ^3.13.2
+    version: 3.13.2
 
 devDependencies:
   '@nestjs/cli':
@@ -5687,8 +5687,8 @@ packages:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
 
-  /yahoo-finance2@3.13.1:
-    resolution: {integrity: sha512-kn3unY2OflG1NbeONedWxFDzq5QDyMYYAnr6VjRIOsMv5Q7ZXZZYFM8OadNZrOev4ikQjbYcMLLjogpVaez/vQ==}
+  /yahoo-finance2@3.13.2:
+    resolution: {integrity: sha512-aAOJEjuLClfDxVPRKxjcwFoyzMr8BE/svgUqr5IjnQR+kppYbKO92Wl3SbAGz5DRghy6FiUfqi5FBDSBA/e2jg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     dependencies:

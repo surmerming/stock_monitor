@@ -46,6 +46,29 @@
     &--action {
       width: 40px;
     }
+
+    &--sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+
+      &:hover {
+        color: @text;
+      }
+    }
+  }
+
+  &__sort-icon {
+    display: inline-block;
+    margin-left: 3px;
+    font-size: 9px;
+    color: #c5c9d2;
+    vertical-align: middle;
+    transition: color 0.15s;
+
+    &--active {
+      color: #3b82f6;
+    }
   }
 
   &__row {
@@ -176,6 +199,34 @@
       color: @red;
       background: rgba(231, 76, 60, 0.08);
     }
+  }
+
+  &__row--flash-up {
+    animation: row-flash-up 1.5s ease-out;
+  }
+
+  &__row--flash-down {
+    animation: row-flash-down 1.5s ease-out;
+  }
+}
+
+@keyframes row-flash-up {
+  0%,
+  15% {
+    background: rgba(231, 76, 60, 0.12);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes row-flash-down {
+  0%,
+  15% {
+    background: rgba(39, 174, 96, 0.12);
+  }
+  100% {
+    background: transparent;
   }
 }
 

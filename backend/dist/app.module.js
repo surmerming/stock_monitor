@@ -11,7 +11,13 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const stock_module_1 = require("./stock/stock.module");
 const watchlist_module_1 = require("./watchlist/watchlist.module");
+const quote_engine_module_1 = require("./quote-engine/quote-engine.module");
+const alert_module_1 = require("./alert/alert.module");
+const scanner_module_1 = require("./scanner/scanner.module");
+const detail_module_1 = require("./detail/detail.module");
 const watchlist_entity_1 = require("./watchlist/watchlist.entity");
+const alert_rule_entity_1 = require("./alert/alert-rule.entity");
+const alert_history_entity_1 = require("./alert/alert-history.entity");
 let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
@@ -24,11 +30,15 @@ exports.AppModule = AppModule = __decorate([
                 username: 'root',
                 password: '123456',
                 database: 'stock_monitor',
-                entities: [watchlist_entity_1.WatchlistItem],
+                entities: [watchlist_entity_1.WatchlistItem, alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory],
                 synchronize: true,
             }),
             stock_module_1.StockModule,
             watchlist_module_1.WatchlistModule,
+            quote_engine_module_1.QuoteEngineModule,
+            alert_module_1.AlertModule,
+            scanner_module_1.ScannerModule,
+            detail_module_1.DetailModule,
         ],
     })
 ], AppModule);

@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{js,jsx,less,json}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,less,json}\"",
     "preview": "vite preview"
   },
   "dependencies": {
+    "lightweight-charts": "^5.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.1"
@@ -28,6 +29,8 @@
     "globals": "^16.5.0",
     "less": "^4.5.1",
     "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
     "vite": "^6.4.1"
   }
 }

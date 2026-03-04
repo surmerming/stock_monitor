@@ -1,0 +1,186 @@
+import { Injectable, Logger } from '@nestjs/common';
+import YahooFinance from 'yahoo-finance2';
+import { StockService } from '../stock/stock.service';
+
+const yahooFinance = new YahooFinance();
+
+@Injectable()
+export class DetailService {
+  private readonly logger = new Logger(DetailService.name);
+
+  constructor(private readonly stockService: StockService) {}
+
+  async getChart(
+    rawSymbol: string,
+    interval: '1m' | '5m' | '15m' | '1d' = '1m',
+    range: string = '1d',
+  ) {
+    const rangeToP1: Record<string, number> = {
+      '1d': 1,
+      '5d': 5,
+      '1mo': 30,
+      '3mo': 90,
+      '6mo': 180,
+      '1y': 365,
+    };
+    const days = rangeToP1[range] ?? 1;
+    const period1 = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const { yahoo: symbol } = this.stockService.normalizeSymbol(rawSymbol);
+
+    try {
+      const result: any = await yahooFinance.chart(symbol, {
+        period1,
+        interval,
+      }, { validateResult: false });
+
+      return {
+        meta: {
+          symbol: result.meta.symbol,
+          currency: result.meta.currency,
+          exchangeName: result.meta.exchangeName,
+          longName: result.meta.longName,
+          shortName: result.meta.shortName,
+          regularMarketPrice: result.meta.regularMarketPrice,
+          chartPreviousClose: result.meta.chartPreviousClose ?? result.meta.previousClose,
+          regularMarketDayHigh: result.meta.regularMarketDayHigh,
+          regularMarketDayLow: result.meta.regularMarketDayLow,
+          regularMarketVolume: result.meta.regularMarketVolume,
+          fiftyTwoWeekHigh: result.meta.fiftyTwoWeekHigh,
+          fiftyTwoWeekLow: result.meta.fiftyTwoWeekLow,
+          timezone: result.meta.timezone,
+        },
+        quotes: result.quotes.map((q) => ({
+          date: q.date,
+          open: q.open,
+          high: q.high,
+          low: q.low,
+          close: q.close,
+          volume: q.volume,
+        })),
+      };
+    } catch (err) {
+      this.logger.error(`Chart fetch error for ${symbol}: ${err.message}`);
+      throw err;
+    }
+  }
+
+  async getDetail(rawSymbol: string) {
+    const { yahoo: symbol } = this.stockService.normalizeSymbol(rawSymbol);
+    try {
+      const [summary, insightsData] = await Promise.allSettled([
+        yahooFinance.quoteSummary(symbol, {
+          modules: [
+            'price',
+            'summaryDetail',
+            'financialData',
+            'recommendationTrend',
+            'defaultKeyStatistics',
+            'majorHoldersBreakdown',
+          ],
+        }, { validateResult: false }),
+        yahooFinance.insights(symbol),
+      ]);
+
+      const summaryResult: any = summary.status === 'fulfilled' ? summary.value : null;
+      const insightsResult: any = insightsData.status === 'fulfilled' ? insightsData.value : null;
+
+      const price = summaryResult?.price;
+      const summaryDetail = summaryResult?.summaryDetail;
+      const financialData = summaryResult?.financialData;
+      const recTrend = summaryResult?.recommendationTrend;
+      const keyStats = summaryResult?.defaultKeyStatistics;
+      const holders = summaryResult?.majorHoldersBreakdown;
+
+      return {
+        price: price
+          ? {
+              symbol: price.symbol,
+              shortName: price.shortName,
+              longName: price.longName,
+              currency: price.currency,
+              exchange: price.exchangeName,
+              marketState: price.marketState,
+              regularMarketPrice: price.regularMarketPrice,
+              regularMarketChange: price.regularMarketChange,
+              regularMarketChangePercent: price.regularMarketChangePercent,
+              regularMarketDayHigh: price.regularMarketDayHigh,
+              regularMarketDayLow: price.regularMarketDayLow,
+              regularMarketVolume: price.regularMarketVolume,
+              regularMarketOpen: price.regularMarketOpen,
+              regularMarketPreviousClose: price.regularMarketPreviousClose,
+              marketCap: price.marketCap,
+            }
+          : null,
+        summaryDetail: summaryDetail
+          ? {
+              trailingPE: summaryDetail.trailingPE,
+              forwardPE: summaryDetail.forwardPE,
+              priceToBook: summaryDetail.priceToBook,
+              dividendYield: summaryDetail.dividendYield,
+              dividendRate: summaryDetail.dividendRate,
+              beta: summaryDetail.beta,
+              fiftyTwoWeekHigh: summaryDetail.fiftyTwoWeekHigh,
+              fiftyTwoWeekLow: summaryDetail.fiftyTwoWeekLow,
+              fiftyDayAverage: summaryDetail.fiftyDayAverage,
+              twoHundredDayAverage: summaryDetail.twoHundredDayAverage,
+              averageVolume: summaryDetail.averageVolume,
+              averageVolume10days: summaryDetail.averageVolume10days,
+              marketCap: summaryDetail.marketCap,
+            }
+          : null,
+        financialData: financialData
+          ? {
+              targetHighPrice: financialData.targetHighPrice,
+              targetLowPrice: financialData.targetLowPrice,
+              targetMeanPrice: financialData.targetMeanPrice,
+              targetMedianPrice: financialData.targetMedianPrice,
+              recommendationKey: financialData.recommendationKey,
+              recommendationMean: financialData.recommendationMean,
+              numberOfAnalystOpinions: financialData.numberOfAnalystOpinions,
+              totalRevenue: financialData.totalRevenue,
+              revenueGrowth: financialData.revenueGrowth,
+              grossMargins: financialData.grossMargins,
+              operatingMargins: financialData.operatingMargins,
+              profitMargins: financialData.profitMargins,
+              returnOnEquity: financialData.returnOnEquity,
+              debtToEquity: financialData.debtToEquity,
+              earningsGrowth: financialData.earningsGrowth,
+            }
+          : null,
+        shortInterest: keyStats
+          ? {
+              sharesShort: keyStats.sharesShort,
+              sharesShortPriorMonth: keyStats.sharesShortPriorMonth,
+              shortRatio: keyStats.shortRatio,
+              shortPercentOfFloat: keyStats.shortPercentOfFloat,
+              dateShortInterest: keyStats.dateShortInterest,
+              sharesOutstanding: keyStats.sharesOutstanding,
+              floatShares: keyStats.floatShares,
+              heldPercentInsiders: keyStats.heldPercentInsiders,
+              heldPercentInstitutions: keyStats.heldPercentInstitutions,
+            }
+          : null,
+        majorHolders: holders
+          ? {
+              insidersPercentHeld: holders.insidersPercentHeld,
+              institutionsPercentHeld: holders.institutionsPercentHeld,
+              institutionsFloatPercentHeld: holders.institutionsFloatPercentHeld,
+              institutionsCount: holders.institutionsCount,
+            }
+          : null,
+        recommendationTrend: recTrend?.trend ?? [],
+        insights: insightsResult
+          ? {
+              instrumentInfo: insightsResult.instrumentInfo,
+              recommendation: insightsResult.recommendation,
+              companySnapshot: insightsResult.companySnapshot,
+              sigDevs: insightsResult.sigDevs?.slice(0, 5) ?? [],
+            }
+          : null,
+      };
+    } catch (err) {
+      this.logger.error(`Detail fetch error for ${symbol}: ${err.message}`);
+      throw err;
+    }
+  }
+}

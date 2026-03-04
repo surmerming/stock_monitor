@@ -24,10 +24,17 @@ export interface StockQuote {
 }
 export declare class StockService {
     private readonly logger;
+    normalizeSymbol(input: string): {
+        yahoo: string;
+        display: string;
+        market: string;
+    };
+    private transformRawQuote;
     fetchQuote(symbol: string): Promise<StockQuote>;
     fetchQuotes(symbols: string[]): Promise<{
         symbol: string;
         data: StockQuote | null;
         error: string | null;
     }[]>;
+    fetchQuotesBatch(inputSymbols: string[]): Promise<Map<string, StockQuote>>;
 }

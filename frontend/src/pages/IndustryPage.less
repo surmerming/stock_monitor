@@ -66,10 +66,62 @@
     }
   }
 
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  &__view-toggle {
+    display: flex;
+    border: 1.5px solid #d9dce3;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &__view-btn {
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    color: @text-dim;
+    transition:
+      background 0.15s,
+      color 0.15s;
+    line-height: 1;
+
+    &:hover {
+      background: rgba(91, 141, 239, 0.06);
+    }
+
+    &--active {
+      background: @primary;
+      color: #fff;
+
+      &:hover {
+        background: @primary;
+      }
+    }
+  }
+
   &__update {
     font-size: 12px;
     color: @text-dim;
-    flex-shrink: 0;
+  }
+
+  &__conn {
+    font-size: 12px;
+    font-weight: 500;
+
+    &--on {
+      color: #00a86b;
+    }
+
+    &--off {
+      color: @text-dim;
+    }
   }
 
   &__section {
@@ -208,11 +260,193 @@
   }
 }
 
+.sector-card--flash-up {
+  animation: sector-flash-up 1.5s ease-out;
+}
+
+.sector-card--flash-down {
+  animation: sector-flash-down 1.5s ease-out;
+}
+
+@keyframes sector-flash-up {
+  0%,
+  15% {
+    box-shadow: inset 0 0 0 2px rgba(232, 54, 78, 0.5);
+    background: rgba(232, 54, 78, 0.04);
+  }
+  100% {
+    box-shadow: none;
+    background: #fff;
+  }
+}
+
+@keyframes sector-flash-down {
+  0%,
+  15% {
+    box-shadow: inset 0 0 0 2px rgba(0, 168, 107, 0.5);
+    background: rgba(0, 168, 107, 0.04);
+  }
+  100% {
+    box-shadow: none;
+    background: #fff;
+  }
+}
+
 @keyframes sk-shimmer {
   0% {
     background-position: 200% 0;
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+/* ─── Table view ─── */
+.sector-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e8eaef;
+  background: #fff;
+}
+
+.sector-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+
+  &__th {
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 12px;
+    color: @text-dim;
+    border-bottom: 1px solid #ebedf2;
+    background: #fafbfc;
+    user-select: none;
+
+    &--name {
+      text-align: left;
+      min-width: 160px;
+    }
+
+    &--sortable {
+      cursor: pointer;
+      transition: color 0.15s;
+
+      &:hover {
+        color: @primary;
+      }
+    }
+  }
+
+  &__td {
+    padding: 10px 14px;
+    text-align: right;
+    border-bottom: 1px solid #f0f1f4;
+    color: @text;
+    vertical-align: middle;
+
+    &--name {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    &--mono {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 12.5px;
+    }
+
+    &--up {
+      color: @up;
+    }
+
+    &--down {
+      color: @down;
+    }
+
+    &--up-subtle {
+      color: rgba(232, 54, 78, 0.7);
+    }
+
+    &--down-subtle {
+      color: rgba(0, 168, 107, 0.7);
+    }
+  }
+
+  &__name-text {
+    font-weight: 600;
+    font-size: 13px;
+    color: @text;
+  }
+
+  &__full-name {
+    font-size: 11px;
+    color: @text-dim;
+  }
+
+  &__row {
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f6f8fb;
+    }
+
+    &:last-child .sector-table__td {
+      border-bottom: none;
+    }
+  }
+
+  &__row--flash-up {
+    animation: sector-row-flash-up 1.5s ease-out;
+  }
+
+  &__row--flash-down {
+    animation: sector-row-flash-down 1.5s ease-out;
+  }
+
+  &__sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 10px;
+    opacity: 0.35;
+    vertical-align: middle;
+
+    &--active {
+      opacity: 1;
+      color: @primary;
+    }
+  }
+
+  &__sk {
+    display: inline-block;
+    width: 56px;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #eef0f4 25%, #e2e5ea 50%, #eef0f4 75%);
+    background-size: 200% 100%;
+    animation: sk-shimmer 1.5s infinite ease-in-out;
+  }
+}
+
+@keyframes sector-row-flash-up {
+  0%,
+  15% {
+    background: rgba(232, 54, 78, 0.06);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes sector-row-flash-down {
+  0%,
+  15% {
+    background: rgba(0, 168, 107, 0.06);
+  }
+  100% {
+    background: transparent;
   }
 }

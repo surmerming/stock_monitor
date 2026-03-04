@@ -76,67 +76,70 @@ function toYahooHK(symbol: string): { yahoo: string; display: string } {
 export class StockService {
   private readonly logger = new Logger(StockService.name);
 
-  async fetchQuote(symbol: string): Promise<StockQuote> {
-    let yahooSymbol: string;
-    let displaySymbol: string;
-    let market: string;
+  normalizeSymbol(input: string): {
+    yahoo: string;
+    display: string;
+    market: string;
+  } {
+    const trimmed = input.trim();
 
-    const trimmed = symbol.trim();
+    if (/\.(SS|SZ|BJ)$/i.test(trimmed)) {
+      return { yahoo: trimmed, display: trimmed, market: 'A股' };
+    }
+    if (/\.HK$/i.test(trimmed)) {
+      return { yahoo: trimmed, display: trimmed, market: '港股' };
+    }
+    if (trimmed.startsWith('^')) {
+      return { yahoo: trimmed, display: trimmed, market: '美股' };
+    }
 
     if (isAShare(trimmed)) {
       const r = toYahooAShare(trimmed);
-      yahooSymbol = r.yahoo;
-      displaySymbol = r.display;
-      market = 'A股';
-    } else if (isHK(trimmed)) {
+      return { yahoo: r.yahoo, display: r.display, market: 'A股' };
+    }
+    if (isHK(trimmed)) {
       const r = toYahooHK(trimmed);
-      yahooSymbol = r.yahoo;
-      displaySymbol = r.display;
-      market = '港股';
-    } else {
-      yahooSymbol = trimmed.toUpperCase();
-      displaySymbol = trimmed.toUpperCase();
-      market = '美股';
+      return { yahoo: r.yahoo, display: r.display, market: '港股' };
     }
 
-    const quote: any = await yahooFinance.quote(yahooSymbol);
+    return {
+      yahoo: trimmed.toUpperCase(),
+      display: trimmed.toUpperCase(),
+      market: '美股',
+    };
+  }
 
-    if (!quote) {
-      throw new Error(`No data returned for ${yahooSymbol}`);
-    }
-
-    const current = quote.regularMarketPrice ?? 0;
-    const prevClose = quote.regularMarketPreviousClose ?? 0;
+  private transformRawQuote(raw: any, display: string, market: string): StockQuote {
+    const current = raw.regularMarketPrice ?? 0;
+    const prevClose = raw.regularMarketPreviousClose ?? 0;
     const change = current - prevClose;
     const changePct = prevClose ? (change / prevClose) * 100 : 0;
     const defaultCurrency = market === 'A股' ? 'CNY' : market === '港股' ? 'HKD' : 'USD';
 
     return {
-      symbol: displaySymbol,
-      name: quote.shortName || quote.longName || displaySymbol,
-      currency: quote.currency || defaultCurrency,
+      symbol: display,
+      name: raw.shortName || raw.longName || display,
+      currency: raw.currency || defaultCurrency,
       current_price: current,
       prev_close: prevClose,
-      open_price: quote.regularMarketOpen ?? 0,
-      day_high: quote.regularMarketDayHigh ?? 0,
-      day_low: quote.regularMarketDayLow ?? 0,
-      volume: quote.regularMarketVolume ?? 0,
-      market_cap: quote.marketCap ?? null,
-      pe_ratio: quote.trailingPE ?? null,
-      week_52_high: quote.fiftyTwoWeekHigh ?? null,
-      week_52_low: quote.fiftyTwoWeekLow ?? null,
-      avg_volume: quote.averageDailyVolume10Day ?? null,
+      open_price: raw.regularMarketOpen ?? 0,
+      day_high: raw.regularMarketDayHigh ?? 0,
+      day_low: raw.regularMarketDayLow ?? 0,
+      volume: raw.regularMarketVolume ?? 0,
+      market_cap: raw.marketCap ?? null,
+      pe_ratio: raw.trailingPE ?? null,
+      week_52_high: raw.fiftyTwoWeekHigh ?? null,
+      week_52_low: raw.fiftyTwoWeekLow ?? null,
+      avg_volume: raw.averageDailyVolume10Day ?? null,
       turnover:
-        (quote.regularMarketVolume ?? 0) && current
-          ? (quote.regularMarketVolume ?? 0) * current
-          : null,
+        (raw.regularMarketVolume ?? 0) && current ? (raw.regularMarketVolume ?? 0) * current : null,
       turnover_rate:
-        quote.sharesOutstanding && (quote.regularMarketVolume ?? 0)
-          ? ((quote.regularMarketVolume ?? 0) / quote.sharesOutstanding) * 100
+        raw.sharesOutstanding && (raw.regularMarketVolume ?? 0)
+          ? ((raw.regularMarketVolume ?? 0) / raw.sharesOutstanding) * 100
           : null,
       volume_ratio:
-        (quote.regularMarketVolume ?? 0) && (quote.averageDailyVolume10Day ?? 0)
-          ? (quote.regularMarketVolume ?? 0) / (quote.averageDailyVolume10Day ?? 1)
+        (raw.regularMarketVolume ?? 0) && (raw.averageDailyVolume10Day ?? 0)
+          ? (raw.regularMarketVolume ?? 0) / (raw.averageDailyVolume10Day ?? 1)
           : null,
       change,
       change_percent: changePct,
@@ -144,6 +147,13 @@ export class StockService {
       market,
       is_up: change >= 0,
     };
+  }
+
+  async fetchQuote(symbol: string): Promise<StockQuote> {
+    const { yahoo, display, market } = this.normalizeSymbol(symbol);
+    const raw: any = await yahooFinance.quote(yahoo, {}, { validateResult: false });
+    if (!raw) throw new Error(`No data returned for ${yahoo}`);
+    return this.transformRawQuote(raw, display, market);
   }
 
   async fetchQuotes(
@@ -161,5 +171,62 @@ export class StockService {
       }),
     );
     return results;
+  }
+
+  async fetchQuotesBatch(inputSymbols: string[]): Promise<Map<string, StockQuote>> {
+    const result = new Map<string, StockQuote>();
+    if (inputSymbols.length === 0) return result;
+
+    const entries = inputSymbols.map((sym) => ({
+      input: sym,
+      ...this.normalizeSymbol(sym),
+    }));
+
+    const yahooToEntries = new Map<
+      string,
+      { input: string; yahoo: string; display: string; market: string }[]
+    >();
+    for (const entry of entries) {
+      const list = yahooToEntries.get(entry.yahoo) || [];
+      list.push(entry);
+      yahooToEntries.set(entry.yahoo, list);
+    }
+
+    const uniqueYahoo = [...yahooToEntries.keys()];
+    const CHUNK_SIZE = 50;
+    const allRaw: any[] = [];
+
+    for (let i = 0; i < uniqueYahoo.length; i += CHUNK_SIZE) {
+      const chunk = uniqueYahoo.slice(i, i + CHUNK_SIZE);
+      try {
+        const res: any = await yahooFinance.quote(chunk, {}, { validateResult: false });
+        const arr = Array.isArray(res) ? res : [res];
+        allRaw.push(...arr);
+      } catch (err) {
+        this.logger.warn(`Batch quote chunk failed: ${err.message}`);
+        for (const sym of chunk) {
+          try {
+            const single: any = await yahooFinance.quote(sym, {}, { validateResult: false });
+            if (single) allRaw.push(single);
+          } catch {
+            // skip failed individual symbol
+          }
+        }
+      }
+    }
+
+    const rawMap = new Map<string, any>();
+    for (const raw of allRaw) {
+      if (raw?.symbol) rawMap.set(raw.symbol, raw);
+    }
+
+    for (const entry of entries) {
+      const raw = rawMap.get(entry.yahoo);
+      if (raw) {
+        result.set(entry.input, this.transformRawQuote(raw, entry.display, entry.market));
+      }
+    }
+
+    return result;
   }
 }
