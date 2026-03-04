@@ -1,0 +1,62 @@
+@primary: #5b8def;
+@primary-hover: #4a7de0;
+@border: #d9dce3;
+@radius: 10px;
+
+.stock-input {
+  display: flex;
+  gap: 10px;
+  max-width: 640px;
+
+  &__field {
+    flex: 1;
+    height: 44px;
+    padding: 0 16px;
+    border: 1.5px solid @border;
+    border-radius: @radius;
+    font-size: 14px;
+    outline: none;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+    background: #fff;
+
+    &:focus {
+      border-color: @primary;
+      box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.12);
+    }
+
+    &::placeholder {
+      color: #b0b7c3;
+    }
+  }
+
+  &__btn {
+    height: 44px;
+    padding: 0 24px;
+    border: none;
+    border-radius: @radius;
+    background: @primary;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background 0.2s,
+      transform 0.1s;
+
+    &:hover:not(:disabled) {
+      background: @primary-hover;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

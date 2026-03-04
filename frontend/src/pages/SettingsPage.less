@@ -1,0 +1,129 @@
+@primary: #5b8def;
+@text: #1a1a2e;
+@text-dim: #8892a4;
+
+.settings-page {
+  max-width: 640px;
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: @text;
+    margin-bottom: 32px;
+  }
+
+  &__section {
+    margin-bottom: 32px;
+  }
+
+  &__section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text;
+    margin-bottom: 4px;
+  }
+
+  &__section-desc {
+    font-size: 13px;
+    color: @text-dim;
+    margin-bottom: 14px;
+  }
+
+  &__options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border: 1.5px solid #d9dce3;
+    border-radius: 8px;
+    font-size: 13px;
+    color: @text-dim;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+
+    input {
+      display: none;
+    }
+
+    &:hover {
+      border-color: @primary;
+      color: @text;
+    }
+
+    &--active {
+      border-color: @primary;
+      background: rgba(91, 141, 239, 0.06);
+      color: @primary;
+      font-weight: 500;
+    }
+  }
+
+  &__watchlist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  &__symbol-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #e8eaef;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: @text;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+
+  &__symbol-remove {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: @text-dim;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+
+    &:hover {
+      color: #e8364e;
+    }
+  }
+
+  &__empty-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: @text-dim;
+  }
+
+  &__actions {
+    padding-top: 8px;
+  }
+
+  &__save {
+    background: @primary;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 32px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: darken(@primary, 8%);
+    }
+  }
+}
