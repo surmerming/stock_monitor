@@ -14,7 +14,7 @@
     color: @text-dim;
     cursor: pointer;
     padding: 4px 0;
-    margin-bottom: 12px;
+    white-space: nowrap;
     transition: color 0.15s;
 
     &:hover {
@@ -151,43 +151,97 @@
     margin-bottom: 20px;
   }
 
-  &__section {
-    margin-bottom: 20px;
-  }
+}
 
-  &__section-title {
+.events-panel {
+  margin-top: 24px;
+  background: #fff;
+  border: 1px solid #ebedf0;
+  border-radius: 10px;
+  padding: 20px 24px;
+
+  &__title {
     font-size: 15px;
     font-weight: 600;
     color: @text;
-    margin-bottom: 12px;
+    margin: 0 0 16px;
   }
 
-  &__events {
+  &__list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
   }
 
-  &__event {
+  &__item {
     display: flex;
-    gap: 12px;
-    padding: 10px 14px;
-    background: #fff;
-    border: 1px solid #e8eaef;
-    border-radius: 8px;
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
     font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: 6px;
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:hover {
+      background: #f6f8fb;
+
+      .events-panel__text {
+        color: @primary;
+      }
+
+      .events-panel__arrow {
+        opacity: 1;
+        color: @primary;
+      }
+    }
   }
 
-  &__event-date {
+  &__date {
     flex-shrink: 0;
     color: @text-dim;
     font-size: 12px;
     min-width: 80px;
+    font-family: 'SF Mono', 'Menlo', monospace;
   }
 
-  &__event-text {
+  &__text {
     color: @text;
     line-height: 1.5;
+    flex: 1;
+    transition: color 0.15s;
+  }
+
+  &__source {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: @text-dim;
+    background: #f0f2f5;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: @text-dim;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
   }
 }
 
@@ -463,26 +517,40 @@
     font-weight: 700;
   }
 
-  &__bar-track {
+  &__dual-bar {
+    display: flex;
     width: 100%;
-    height: 8px;
-    background: #f0f2f5;
-    border-radius: 4px;
+    height: 10px;
+    border-radius: 5px;
     overflow: hidden;
   }
 
-  &__bar-fill {
+  &__dual-bar-long {
     height: 100%;
-    border-radius: 4px;
+    background: @up;
+    transition: width 0.4s ease;
+  }
+
+  &__dual-bar-short {
+    height: 100%;
+    background: @down;
     transition: width 0.4s ease;
   }
 
   &__bar-labels {
     display: flex;
     justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px;
-    color: @text-dim;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__bar-label-long {
+    color: @up;
+  }
+
+  &__bar-label-short {
+    color: @down;
   }
 
   &__date {
@@ -515,6 +583,173 @@
     font-weight: 500;
     color: @text;
     font-family: 'SF Mono', 'Menlo', monospace;
+  }
+}
+
+/* ─── Financial Report Panel ─── */
+.fin-panel {
+  margin-top: 24px;
+  background: #fff;
+  border: 1px solid #ebedf0;
+  border-radius: 10px;
+  padding: 20px 24px;
+
+  &--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+  }
+
+  &__sk-text {
+    font-size: 14px;
+    color: @text-dim;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text;
+    margin: 0;
+  }
+
+  &__period-tabs {
+    display: flex;
+    gap: 2px;
+    background: #ebedf2;
+    border-radius: 8px;
+    padding: 2px;
+  }
+
+  &__period-btn {
+    padding: 5px 16px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: @text-dim;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover:not(&--active) {
+      color: @text;
+    }
+
+    &--active {
+      background: #fff;
+      color: @primary;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  &__sheet-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #ebedf2;
+    padding-bottom: 0;
+  }
+
+  &__sheet-btn {
+    padding: 8px 20px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: @text-dim;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+
+    &:hover:not(&--active) {
+      color: @text;
+    }
+
+    &--active {
+      color: @primary;
+      border-bottom-color: @primary;
+    }
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 32px 0;
+    color: @text-dim;
+    font-size: 13px;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+    margin: 0 -4px;
+    padding: 0 4px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  &__th {
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 12px;
+    color: @text-dim;
+    border-bottom: 2px solid #ebedf2;
+    background: #fafbfc;
+
+    &--label {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #fafbfc;
+      min-width: 120px;
+    }
+  }
+
+  &__td {
+    padding: 9px 14px;
+    text-align: right;
+    border-bottom: 1px solid #f3f4f6;
+    color: @text;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 12px;
+
+    &--label {
+      text-align: left;
+      font-family: inherit;
+      font-weight: 500;
+      color: @text-dim;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #fff;
+    }
+  }
+
+  &__tr--highlight {
+    .fin-panel__td {
+      font-weight: 600;
+      color: @text;
+    }
+
+    .fin-panel__td--label {
+      color: @text;
+    }
   }
 }
 

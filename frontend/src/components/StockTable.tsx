@@ -105,7 +105,6 @@ export default function StockTable({ items, onRemove, onSymbolClick }: StockTabl
               市盈率
               <SortIndicator active={sortKey === 'pe_ratio'} direction={sortDir} />
             </th>
-            <th className="stock-table__th stock-table__th--action"></th>
           </tr>
         </thead>
         <tbody>
@@ -114,7 +113,6 @@ export default function StockTable({ items, onRemove, onSymbolClick }: StockTabl
               key={sym}
               sym={sym}
               data={data}
-              onRemove={onRemove}
               onSymbolClick={onSymbolClick}
             />
           ))}
@@ -131,11 +129,10 @@ function SkeletonCell() {
 interface StockRowProps {
   sym: string;
   data: QuoteData | null;
-  onRemove: (sym: string) => void;
   onSymbolClick?: (sym: string) => void;
 }
 
-function StockRow({ sym, data, onRemove, onSymbolClick }: StockRowProps) {
+function StockRow({ sym, data, onSymbolClick }: StockRowProps) {
   const [flash, setFlash] = useState<FlashDirection>(null);
   const prevPriceRef = useRef<number | null>(null);
 
@@ -163,11 +160,6 @@ function StockRow({ sym, data, onRemove, onSymbolClick }: StockRowProps) {
             <SkeletonCell />
           </td>
         ))}
-        <td className="stock-table__td stock-table__td--action">
-          <button className="stock-table__remove" onClick={() => onRemove(sym)}>
-            ×
-          </button>
-        </td>
       </tr>
     );
   }
@@ -180,11 +172,6 @@ function StockRow({ sym, data, onRemove, onSymbolClick }: StockRowProps) {
         </td>
         <td className="stock-table__td" colSpan={12}>
           <span className="stock-table__error">{data.fetchError}</span>
-        </td>
-        <td className="stock-table__td stock-table__td--action">
-          <button className="stock-table__remove" onClick={() => onRemove(sym)}>
-            ×
-          </button>
         </td>
       </tr>
     );
@@ -228,11 +215,6 @@ function StockRow({ sym, data, onRemove, onSymbolClick }: StockRowProps) {
       <td className="stock-table__td stock-table__td--mono">{formatMarketCap(data.market_cap)}</td>
       <td className="stock-table__td stock-table__td--mono">
         {data.pe_ratio ? data.pe_ratio.toFixed(2) : '—'}
-      </td>
-      <td className="stock-table__td stock-table__td--action">
-        <button className="stock-table__remove" onClick={() => onRemove(sym)}>
-          ×
-        </button>
       </td>
     </tr>
   );

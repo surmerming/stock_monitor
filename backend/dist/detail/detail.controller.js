@@ -29,6 +29,9 @@ let DetailController = exports.DetailController = class DetailController {
     getDetail(symbol) {
         return this.detailService.getDetail(symbol);
     }
+    getFinancials(symbol) {
+        return this.detailService.getFinancials(symbol);
+    }
 };
 __decorate([
     (0, common_1.Get)(':symbol/chart'),
@@ -46,6 +49,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], DetailController.prototype, "getDetail", null);
+__decorate([
+    (0, common_1.Get)(':symbol/financials'),
+    __param(0, (0, common_1.Param)('symbol')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], DetailController.prototype, "getFinancials", null);
 exports.DetailController = DetailController = __decorate([
     (0, common_1.Controller)('stock'),
     __metadata("design:paramtypes", [detail_service_1.DetailService])

@@ -171,8 +171,6 @@ function AlertRuleItem({ rule, onToggle, onDelete, onReset }: AlertRuleItemProps
   );
 }
 
-type DefaultView = 'card' | 'table';
-
 export default function SettingsPage() {
   const { symbols, loaded, addSymbols, removeSymbol } = useWatchlist();
   const {
@@ -188,9 +186,6 @@ export default function SettingsPage() {
 
   const [interval, setInterval_] = useState<number>(
     () => Number(localStorage.getItem('poll-interval')) || 180,
-  );
-  const [defaultView, setDefaultView] = useState<DefaultView>(
-    () => (localStorage.getItem('stock-monitor-view') as DefaultView) || 'card',
   );
   const [saved, setSaved] = useState(false);
 
@@ -217,7 +212,6 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     localStorage.setItem('poll-interval', String(interval));
-    localStorage.setItem('stock-monitor-view', defaultView);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -298,37 +292,6 @@ export default function SettingsPage() {
               {opt.label}
             </label>
           ))}
-        </div>
-      </div>
-
-      <div className="settings-page__section">
-        <h3 className="settings-page__section-title">默认视图</h3>
-        <p className="settings-page__section-desc">个股页面的默认展示方式</p>
-        <div className="settings-page__options">
-          <label
-            className={`settings-page__radio ${defaultView === 'card' ? 'settings-page__radio--active' : ''}`}
-          >
-            <input
-              type="radio"
-              name="view"
-              value="card"
-              checked={defaultView === 'card'}
-              onChange={() => setDefaultView('card')}
-            />
-            ▦ 卡片视图
-          </label>
-          <label
-            className={`settings-page__radio ${defaultView === 'table' ? 'settings-page__radio--active' : ''}`}
-          >
-            <input
-              type="radio"
-              name="view"
-              value="table"
-              checked={defaultView === 'table'}
-              onChange={() => setDefaultView('table')}
-            />
-            ☰ 列表视图
-          </label>
         </div>
       </div>
 

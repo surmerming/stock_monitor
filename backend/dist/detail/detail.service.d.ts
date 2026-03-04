@@ -95,5 +95,87 @@ export declare class DetailService {
             companySnapshot: any;
             sigDevs: any;
         };
+        news: any;
+    }>;
+    getFinancials(rawSymbol: string): Promise<{
+        quarterly: {
+            income: {
+                date: any;
+                periodType: any;
+                totalRevenue: any;
+                grossProfit: any;
+                operatingIncome: any;
+                netIncome: any;
+                ebit: any;
+                ebitda: any;
+                dilutedEPS: any;
+                basicEPS: any;
+                costOfRevenue: any;
+                researchAndDevelopment: any;
+                sellingGeneralAndAdministration: any;
+            }[];
+            balance: {
+                date: any;
+                periodType: any;
+                totalAssets: any;
+                totalLiabilitiesNetMinorityInterest: any;
+                stockholdersEquity: any;
+                cashAndCashEquivalents: any;
+                totalDebt: any;
+                currentAssets: any;
+                currentLiabilities: any;
+                inventory: any;
+                receivables: any;
+            }[];
+            cashflow: {
+                date: any;
+                periodType: any;
+                operatingCashFlow: any;
+                capitalExpenditure: any;
+                freeCashFlow: any;
+                investingCashFlow: any;
+                financingCashFlow: any;
+            }[];
+        };
+        annual: {
+            income: {
+                date: any;
+                periodType: any;
+                totalRevenue: any;
+                grossProfit: any;
+                operatingIncome: any;
+                netIncome: any;
+                ebit: any;
+                ebitda: any;
+                dilutedEPS: any;
+                basicEPS: any;
+                costOfRevenue: any;
+                researchAndDevelopment: any;
+                sellingGeneralAndAdministration: any;
+            }[];
+            balance: {
+                date: any;
+                periodType: any;
+                totalAssets: any;
+                totalLiabilitiesNetMinorityInterest: any;
+                stockholdersEquity: any;
+                cashAndCashEquivalents: any;
+                totalDebt: any;
+                currentAssets: any;
+                currentLiabilities: any;
+                inventory: any;
+                receivables: any;
+            }[];
+            cashflow: {
+                date: any;
+                periodType: any;
+                operatingCashFlow: any;
+                capitalExpenditure: any;
+                freeCashFlow: any;
+                investingCashFlow: any;
+                financingCashFlow: any;
+            }[];
+        };
+        earningsChart: any;
     }>;
 }

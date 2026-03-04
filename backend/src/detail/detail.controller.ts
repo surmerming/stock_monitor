@@ -22,4 +22,9 @@ export class DetailController {
   getDetail(@Param('symbol') symbol: string) {
     return this.detailService.getDetail(symbol);
   }
+
+  @Get(':symbol/financials')
+  getFinancials(@Param('symbol') symbol: string) {
+    return this.detailService.getFinancials(symbol);
+  }
 }

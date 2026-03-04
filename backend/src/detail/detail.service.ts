@@ -4,6 +4,8 @@ import { StockService } from '../stock/stock.service';
 
 const yahooFinance = new YahooFinance();
 
+type FundamentalsModule = 'financials' | 'balance-sheet' | 'cash-flow';
+
 @Injectable()
 export class DetailService {
   private readonly logger = new Logger(DetailService.name);
@@ -67,7 +69,7 @@ export class DetailService {
   async getDetail(rawSymbol: string) {
     const { yahoo: symbol } = this.stockService.normalizeSymbol(rawSymbol);
     try {
-      const [summary, insightsData] = await Promise.allSettled([
+      const [summary, insightsData, newsData] = await Promise.allSettled([
         yahooFinance.quoteSummary(symbol, {
           modules: [
             'price',
@@ -79,10 +81,12 @@ export class DetailService {
           ],
         }, { validateResult: false }),
         yahooFinance.insights(symbol),
+        yahooFinance.search(symbol, { newsCount: 10 }, { validateResult: false }),
       ]);
 
       const summaryResult: any = summary.status === 'fulfilled' ? summary.value : null;
       const insightsResult: any = insightsData.status === 'fulfilled' ? insightsData.value : null;
+      const newsResult: any = newsData.status === 'fulfilled' ? newsData.value : null;
 
       const price = summaryResult?.price;
       const summaryDetail = summaryResult?.summaryDetail;
@@ -177,9 +181,109 @@ export class DetailService {
               sigDevs: insightsResult.sigDevs?.slice(0, 5) ?? [],
             }
           : null,
+        news: (newsResult?.news ?? []).slice(0, 10).map((n: any) => ({
+          title: n.title,
+          link: n.link,
+          publisher: n.publisher,
+          publishTime: n.providerPublishTime,
+        })),
       };
     } catch (err) {
       this.logger.error(`Detail fetch error for ${symbol}: ${err.message}`);
+      throw err;
+    }
+  }
+
+  async getFinancials(rawSymbol: string) {
+    const { yahoo: symbol } = this.stockService.normalizeSymbol(rawSymbol);
+    const period1 = new Date(Date.now() - 4 * 365 * 24 * 60 * 60 * 1000);
+    const period2 = new Date();
+    const opts = { validateResult: false } as const;
+
+    const fetchTimeSeries = async (type: 'quarterly' | 'annual', module: FundamentalsModule) => {
+      try {
+        const res: any = await yahooFinance.fundamentalsTimeSeries(
+          symbol,
+          { period1, period2, type, module },
+          opts,
+        );
+        return Array.isArray(res) ? res : [];
+      } catch (err) {
+        this.logger.warn(`fundamentalsTimeSeries ${module}/${type} for ${symbol}: ${err.message}`);
+        return [];
+      }
+    };
+
+    try {
+      const [qIncome, aIncome, qBalance, aBalance, qCashflow, aCashflow, earningsData] =
+        await Promise.all([
+          fetchTimeSeries('quarterly', 'financials'),
+          fetchTimeSeries('annual', 'financials'),
+          fetchTimeSeries('quarterly', 'balance-sheet'),
+          fetchTimeSeries('annual', 'balance-sheet'),
+          fetchTimeSeries('quarterly', 'cash-flow'),
+          fetchTimeSeries('annual', 'cash-flow'),
+          yahooFinance
+            .quoteSummary(symbol, { modules: ['earnings'] }, opts)
+            .then((r: any) => r?.earnings ?? null)
+            .catch(() => null),
+        ]);
+
+      const mapIncome = (r: any) => ({
+        date: r.date,
+        periodType: r.periodType,
+        totalRevenue: r.totalRevenue ?? null,
+        grossProfit: r.grossProfit ?? null,
+        operatingIncome: r.operatingIncome ?? null,
+        netIncome: r.netIncome ?? null,
+        ebit: r.EBIT ?? null,
+        ebitda: r.EBITDA ?? null,
+        dilutedEPS: r.dilutedEPS ?? null,
+        basicEPS: r.basicEPS ?? null,
+        costOfRevenue: r.costOfRevenue ?? null,
+        researchAndDevelopment: r.researchAndDevelopment ?? null,
+        sellingGeneralAndAdministration: r.sellingGeneralAndAdministration ?? null,
+      });
+
+      const mapBalance = (r: any) => ({
+        date: r.date,
+        periodType: r.periodType,
+        totalAssets: r.totalAssets ?? null,
+        totalLiabilitiesNetMinorityInterest: r.totalLiabilitiesNetMinorityInterest ?? null,
+        stockholdersEquity: r.stockholdersEquity ?? null,
+        cashAndCashEquivalents: r.cashCashEquivalentsAndShortTermInvestments ?? r.cashAndCashEquivalents ?? null,
+        totalDebt: r.totalDebt ?? null,
+        currentAssets: r.currentAssets ?? null,
+        currentLiabilities: r.currentLiabilities ?? null,
+        inventory: r.inventory ?? null,
+        receivables: r.receivables ?? null,
+      });
+
+      const mapCashflow = (r: any) => ({
+        date: r.date,
+        periodType: r.periodType,
+        operatingCashFlow: r.operatingCashFlow ?? null,
+        capitalExpenditure: r.capitalExpenditure ?? null,
+        freeCashFlow: r.freeCashFlow ?? null,
+        investingCashFlow: r.investingCashFlow ?? null,
+        financingCashFlow: r.financingCashFlow ?? null,
+      });
+
+      return {
+        quarterly: {
+          income: qIncome.filter((r: any) => r.totalRevenue != null || r.netIncome != null).map(mapIncome),
+          balance: qBalance.filter((r: any) => r.totalAssets != null).map(mapBalance),
+          cashflow: qCashflow.filter((r: any) => r.operatingCashFlow != null).map(mapCashflow),
+        },
+        annual: {
+          income: aIncome.filter((r: any) => r.totalRevenue != null || r.netIncome != null).map(mapIncome),
+          balance: aBalance.filter((r: any) => r.totalAssets != null).map(mapBalance),
+          cashflow: aCashflow.filter((r: any) => r.operatingCashFlow != null).map(mapCashflow),
+        },
+        earningsChart: earningsData?.financialsChart ?? null,
+      };
+    } catch (err) {
+      this.logger.error(`Financials fetch error for ${symbol}: ${err.message}`);
       throw err;
     }
   }

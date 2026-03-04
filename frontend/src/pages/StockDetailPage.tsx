@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuoteSSE } from '../hooks/useQuoteSSE';
 import StockChart from '../components/StockChart';
@@ -107,6 +107,13 @@ interface SigDev {
   headline?: string;
 }
 
+interface NewsItem {
+  title?: string;
+  link?: string;
+  publisher?: string;
+  publishTime?: string;
+}
+
 interface DetailResponse {
   price?: DetailPrice;
   summaryDetail?: SummaryDetail;
@@ -115,6 +122,62 @@ interface DetailResponse {
   insights?: Insights & { sigDevs?: SigDev[] };
   shortInterest?: ShortInterest;
   majorHolders?: MajorHolders;
+  news?: NewsItem[];
+}
+
+interface IncomeItem {
+  date: string;
+  periodType?: string;
+  totalRevenue: number | null;
+  grossProfit: number | null;
+  operatingIncome: number | null;
+  netIncome: number | null;
+  ebit: number | null;
+  ebitda: number | null;
+  dilutedEPS: number | null;
+  basicEPS: number | null;
+  costOfRevenue: number | null;
+  researchAndDevelopment: number | null;
+  sellingGeneralAndAdministration: number | null;
+}
+
+interface BalanceItem {
+  date: string;
+  periodType?: string;
+  totalAssets: number | null;
+  totalLiabilitiesNetMinorityInterest: number | null;
+  stockholdersEquity: number | null;
+  cashAndCashEquivalents: number | null;
+  totalDebt: number | null;
+  currentAssets: number | null;
+  currentLiabilities: number | null;
+  inventory: number | null;
+  receivables: number | null;
+}
+
+interface CashflowItem {
+  date: string;
+  periodType?: string;
+  operatingCashFlow: number | null;
+  capitalExpenditure: number | null;
+  freeCashFlow: number | null;
+  investingCashFlow: number | null;
+  financingCashFlow: number | null;
+}
+
+interface FinancialsPeriod {
+  income: IncomeItem[];
+  balance: BalanceItem[];
+  cashflow: CashflowItem[];
+}
+
+interface FinancialsData {
+  quarterly: FinancialsPeriod;
+  annual: FinancialsPeriod;
+  earningsChart: {
+    yearly?: { date: number; revenue: number; earnings: number }[];
+    quarterly?: { date: string; revenue: number; earnings: number }[];
+  } | null;
 }
 
 interface FundamentalPanelProps {
@@ -160,6 +223,8 @@ export default function StockDetailPage() {
   const [chartLoading, setChartLoading] = useState(false);
   const [detail, setDetail] = useState<DetailResponse | null>(null);
   const [detailLoading, setDetailLoading] = useState(true);
+  const [financials, setFinancials] = useState<FinancialsData | null>(null);
+  const [financialsLoading, setFinancialsLoading] = useState(true);
 
   const liveQuote = (symbol ? quotes[symbol] : null) || null;
   const rangeConfig = CHART_RANGES.find((r) => r.key === activeRange);
@@ -194,6 +259,16 @@ export default function StockDetailPage() {
       .finally(() => setDetailLoading(false));
   }, [symbol]);
 
+  useEffect(() => {
+    if (!symbol) return;
+    setFinancialsLoading(true);
+    fetch(`/api/stock/${encodeURIComponent(symbol)}/financials`)
+      .then((r) => r.json())
+      .then((d) => setFinancials(d))
+      .catch(() => {})
+      .finally(() => setFinancialsLoading(false));
+  }, [symbol]);
+
   const priceData = detail?.price;
   const name = liveQuote?.name || priceData?.shortName || priceData?.longName || symbol || '';
   const price = liveQuote?.current_price ?? priceData?.regularMarketPrice ?? 0;
@@ -207,12 +282,11 @@ export default function StockDetailPage() {
 
   return (
     <div className="stock-detail">
-      <button className="stock-detail__back" onClick={() => navigate(-1)}>
-        ← 返回
-      </button>
-
       <div className="stock-detail__header">
         <div className="stock-detail__header-left">
+          <button className="stock-detail__back" onClick={() => navigate(-1)}>
+            ← 返回
+          </button>
           <h2 className="stock-detail__name">{name}</h2>
           <span className="stock-detail__symbol">{symbol}</span>
           {priceData?.exchange && (
@@ -266,17 +340,29 @@ export default function StockDetailPage() {
 
       <ShortInterestPanel detail={detail} loading={detailLoading} />
 
-      {detail?.insights?.sigDevs && detail.insights.sigDevs.length > 0 && (
-        <div className="stock-detail__section">
-          <h3 className="stock-detail__section-title">重要动态</h3>
-          <div className="stock-detail__events">
-            {detail.insights.sigDevs.map((ev, i) => (
-              <div key={i} className="stock-detail__event">
-                <span className="stock-detail__event-date">
-                  {ev.date ? new Date(ev.date).toLocaleDateString('zh-CN') : ''}
+      <FinancialReportPanel financials={financials} loading={financialsLoading} />
+
+      {detail?.news && detail.news.length > 0 && (
+        <div className="events-panel">
+          <h3 className="events-panel__title">相关新闻</h3>
+          <div className="events-panel__list">
+            {detail.news.map((n, i) => (
+              <a
+                key={i}
+                className="events-panel__item"
+                href={n.link || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="events-panel__date">
+                  {n.publishTime ? new Date(n.publishTime).toLocaleDateString('zh-CN') : ''}
                 </span>
-                <span className="stock-detail__event-text">{ev.headline}</span>
-              </div>
+                <span className="events-panel__text">{n.title}</span>
+                {n.publisher && (
+                  <span className="events-panel__source">{n.publisher}</span>
+                )}
+                <span className="events-panel__arrow">→</span>
+              </a>
             ))}
           </div>
         </div>
@@ -510,7 +596,8 @@ function ShortInterestPanel({ detail, loading }: ShortInterestPanelProps) {
     });
   }
 
-  const barPct = shortPctFloat != null ? Math.min(shortPctFloat * 100, 100) : 0;
+  const shortPct = shortPctFloat != null ? Math.min(shortPctFloat * 100, 100) : 0;
+  const longPct = 100 - shortPct;
 
   return (
     <div className="short-panel">
@@ -524,15 +611,23 @@ function ShortInterestPanel({ detail, loading }: ShortInterestPanelProps) {
               {sentimentLevel}
             </span>
           </div>
-          <div className="short-panel__bar-track">
+          <div className="short-panel__dual-bar">
             <div
-              className="short-panel__bar-fill"
-              style={{ width: `${barPct}%`, background: sentimentColor }}
+              className="short-panel__dual-bar-long"
+              style={{ width: `${longPct}%` }}
+            />
+            <div
+              className="short-panel__dual-bar-short"
+              style={{ width: `${shortPct}%` }}
             />
           </div>
           <div className="short-panel__bar-labels">
-            <span>做多（做空占比低）</span>
-            <span>做空（做空占比高）</span>
+            <span className="short-panel__bar-label-long">
+              做多 {longPct.toFixed(2)}%
+            </span>
+            <span className="short-panel__bar-label-short">
+              做空 {shortPct.toFixed(2)}%
+            </span>
           </div>
           {si.dateShortInterest && (
             <div className="short-panel__date">
@@ -552,6 +647,204 @@ function ShortInterestPanel({ detail, loading }: ShortInterestPanelProps) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+type FinPeriodTab = 'quarterly' | 'annual';
+type FinSheetTab = 'income' | 'balance' | 'cashflow';
+
+const SHEET_TABS: { key: FinSheetTab; label: string }[] = [
+  { key: 'income', label: '利润表' },
+  { key: 'balance', label: '资产负债表' },
+  { key: 'cashflow', label: '现金流量表' },
+];
+
+function fmtFinDate(d: string): string {
+  const dt = new Date(d);
+  return `${dt.getFullYear()}/${String(dt.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function fmtFinNum(v: number | null): string {
+  if (v == null) return '—';
+  const abs = Math.abs(v);
+  const sign = v < 0 ? '-' : '';
+  if (abs >= 1e8) return sign + (abs / 1e8).toFixed(2) + '亿';
+  if (abs >= 1e4) return sign + (abs / 1e4).toFixed(2) + '万';
+  return v.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+
+function calcMargin(numerator: number | null, denominator: number | null): string {
+  if (numerator == null || denominator == null || denominator === 0) return '—';
+  return ((numerator / denominator) * 100).toFixed(2) + '%';
+}
+
+interface FinancialReportPanelProps {
+  financials: FinancialsData | null;
+  loading: boolean;
+}
+
+function FinancialReportPanel({ financials, loading }: FinancialReportPanelProps) {
+  const [periodTab, setPeriodTab] = useState<FinPeriodTab>('quarterly');
+  const [sheetTab, setSheetTab] = useState<FinSheetTab>('income');
+
+  const periodData = financials?.[periodTab];
+
+  const hasAnyData =
+    periodData &&
+    (periodData.income.length > 0 || periodData.balance.length > 0 || periodData.cashflow.length > 0);
+
+  if (loading) {
+    return (
+      <div className="fin-panel fin-panel--loading">
+        <div className="fin-panel__sk-text">财务数据加载中...</div>
+      </div>
+    );
+  }
+
+  if (!financials || !hasAnyData) return null;
+
+  return (
+    <div className="fin-panel">
+      <div className="fin-panel__header">
+        <h3 className="fin-panel__title">财务报表</h3>
+        <div className="fin-panel__period-tabs">
+          {(['quarterly', 'annual'] as const).map((p) => (
+            <button
+              key={p}
+              className={`fin-panel__period-btn ${periodTab === p ? 'fin-panel__period-btn--active' : ''}`}
+              onClick={() => setPeriodTab(p)}
+            >
+              {p === 'quarterly' ? '季报' : '年报'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="fin-panel__sheet-tabs">
+        {SHEET_TABS.map(({ key, label }) => (
+          <button
+            key={key}
+            className={`fin-panel__sheet-btn ${sheetTab === key ? 'fin-panel__sheet-btn--active' : ''}`}
+            onClick={() => setSheetTab(key)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {sheetTab === 'income' && <IncomeTable items={periodData?.income ?? []} />}
+      {sheetTab === 'balance' && <BalanceTable items={periodData?.balance ?? []} />}
+      {sheetTab === 'cashflow' && <CashflowTable items={periodData?.cashflow ?? []} />}
+    </div>
+  );
+}
+
+function IncomeTable({ items }: { items: IncomeItem[] }) {
+  const sorted = useMemo(() => [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [items]);
+
+  if (sorted.length === 0) return <div className="fin-panel__empty">暂无利润表数据</div>;
+
+  const rows: { label: string; key: string; getter: (r: IncomeItem) => string; highlight?: boolean }[] = [
+    { label: '营业收入', key: 'revenue', getter: (r) => fmtFinNum(r.totalRevenue), highlight: true },
+    { label: '营业成本', key: 'cost', getter: (r) => fmtFinNum(r.costOfRevenue) },
+    { label: '毛利润', key: 'gross', getter: (r) => fmtFinNum(r.grossProfit), highlight: true },
+    { label: '毛利率', key: 'gm', getter: (r) => calcMargin(r.grossProfit, r.totalRevenue) },
+    { label: '研发费用', key: 'rd', getter: (r) => fmtFinNum(r.researchAndDevelopment) },
+    { label: '销售及管理费', key: 'sga', getter: (r) => fmtFinNum(r.sellingGeneralAndAdministration) },
+    { label: '营业利润', key: 'opIncome', getter: (r) => fmtFinNum(r.operatingIncome) },
+    { label: '营业利润率', key: 'om', getter: (r) => calcMargin(r.operatingIncome, r.totalRevenue) },
+    { label: '净利润', key: 'net', getter: (r) => fmtFinNum(r.netIncome), highlight: true },
+    { label: '净利率', key: 'nm', getter: (r) => calcMargin(r.netIncome, r.totalRevenue) },
+    { label: 'EBITDA', key: 'ebitda', getter: (r) => fmtFinNum(r.ebitda) },
+    { label: '每股收益 (稀释)', key: 'eps', getter: (r) => r.dilutedEPS != null ? r.dilutedEPS.toFixed(2) : '—' },
+  ];
+
+  return <FinTable dates={sorted.map((r) => r.date)} rows={rows} data={sorted} />;
+}
+
+function BalanceTable({ items }: { items: BalanceItem[] }) {
+  const sorted = useMemo(() => [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [items]);
+
+  if (sorted.length === 0) return <div className="fin-panel__empty">暂无资产负债表数据</div>;
+
+  const rows: { label: string; key: string; getter: (r: BalanceItem) => string; highlight?: boolean }[] = [
+    { label: '总资产', key: 'ta', getter: (r) => fmtFinNum(r.totalAssets), highlight: true },
+    { label: '流动资产', key: 'ca', getter: (r) => fmtFinNum(r.currentAssets) },
+    { label: '现金及等价物', key: 'cash', getter: (r) => fmtFinNum(r.cashAndCashEquivalents) },
+    { label: '应收账款', key: 'recv', getter: (r) => fmtFinNum(r.receivables) },
+    { label: '存货', key: 'inv', getter: (r) => fmtFinNum(r.inventory) },
+    { label: '总负债', key: 'tl', getter: (r) => fmtFinNum(r.totalLiabilitiesNetMinorityInterest), highlight: true },
+    { label: '流动负债', key: 'cl', getter: (r) => fmtFinNum(r.currentLiabilities) },
+    { label: '总债务', key: 'debt', getter: (r) => fmtFinNum(r.totalDebt) },
+    { label: '股东权益', key: 'eq', getter: (r) => fmtFinNum(r.stockholdersEquity), highlight: true },
+    {
+      label: '资产负债率',
+      key: 'dar',
+      getter: (r) => calcMargin(r.totalLiabilitiesNetMinorityInterest, r.totalAssets),
+    },
+    {
+      label: '流动比率',
+      key: 'cr',
+      getter: (r) =>
+        r.currentAssets != null && r.currentLiabilities != null && r.currentLiabilities !== 0
+          ? (r.currentAssets / r.currentLiabilities).toFixed(2)
+          : '—',
+    },
+  ];
+
+  return <FinTable dates={sorted.map((r) => r.date)} rows={rows} data={sorted} />;
+}
+
+function CashflowTable({ items }: { items: CashflowItem[] }) {
+  const sorted = useMemo(() => [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [items]);
+
+  if (sorted.length === 0) return <div className="fin-panel__empty">暂无现金流量表数据</div>;
+
+  const rows: { label: string; key: string; getter: (r: CashflowItem) => string; highlight?: boolean }[] = [
+    { label: '经营活动现金流', key: 'opcf', getter: (r) => fmtFinNum(r.operatingCashFlow), highlight: true },
+    { label: '资本开支', key: 'capex', getter: (r) => fmtFinNum(r.capitalExpenditure) },
+    { label: '自由现金流', key: 'fcf', getter: (r) => fmtFinNum(r.freeCashFlow), highlight: true },
+    { label: '投资活动现金流', key: 'invcf', getter: (r) => fmtFinNum(r.investingCashFlow) },
+    { label: '筹资活动现金流', key: 'fincf', getter: (r) => fmtFinNum(r.financingCashFlow) },
+  ];
+
+  return <FinTable dates={sorted.map((r) => r.date)} rows={rows} data={sorted} />;
+}
+
+interface FinTableProps<T> {
+  dates: string[];
+  rows: { label: string; key: string; getter: (r: T) => string; highlight?: boolean }[];
+  data: T[];
+}
+
+function FinTable<T>({ dates, rows, data }: FinTableProps<T>) {
+  return (
+    <div className="fin-panel__table-wrap">
+      <table className="fin-panel__table">
+        <thead>
+          <tr>
+            <th className="fin-panel__th fin-panel__th--label">指标</th>
+            {dates.map((d) => (
+              <th key={d} className="fin-panel__th">
+                {fmtFinDate(d)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.key} className={row.highlight ? 'fin-panel__tr--highlight' : ''}>
+              <td className="fin-panel__td fin-panel__td--label">{row.label}</td>
+              {data.map((item, i) => (
+                <td key={dates[i]} className="fin-panel__td">
+                  {row.getter(item)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
