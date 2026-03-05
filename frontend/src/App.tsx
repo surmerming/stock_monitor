@@ -14,6 +14,7 @@ import BacktestPage from './pages/BacktestPage';
 import SectorRotationPage from './pages/SectorRotationPage';
 import PatternPage from './pages/PatternPage';
 import SentimentPage from './pages/SentimentPage';
+import ReviewPage from './pages/ReviewPage';
 import StockDetailPage from './pages/StockDetailPage';
 import SettingsPage from './pages/SettingsPage';
 import './App.less';
@@ -36,6 +37,7 @@ function AuthenticatedApp() {
             <Route path="/sector" element={<SectorRotationPage />} />
             <Route path="/pattern" element={<PatternPage />} />
             <Route path="/sentiment" element={<SentimentPage />} />
+            <Route path="/review" element={<ReviewPage />} />
             <Route path="/stock/:symbol" element={<StockDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

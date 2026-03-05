@@ -7,5 +7,6 @@ import { DetailController } from './detail.controller';
   imports: [StockModule],
   providers: [DetailService],
   controllers: [DetailController],
+  exports: [DetailService],
 })
 export class DetailModule {}

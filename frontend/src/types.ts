@@ -257,6 +257,112 @@ export interface PatternResult {
 
 // =================== Market Sentiment ===================
 
+// =================== Review ===================
+
+export interface MaStatus {
+  ma5: number | null;
+  ma10: number | null;
+  ma20: number | null;
+  ma60: number | null;
+  alignment: 'bullish' | 'bearish' | 'mixed';
+}
+
+export interface TechnicalSignals {
+  macd: { dif: number | null; dea: number | null; hist: number | null; signal: string };
+  kdj: { k: number | null; d: number | null; j: number | null; signal: string };
+  rsi: number | null;
+  boll: { position: number | null; width: number | null };
+}
+
+export interface AnomalyTag {
+  type: string;
+  label: string;
+  direction: 'bullish' | 'bearish' | 'neutral';
+  description: string;
+}
+
+export interface ReviewScore {
+  total: number;
+  trend: number;
+  volume: number;
+  technical: number;
+  moneyFlow: number;
+  pattern: number;
+  diagnosis: string;
+}
+
+export interface WatchlistReviewItem {
+  symbol: string;
+  name: string;
+  market: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  open: number;
+  high: number;
+  low: number;
+  prevClose: number;
+  amplitude: number;
+  volume: number;
+  turnover: number;
+  turnoverRate: number | null;
+  volumeRatio: number | null;
+  avgVolume: number | null;
+  volMa5Ratio: number | null;
+  netFlow: number;
+  largeNetFlow: number;
+  maStatus: MaStatus;
+  technicals: TechnicalSignals;
+  patterns: PatternSignal[];
+  anomalies: AnomalyTag[];
+  score: ReviewScore;
+}
+
+export interface VolumePricePoint {
+  date: string;
+  close: number;
+  volume: number;
+  obv: number;
+  divergence: 'none' | 'top' | 'bottom';
+}
+
+export interface StockReviewDetail {
+  symbol: string;
+  name: string;
+  market: string;
+  quote: {
+    price: number;
+    change: number;
+    changePercent: number;
+    open: number;
+    high: number;
+    low: number;
+    prevClose: number;
+    volume: number;
+    turnover: number;
+    turnoverRate: number | null;
+    volumeRatio: number | null;
+    marketCap: number | null;
+    pe: number | null;
+  };
+  maStatus: MaStatus;
+  technicals: TechnicalSignals;
+  patterns: PatternSignal[];
+  supports: SupportResistance[];
+  trendLines: { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[];
+  anomalies: AnomalyTag[];
+  score: ReviewScore;
+  moneyFlow: {
+    netFlow: number;
+    largeNetFlow: number;
+    timeline: MoneyFlowTimeline[];
+  } | null;
+  chartBars: Array<{ date: string; open: number; high: number; low: number; close: number; volume: number }>;
+  volumePrice: VolumePricePoint[];
+}
+
+// =================== Market Sentiment ===================
+
 export interface SentimentGauge {
   score: number;
   level: 'extreme_fear' | 'fear' | 'neutral' | 'greed' | 'extreme_greed';

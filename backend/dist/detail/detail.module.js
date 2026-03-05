@@ -18,6 +18,7 @@ exports.DetailModule = DetailModule = __decorate([
         imports: [stock_module_1.StockModule],
         providers: [detail_service_1.DetailService],
         controllers: [detail_controller_1.DetailController],
+        exports: [detail_service_1.DetailService],
     })
 ], DetailModule);
 //# sourceMappingURL=detail.module.js.map

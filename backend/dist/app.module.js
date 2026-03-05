@@ -22,11 +22,16 @@ const backtest_module_1 = require("./backtest/backtest.module");
 const sector_module_1 = require("./sector/sector.module");
 const pattern_module_1 = require("./pattern/pattern.module");
 const sentiment_module_1 = require("./sentiment/sentiment.module");
+const review_module_1 = require("./review/review.module");
+const trade_module_1 = require("./trade/trade.module");
+const review_note_module_1 = require("./review-note/review-note.module");
 const auth_module_1 = require("./auth/auth.module");
 const watchlist_entity_1 = require("./watchlist/watchlist.entity");
 const alert_rule_entity_1 = require("./alert/alert-rule.entity");
 const alert_history_entity_1 = require("./alert/alert-history.entity");
 const strategy_entity_1 = require("./screener/strategy.entity");
+const trade_entity_1 = require("./trade/trade.entity");
+const review_note_entity_1 = require("./review-note/review-note.entity");
 const user_entity_1 = require("./auth/user.entity");
 const login_attempt_entity_1 = require("./auth/login-attempt.entity");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
@@ -42,7 +47,7 @@ exports.AppModule = AppModule = __decorate([
                 username: 'root',
                 password: '123456',
                 database: 'stock_monitor',
-                entities: [watchlist_entity_1.WatchlistItem, alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory, strategy_entity_1.ScreenerStrategy, user_entity_1.User, login_attempt_entity_1.LoginAttempt],
+                entities: [watchlist_entity_1.WatchlistItem, alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory, strategy_entity_1.ScreenerStrategy, trade_entity_1.Trade, review_note_entity_1.ReviewNote, user_entity_1.User, login_attempt_entity_1.LoginAttempt],
                 synchronize: true,
             }),
             auth_module_1.AuthModule,
@@ -58,6 +63,9 @@ exports.AppModule = AppModule = __decorate([
             sector_module_1.SectorModule,
             pattern_module_1.PatternModule,
             sentiment_module_1.SentimentModule,
+            review_module_1.ReviewModule,
+            trade_module_1.TradeModule,
+            review_note_module_1.ReviewNoteModule,
         ],
         providers: [
             {

@@ -13,11 +13,16 @@ import { BacktestModule } from './backtest/backtest.module';
 import { SectorModule } from './sector/sector.module';
 import { PatternModule } from './pattern/pattern.module';
 import { SentimentModule } from './sentiment/sentiment.module';
+import { ReviewModule } from './review/review.module';
+import { TradeModule } from './trade/trade.module';
+import { ReviewNoteModule } from './review-note/review-note.module';
 import { AuthModule } from './auth/auth.module';
 import { WatchlistItem } from './watchlist/watchlist.entity';
 import { AlertRule } from './alert/alert-rule.entity';
 import { AlertHistory } from './alert/alert-history.entity';
 import { ScreenerStrategy } from './screener/strategy.entity';
+import { Trade } from './trade/trade.entity';
+import { ReviewNote } from './review-note/review-note.entity';
 import { User } from './auth/user.entity';
 import { LoginAttempt } from './auth/login-attempt.entity';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -31,7 +36,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
       username: 'root',
       password: '123456',
       database: 'stock_monitor',
-      entities: [WatchlistItem, AlertRule, AlertHistory, ScreenerStrategy, User, LoginAttempt],
+      entities: [WatchlistItem, AlertRule, AlertHistory, ScreenerStrategy, Trade, ReviewNote, User, LoginAttempt],
       synchronize: true,
     }),
     AuthModule,
@@ -47,6 +52,9 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     SectorModule,
     PatternModule,
     SentimentModule,
+    ReviewModule,
+    TradeModule,
+    ReviewNoteModule,
   ],
   providers: [
     {

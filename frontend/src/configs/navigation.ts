@@ -15,5 +15,6 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/sector', label: '板块' },
   { to: '/pattern', label: '形态' },
   { to: '/sentiment', label: '情绪' },
+  { to: '/review', label: '复盘' },
   { to: '/settings', label: '设置' },
 ];
