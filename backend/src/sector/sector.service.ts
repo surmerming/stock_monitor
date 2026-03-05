@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
+import { getCnName } from '../common/cn-names';
 
 const yahooFinance = new YahooFinance();
 
@@ -143,7 +144,7 @@ export class SectorService {
           if (q.averageDailyVolume3Month > 0) avgVolume = q.averageDailyVolume3Month;
           else if (q.averageDailyVolume10Day > 0) avgVolume = q.averageDailyVolume10Day;
           marketCap = q.marketCap ?? null;
-          shortName = q.shortName || q.longName || sym;
+          shortName = getCnName(sym, q.shortName || q.longName || sym);
         }
       } catch (err) {
         this.logger.debug(`${sym}: quote fallback to chart data - ${err.message}`);

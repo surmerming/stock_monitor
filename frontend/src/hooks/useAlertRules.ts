@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { AlertRule } from '../types';
+import { apiFetch } from '../utils/apiFetch';
 
 export type AddAlertRuleInput = Pick<
   AlertRule,
@@ -13,7 +14,7 @@ export function useAlertRules() {
   const [loaded, setLoaded] = useState(false);
 
   const refresh = useCallback(() => {
-    fetch('/api/alerts/rules')
+    apiFetch('/api/alerts/rules')
       .then((r) => r.json())
       .then((data) => setRules(Array.isArray(data) ? data : []))
       .catch(() => {})
@@ -25,7 +26,7 @@ export function useAlertRules() {
   }, [refresh]);
 
   const addRule = useCallback(async (data: AddAlertRuleInput): Promise<AlertRule> => {
-    const res = await fetch('/api/alerts/rules', {
+    const res = await apiFetch('/api/alerts/rules', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -37,7 +38,7 @@ export function useAlertRules() {
 
   const updateRule = useCallback(
     async (id: number, data: UpdateAlertRuleInput): Promise<AlertRule> => {
-      const res = await fetch(`/api/alerts/rules/${id}`, {
+      const res = await apiFetch(`/api/alerts/rules/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -50,7 +51,7 @@ export function useAlertRules() {
   );
 
   const deleteRule = useCallback(async (id: number): Promise<void> => {
-    await fetch(`/api/alerts/rules/${id}`, { method: 'DELETE' });
+    await apiFetch(`/api/alerts/rules/${id}`, { method: 'DELETE' });
     setRules((prev) => prev.filter((r) => r.id !== id));
   }, []);
 
@@ -62,7 +63,7 @@ export function useAlertRules() {
   );
 
   const resetRule = useCallback(async (id: number): Promise<void> => {
-    await fetch(`/api/alerts/rules/${id}/reset`, { method: 'PUT' });
+    await apiFetch(`/api/alerts/rules/${id}/reset`, { method: 'PUT' });
     setRules((prev) => prev.map((r) => (r.id === id ? { ...r, triggered: false } : r)));
   }, []);
 

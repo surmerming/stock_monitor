@@ -19,88 +19,96 @@ let AlertController = exports.AlertController = class AlertController {
     constructor(alertService) {
         this.alertService = alertService;
     }
-    getRules() {
-        return this.alertService.findAllRules();
+    getRules(req) {
+        return this.alertService.findAllRules(req.user.userId);
     }
-    createRule(body) {
-        return this.alertService.createRule({
+    createRule(req, body) {
+        return this.alertService.createRule(req.user.userId, {
             symbol: body.symbol,
             type: body.type,
             threshold: body.threshold,
             cooldownMinutes: body.cooldownMinutes ?? 30,
         });
     }
-    updateRule(id, body) {
-        return this.alertService.updateRule(+id, body);
+    updateRule(req, id, body) {
+        return this.alertService.updateRule(req.user.userId, +id, body);
     }
-    deleteRule(id) {
-        return this.alertService.deleteRule(+id);
+    deleteRule(req, id) {
+        return this.alertService.deleteRule(req.user.userId, +id);
     }
-    resetRule(id) {
-        return this.alertService.resetRule(+id);
+    resetRule(req, id) {
+        return this.alertService.resetRule(req.user.userId, +id);
     }
-    getHistory(limit) {
-        return this.alertService.findHistory(limit ? +limit : 50);
+    getHistory(req, limit) {
+        return this.alertService.findHistory(req.user.userId, limit ? +limit : 50);
     }
-    getUnreadCount() {
-        return this.alertService.getUnreadCount();
+    getUnreadCount(req) {
+        return this.alertService.getUnreadCount(req.user.userId);
     }
-    markAllRead() {
-        return this.alertService.markAllRead();
+    markAllRead(req) {
+        return this.alertService.markAllRead(req.user.userId);
     }
 };
 __decorate([
     (0, common_1.Get)('rules'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "getRules", null);
 __decorate([
     (0, common_1.Post)('rules'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "createRule", null);
 __decorate([
     (0, common_1.Put)('rules/:id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, String, Object]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "updateRule", null);
 __decorate([
     (0, common_1.Delete)('rules/:id'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "deleteRule", null);
 __decorate([
     (0, common_1.Put)('rules/:id/reset'),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "resetRule", null);
 __decorate([
     (0, common_1.Get)('history'),
-    __param(0, (0, common_1.Query)('limit')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "getHistory", null);
 __decorate([
     (0, common_1.Get)('history/unread-count'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "getUnreadCount", null);
 __decorate([
     (0, common_1.Put)('history/read'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AlertController.prototype, "markAllRead", null);
 exports.AlertController = AlertController = __decorate([

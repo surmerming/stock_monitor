@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScannerService = void 0;
 const common_1 = require("@nestjs/common");
 const yahoo_finance2_1 = require("yahoo-finance2");
+const cn_names_1 = require("../common/cn-names");
 const yahooFinance = new yahoo_finance2_1.default();
 const CACHE_TTL = 2 * 60 * 1000;
 let ScannerService = exports.ScannerService = ScannerService_1 = class ScannerService {
@@ -30,7 +31,7 @@ let ScannerService = exports.ScannerService = ScannerService_1 = class ScannerSe
     transformQuote(q) {
         return {
             symbol: q.symbol,
-            name: q.shortName || q.longName || q.displayName || q.symbol,
+            name: (0, cn_names_1.getCnName)(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
             price: q.regularMarketPrice ?? 0,
             change: q.regularMarketChange ?? 0,
             changePercent: q.regularMarketChangePercent ?? 0,
@@ -137,7 +138,7 @@ let ScannerService = exports.ScannerService = ScannerService_1 = class ScannerSe
                     const q = quoteMap.get(s);
                     return {
                         symbol: q.symbol,
-                        name: q.shortName || q.longName || q.displayName || q.symbol,
+                        name: (0, cn_names_1.getCnName)(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
                         price: q.regularMarketPrice ?? 0,
                         change: q.regularMarketChange ?? 0,
                         changePercent: q.regularMarketChangePercent ?? 0,

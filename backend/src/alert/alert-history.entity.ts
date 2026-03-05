@@ -6,6 +6,9 @@ export class AlertHistory {
   id: number;
 
   @Column()
+  userId: number;
+
+  @Column()
   ruleId: number;
 
   @Column({ length: 20 })

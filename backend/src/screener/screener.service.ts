@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import YahooFinance from 'yahoo-finance2';
+import { getCnName } from '../common/cn-names';
 import { ScreenerStrategy } from './strategy.entity';
 import {
   OHLCV,
@@ -448,7 +449,7 @@ export class ScreenerService {
 
     return {
       symbol: q.symbol || '',
-      name: q.shortName || q.longName || q.displayName || q.symbol || '',
+      name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol || ''),
       price: current,
       change,
       changePercent: changePct,
@@ -607,26 +608,28 @@ export class ScreenerService {
 
   // ===================== Strategy CRUD =====================
 
-  async getStrategies(): Promise<ScreenerStrategy[]> {
-    return this.strategyRepo.find({ order: { updatedAt: 'DESC' } });
+  async getStrategies(userId: number): Promise<ScreenerStrategy[]> {
+    return this.strategyRepo.find({ where: { userId }, order: { updatedAt: 'DESC' } });
   }
 
   async createStrategy(
+    userId: number,
     data: Partial<ScreenerStrategy>,
   ): Promise<ScreenerStrategy> {
-    const entity = this.strategyRepo.create(data);
+    const entity = this.strategyRepo.create({ ...data, userId });
     return this.strategyRepo.save(entity);
   }
 
   async updateStrategy(
+    userId: number,
     id: number,
     data: Partial<ScreenerStrategy>,
   ): Promise<ScreenerStrategy> {
-    await this.strategyRepo.update(id, data);
-    return this.strategyRepo.findOneByOrFail({ id });
+    await this.strategyRepo.update({ id, userId }, data);
+    return this.strategyRepo.findOneByOrFail({ id, userId });
   }
 
-  async deleteStrategy(id: number): Promise<void> {
-    await this.strategyRepo.delete(id);
+  async deleteStrategy(userId: number, id: number): Promise<void> {
+    await this.strategyRepo.delete({ id, userId });
   }
 }

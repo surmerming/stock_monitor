@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockModule } from './stock/stock.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
@@ -12,10 +13,14 @@ import { BacktestModule } from './backtest/backtest.module';
 import { SectorModule } from './sector/sector.module';
 import { PatternModule } from './pattern/pattern.module';
 import { SentimentModule } from './sentiment/sentiment.module';
+import { AuthModule } from './auth/auth.module';
 import { WatchlistItem } from './watchlist/watchlist.entity';
 import { AlertRule } from './alert/alert-rule.entity';
 import { AlertHistory } from './alert/alert-history.entity';
 import { ScreenerStrategy } from './screener/strategy.entity';
+import { User } from './auth/user.entity';
+import { LoginAttempt } from './auth/login-attempt.entity';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -26,9 +31,10 @@ import { ScreenerStrategy } from './screener/strategy.entity';
       username: 'root',
       password: '123456',
       database: 'stock_monitor',
-      entities: [WatchlistItem, AlertRule, AlertHistory, ScreenerStrategy],
+      entities: [WatchlistItem, AlertRule, AlertHistory, ScreenerStrategy, User, LoginAttempt],
       synchronize: true,
     }),
+    AuthModule,
     StockModule,
     WatchlistModule,
     QuoteEngineModule,
@@ -41,6 +47,12 @@ import { ScreenerStrategy } from './screener/strategy.entity';
     SectorModule,
     PatternModule,
     SentimentModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

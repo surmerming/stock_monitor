@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
+import { getCnName } from '../common/cn-names';
 import {
   OHLCV,
   computeIndicators,
@@ -182,11 +183,7 @@ export class BacktestService {
     let symbolName = symbol;
     try {
       const q: any = await yahooFinance.quote(symbol, {}, { validateResult: false });
-      symbolName =
-        q?.shortName ||
-        q?.longName ||
-        q?.displayName ||
-        symbol;
+      symbolName = getCnName(symbol, q?.shortName || q?.longName || q?.displayName || symbol);
     } catch {}
 
     const trades: Trade[] = [];

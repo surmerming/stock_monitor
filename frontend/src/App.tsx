@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import AppHeader from './components/AppHeader';
 import { QuoteSSEProvider } from './hooks/useQuoteSSE';
+import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import MarketPage from './pages/MarketPage';
 import StocksPage from './pages/StocksPage';
@@ -16,7 +18,7 @@ import StockDetailPage from './pages/StockDetailPage';
 import SettingsPage from './pages/SettingsPage';
 import './App.less';
 
-export default function App() {
+function AuthenticatedApp() {
   return (
     <QuoteSSEProvider>
       <div className="app">
@@ -41,5 +43,35 @@ export default function App() {
         </main>
       </div>
     </QuoteSSEProvider>
+  );
+}
+
+function AppRouter() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="app-loading__spinner" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    );
+  }
+
+  return <AuthenticatedApp />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
   );
 }

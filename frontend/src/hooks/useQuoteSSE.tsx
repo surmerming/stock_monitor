@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { QuoteMap, MarketStatus, AlertItem } from '../types';
+import { apiFetch, getToken } from '../utils/apiFetch';
 
 export interface QuoteSSEContextValue {
   quotes: QuoteMap;
@@ -28,7 +29,7 @@ export function QuoteSSEProvider({ children }: QuoteSSEProviderProps) {
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    fetch('/api/alerts/history/unread-count')
+    apiFetch('/api/alerts/history/unread-count')
       .then((r) => r.json())
       .then((n) => setUnreadAlertCount(typeof n === 'number' ? n : 0))
       .catch(() => {});
@@ -40,7 +41,11 @@ export function QuoteSSEProvider({ children }: QuoteSSEProviderProps) {
         esRef.current.close();
       }
 
-      const es = new EventSource('/api/quotes/stream');
+      const token = getToken();
+      const url = token
+        ? `/api/quotes/stream?token=${encodeURIComponent(token)}`
+        : '/api/quotes/stream';
+      const es = new EventSource(url);
       esRef.current = es;
 
       es.onopen = () => {
@@ -98,7 +103,7 @@ export function QuoteSSEProvider({ children }: QuoteSSEProviderProps) {
   const markAlertsRead = useCallback(() => {
     setUnreadAlertCount(0);
     setAlerts((prev) => prev.map((a) => (a._read ? a : { ...a, _read: true })));
-    fetch('/api/alerts/history/read', { method: 'PUT' }).catch(() => {});
+    apiFetch('/api/alerts/history/read', { method: 'PUT' }).catch(() => {});
   }, []);
 
   const value: QuoteSSEContextValue = {

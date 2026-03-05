@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { apiFetch } from '../utils/apiFetch';
 
 export function useWatchlist() {
   const [symbols, setSymbols] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch('/api/watchlist')
+    apiFetch('/api/watchlist')
       .then((res) => res.json())
       .then((json) => {
         setSymbols(json.items.map((item: { symbol: string }) => item.symbol));
@@ -16,7 +17,7 @@ export function useWatchlist() {
 
   const addSymbols = useCallback(async (newSymbols: string[]): Promise<void> => {
     try {
-      const res = await fetch('/api/watchlist', {
+      const res = await apiFetch('/api/watchlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ symbols: newSymbols }),
@@ -38,7 +39,7 @@ export function useWatchlist() {
 
   const removeSymbol = useCallback(async (sym: string): Promise<void> => {
     try {
-      await fetch(`/api/watchlist/${encodeURIComponent(sym)}`, { method: 'DELETE' });
+      await apiFetch(`/api/watchlist/${encodeURIComponent(sym)}`, { method: 'DELETE' });
       setSymbols((prev) => prev.filter((s) => s !== sym));
     } catch (err) {
       console.error('Failed to remove symbol:', err);

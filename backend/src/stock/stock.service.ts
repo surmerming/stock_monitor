@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
+import { getCnName } from '../common/cn-names';
 
 const yahooFinance = new YahooFinance();
 
@@ -125,7 +126,7 @@ export class StockService {
 
     return {
       symbol: display,
-      name: raw.shortName || raw.longName || display,
+      name: getCnName(display, raw.shortName || raw.longName || display),
       currency: raw.currency || defaultCurrency,
       current_price: current,
       prev_close: prevClose,

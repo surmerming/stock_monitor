@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
 import { AlertService } from './alert.service';
 
 @Controller('alerts')
@@ -6,15 +6,16 @@ export class AlertController {
   constructor(private readonly alertService: AlertService) {}
 
   @Get('rules')
-  getRules() {
-    return this.alertService.findAllRules();
+  getRules(@Request() req: any) {
+    return this.alertService.findAllRules(req.user.userId);
   }
 
   @Post('rules')
   createRule(
+    @Request() req: any,
     @Body() body: { symbol: string; type: string; threshold: number; cooldownMinutes?: number },
   ) {
-    return this.alertService.createRule({
+    return this.alertService.createRule(req.user.userId, {
       symbol: body.symbol,
       type: body.type,
       threshold: body.threshold,
@@ -23,32 +24,32 @@ export class AlertController {
   }
 
   @Put('rules/:id')
-  updateRule(@Param('id') id: string, @Body() body: Record<string, any>) {
-    return this.alertService.updateRule(+id, body);
+  updateRule(@Request() req: any, @Param('id') id: string, @Body() body: Record<string, any>) {
+    return this.alertService.updateRule(req.user.userId, +id, body);
   }
 
   @Delete('rules/:id')
-  deleteRule(@Param('id') id: string) {
-    return this.alertService.deleteRule(+id);
+  deleteRule(@Request() req: any, @Param('id') id: string) {
+    return this.alertService.deleteRule(req.user.userId, +id);
   }
 
   @Put('rules/:id/reset')
-  resetRule(@Param('id') id: string) {
-    return this.alertService.resetRule(+id);
+  resetRule(@Request() req: any, @Param('id') id: string) {
+    return this.alertService.resetRule(req.user.userId, +id);
   }
 
   @Get('history')
-  getHistory(@Query('limit') limit?: string) {
-    return this.alertService.findHistory(limit ? +limit : 50);
+  getHistory(@Request() req: any, @Query('limit') limit?: string) {
+    return this.alertService.findHistory(req.user.userId, limit ? +limit : 50);
   }
 
   @Get('history/unread-count')
-  getUnreadCount() {
-    return this.alertService.getUnreadCount();
+  getUnreadCount(@Request() req: any) {
+    return this.alertService.getUnreadCount(req.user.userId);
   }
 
   @Put('history/read')
-  markAllRead() {
-    return this.alertService.markAllRead();
+  markAllRead(@Request() req: any) {
+    return this.alertService.markAllRead(req.user.userId);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
 import { StockService } from '../stock/stock.service';
+import { getCnName } from '../common/cn-names';
 
 const yahooFinance = new YahooFinance();
 
@@ -44,12 +45,13 @@ export class DetailService {
         { validateResult: false },
       );
 
+      const cnName = getCnName(result.meta.symbol);
       const meta = {
         symbol: result.meta.symbol,
         currency: result.meta.currency,
         exchangeName: result.meta.exchangeName,
-        longName: result.meta.longName,
-        shortName: result.meta.shortName,
+        longName: cnName !== result.meta.symbol ? cnName : result.meta.longName,
+        shortName: cnName !== result.meta.symbol ? cnName : result.meta.shortName,
         regularMarketPrice: result.meta.regularMarketPrice,
         chartPreviousClose:
           result.meta.chartPreviousClose ?? result.meta.previousClose,
@@ -152,8 +154,8 @@ export class DetailService {
         price: price
           ? {
               symbol: price.symbol,
-              shortName: price.shortName,
-              longName: price.longName,
+              shortName: getCnName(price.symbol, price.shortName),
+              longName: getCnName(price.symbol, price.longName),
               currency: price.currency,
               exchange: price.exchangeName,
               marketState: price.marketState,

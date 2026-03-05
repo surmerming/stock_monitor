@@ -25,8 +25,8 @@ export declare class DetailService {
     getDetail(rawSymbol: string): Promise<{
         price: {
             symbol: any;
-            shortName: any;
-            longName: any;
+            shortName: string;
+            longName: string;
             currency: any;
             exchange: any;
             marketState: any;

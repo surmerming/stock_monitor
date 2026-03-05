@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
+import { getCnName } from '../common/cn-names';
 
 const yahooFinance = new YahooFinance();
 
@@ -42,7 +43,7 @@ export class ScannerService {
   private transformQuote(q: any): ScannerItem {
     return {
       symbol: q.symbol,
-      name: q.shortName || q.longName || q.displayName || q.symbol,
+      name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
       price: q.regularMarketPrice ?? 0,
       change: q.regularMarketChange ?? 0,
       changePercent: q.regularMarketChangePercent ?? 0,
@@ -158,7 +159,7 @@ export class ScannerService {
             const q = quoteMap.get(s)!;
             return {
               symbol: q.symbol,
-              name: q.shortName || q.longName || q.displayName || q.symbol,
+              name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
               price: q.regularMarketPrice ?? 0,
               change: q.regularMarketChange ?? 0,
               changePercent: q.regularMarketChangePercent ?? 0,

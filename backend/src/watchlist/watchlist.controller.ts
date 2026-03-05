@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Request } from '@nestjs/common';
 import { WatchlistService } from './watchlist.service';
 import { StockService } from '../stock/stock.service';
 
@@ -10,13 +10,13 @@ export class WatchlistController {
   ) {}
 
   @Get()
-  async findAll() {
-    const items = await this.watchlistService.findAll();
+  async findAll(@Request() req: any) {
+    const items = await this.watchlistService.findAll(req.user.userId);
     return { items };
   }
 
   @Post()
-  async add(@Body() body: { symbols: string[] }) {
+  async add(@Request() req: any, @Body() body: { symbols: string[] }) {
     const symbols: string[] = body.symbols || [];
     if (symbols.length === 0) return { items: [] };
 
@@ -28,13 +28,13 @@ export class WatchlistController {
       market: r.data?.market || '',
     }));
 
-    const items = await this.watchlistService.addBatch(toSave);
+    const items = await this.watchlistService.addBatch(req.user.userId, toSave);
     return { items };
   }
 
   @Delete(':symbol')
-  async remove(@Param('symbol') symbol: string) {
-    const ok = await this.watchlistService.remove(symbol);
+  async remove(@Request() req: any, @Param('symbol') symbol: string) {
+    const ok = await this.watchlistService.remove(req.user.userId, symbol);
     return { success: ok };
   }
 }

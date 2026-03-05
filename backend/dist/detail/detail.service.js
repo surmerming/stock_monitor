@@ -14,6 +14,7 @@ exports.DetailService = void 0;
 const common_1 = require("@nestjs/common");
 const yahoo_finance2_1 = require("yahoo-finance2");
 const stock_service_1 = require("../stock/stock.service");
+const cn_names_1 = require("../common/cn-names");
 const yahooFinance = new yahoo_finance2_1.default();
 let DetailService = exports.DetailService = DetailService_1 = class DetailService {
     constructor(stockService) {
@@ -41,12 +42,13 @@ let DetailService = exports.DetailService = DetailService_1 = class DetailServic
         const fetchInterval = isYearly ? '1mo' : interval;
         try {
             const result = await yahooFinance.chart(symbol, { period1, interval: fetchInterval }, { validateResult: false });
+            const cnName = (0, cn_names_1.getCnName)(result.meta.symbol);
             const meta = {
                 symbol: result.meta.symbol,
                 currency: result.meta.currency,
                 exchangeName: result.meta.exchangeName,
-                longName: result.meta.longName,
-                shortName: result.meta.shortName,
+                longName: cnName !== result.meta.symbol ? cnName : result.meta.longName,
+                shortName: cnName !== result.meta.symbol ? cnName : result.meta.shortName,
                 regularMarketPrice: result.meta.regularMarketPrice,
                 chartPreviousClose: result.meta.chartPreviousClose ?? result.meta.previousClose,
                 regularMarketDayHigh: result.meta.regularMarketDayHigh,
@@ -135,8 +137,8 @@ let DetailService = exports.DetailService = DetailService_1 = class DetailServic
                 price: price
                     ? {
                         symbol: price.symbol,
-                        shortName: price.shortName,
-                        longName: price.longName,
+                        shortName: (0, cn_names_1.getCnName)(price.symbol, price.shortName),
+                        longName: (0, cn_names_1.getCnName)(price.symbol, price.longName),
                         currency: price.currency,
                         exchange: price.exchangeName,
                         marketState: price.marketState,

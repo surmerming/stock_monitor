@@ -1,0 +1,386 @@
+@primary: #5b8def;
+@text: #1a1a2e;
+@text-dim: #8892a4;
+@up: #e8364e;
+@down: #00a86b;
+
+.dashboard {
+  &__alerts {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: @text;
+    overflow: hidden;
+  }
+
+  &__alerts-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  &__alerts-list {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__alert-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__alerts-more {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: #d48806;
+    font-weight: 500;
+  }
+
+  &__row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    &--boards {
+      gap: 16px;
+    }
+  }
+
+  &__section {
+    margin-bottom: 28px;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  &__section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__conn {
+    font-size: 12px;
+    color: @text-dim;
+
+    &--on {
+      color: @down;
+    }
+  }
+
+  &__more-btn {
+    border: none;
+    background: none;
+    font-size: 12px;
+    color: @primary;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(91, 141, 239, 0.08);
+    }
+  }
+
+  &__indices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  &__heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+
+  &__watchlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+
+  &__footer {
+    text-align: center;
+    font-size: 12px;
+    color: @text-dim;
+    padding-top: 12px;
+  }
+}
+
+.mini-index {
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e8eaef;
+  border-radius: 10px;
+  transition: all 0.2s;
+
+  &--loading {
+    opacity: 0.5;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__badge {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #f0f2f5;
+    color: @text-dim;
+
+    &--on {
+      background: #e6f7ee;
+      color: @down;
+    }
+  }
+
+  &__price {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: @text;
+    margin-bottom: 2px;
+  }
+
+  &__change {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Menlo', monospace;
+
+    &--up {
+      color: @up;
+    }
+
+    &--down {
+      color: @down;
+    }
+  }
+
+  &--up {
+    border-left: 3px solid fadeout(@up, 50%);
+  }
+
+  &--down {
+    border-left: 3px solid fadeout(@down, 50%);
+  }
+}
+
+.heat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 52px;
+  transition: all 0.2s;
+  cursor: default;
+
+  &__name {
+    font-size: 11px;
+    font-weight: 600;
+    color: @text;
+    margin-bottom: 2px;
+  }
+
+  &__pct {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Menlo', monospace;
+
+    &--up {
+      color: @up;
+    }
+
+    &--down {
+      color: @down;
+    }
+  }
+}
+
+.watch-chip {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e8eaef;
+  border-radius: 10px;
+  transition: all 0.2s;
+
+  &--up {
+    border-left: 3px solid fadeout(@up, 50%);
+  }
+
+  &--down {
+    border-left: 3px solid fadeout(@down, 50%);
+  }
+
+  &__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: @text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 4px;
+  }
+
+  &__pct {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    margin-bottom: 2px;
+
+    &--up {
+      color: @up;
+    }
+
+    &--down {
+      color: @down;
+    }
+  }
+
+  &__price {
+    font-size: 11px;
+    color: @text-dim;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+}
+
+.scan-board {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e8eaef;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f2f5;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__more {
+    border: none;
+    background: none;
+    font-size: 12px;
+    color: @primary;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__empty {
+    padding: 32px 16px;
+    text-align: center;
+    font-size: 13px;
+    color: @text-dim;
+  }
+
+  &__list {
+    padding: 4px 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 10px;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #fafbfc;
+    }
+  }
+
+  &__rank {
+    width: 20px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: @text-dim;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: @text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__symbol {
+    font-size: 11px;
+    color: @text-dim;
+    font-family: 'SF Mono', 'Menlo', monospace;
+  }
+
+  &__pct {
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Menlo', monospace;
+
+    &--up {
+      color: @up;
+    }
+
+    &--down {
+      color: @down;
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .dashboard__row {
+    flex-direction: column;
+  }
+
+  .dashboard__row--boards {
+    flex-direction: column;
+  }
+}

@@ -79,7 +79,7 @@ export class QuoteEngineService implements OnModuleInit, OnModuleDestroy {
     if (!this.running) return;
 
     try {
-      const watchlistItems = await this.watchlistService.findAll();
+      const watchlistItems = await this.watchlistService.findAllSymbols();
       const watchlistSymbols = watchlistItems.map((item) => item.symbol);
 
       const allSymbols = [

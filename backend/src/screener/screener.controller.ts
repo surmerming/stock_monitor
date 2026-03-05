@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Request,
 } from '@nestjs/common';
 import { ScreenerService, ScanQuery } from './screener.service';
 
@@ -19,22 +20,22 @@ export class ScreenerController {
   }
 
   @Get('strategies')
-  async getStrategies() {
-    return this.screenerService.getStrategies();
+  async getStrategies(@Request() req: any) {
+    return this.screenerService.getStrategies(req.user.userId);
   }
 
   @Post('strategies')
-  async createStrategy(@Body() body: any) {
-    return this.screenerService.createStrategy(body);
+  async createStrategy(@Request() req: any, @Body() body: any) {
+    return this.screenerService.createStrategy(req.user.userId, body);
   }
 
   @Put('strategies/:id')
-  async updateStrategy(@Param('id') id: string, @Body() body: any) {
-    return this.screenerService.updateStrategy(+id, body);
+  async updateStrategy(@Request() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.screenerService.updateStrategy(req.user.userId, +id, body);
   }
 
   @Delete('strategies/:id')
-  async deleteStrategy(@Param('id') id: string) {
-    return this.screenerService.deleteStrategy(+id);
+  async deleteStrategy(@Request() req: any, @Param('id') id: string) {
+    return this.screenerService.deleteStrategy(req.user.userId, +id);
   }
 }

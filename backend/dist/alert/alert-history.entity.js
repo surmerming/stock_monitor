@@ -20,6 +20,10 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
+], AlertHistory.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
 ], AlertHistory.prototype, "ruleId", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 20 }),

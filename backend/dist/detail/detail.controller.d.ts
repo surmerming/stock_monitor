@@ -23,8 +23,8 @@ export declare class DetailController {
     getDetail(symbol: string): Promise<{
         price: {
             symbol: any;
-            shortName: any;
-            longName: any;
+            shortName: string;
+            longName: string;
             currency: any;
             exchange: any;
             marketState: any;

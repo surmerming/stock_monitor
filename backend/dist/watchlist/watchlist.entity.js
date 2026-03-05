@@ -18,7 +18,11 @@ __decorate([
     __metadata("design:type", Number)
 ], WatchlistItem.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 20, unique: true }),
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], WatchlistItem.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ length: 20 }),
     __metadata("design:type", String)
 ], WatchlistItem.prototype, "symbol", void 0);
 __decorate([
@@ -38,6 +42,7 @@ __decorate([
     __metadata("design:type", Date)
 ], WatchlistItem.prototype, "updatedAt", void 0);
 exports.WatchlistItem = WatchlistItem = __decorate([
-    (0, typeorm_1.Entity)('watchlist')
+    (0, typeorm_1.Entity)('watchlist'),
+    (0, typeorm_1.Index)('IDX_watchlist_user_symbol', ['userId', 'symbol'], { unique: true })
 ], WatchlistItem);
 //# sourceMappingURL=watchlist.entity.js.map

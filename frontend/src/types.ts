@@ -246,7 +246,13 @@ export interface PatternResult {
   symbol: string;
   patterns: PatternSignal[];
   supports: SupportResistance[];
-  trendLines: { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[];
+  trendLines: {
+    startDate: string;
+    startPrice: number;
+    endDate: string;
+    endPrice: number;
+    type: 'up' | 'down';
+  }[];
 }
 
 // =================== Market Sentiment ===================

@@ -23,40 +23,40 @@ let AlertService = exports.AlertService = class AlertService {
         this.ruleRepo = ruleRepo;
         this.historyRepo = historyRepo;
     }
-    findAllRules() {
-        return this.ruleRepo.find({ order: { createdAt: 'DESC' } });
+    findAllRules(userId) {
+        return this.ruleRepo.find({ where: { userId }, order: { createdAt: 'DESC' } });
     }
     findEnabledRules() {
         return this.ruleRepo.find({ where: { enabled: true }, order: { createdAt: 'ASC' } });
     }
-    createRule(data) {
-        return this.ruleRepo.save(this.ruleRepo.create(data));
+    createRule(userId, data) {
+        return this.ruleRepo.save(this.ruleRepo.create({ ...data, userId }));
     }
-    async updateRule(id, data) {
-        await this.ruleRepo.update(id, data);
-        return this.ruleRepo.findOneBy({ id });
+    async updateRule(userId, id, data) {
+        await this.ruleRepo.update({ id, userId }, data);
+        return this.ruleRepo.findOneBy({ id, userId });
     }
-    async deleteRule(id) {
-        const result = await this.ruleRepo.delete(id);
+    async deleteRule(userId, id) {
+        const result = await this.ruleRepo.delete({ id, userId });
         return (result.affected ?? 0) > 0;
     }
     async markRuleTriggered(id) {
         await this.ruleRepo.update(id, { triggered: true, lastTriggeredAt: new Date() });
     }
-    async resetRule(id) {
-        await this.ruleRepo.update(id, { triggered: false });
+    async resetRule(userId, id) {
+        await this.ruleRepo.update({ id, userId }, { triggered: false });
     }
     createHistory(data) {
         return this.historyRepo.save(this.historyRepo.create(data));
     }
-    findHistory(limit = 50) {
-        return this.historyRepo.find({ order: { triggeredAt: 'DESC' }, take: limit });
+    findHistory(userId, limit = 50) {
+        return this.historyRepo.find({ where: { userId }, order: { triggeredAt: 'DESC' }, take: limit });
     }
-    async getUnreadCount() {
-        return this.historyRepo.count({ where: { read: false } });
+    async getUnreadCount(userId) {
+        return this.historyRepo.count({ where: { userId, read: false } });
     }
-    async markAllRead() {
-        await this.historyRepo.update({ read: false }, { read: true });
+    async markAllRead(userId) {
+        await this.historyRepo.update({ userId, read: false }, { read: true });
     }
 };
 exports.AlertService = AlertService = __decorate([

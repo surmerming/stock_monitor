@@ -1,5 +1,6 @@
 export declare class AlertRule {
     id: number;
+    userId: number;
     symbol: string;
     type: string;
     threshold: number;

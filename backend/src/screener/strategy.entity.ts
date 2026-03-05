@@ -11,6 +11,9 @@ export class ScreenerStrategy {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userId: number;
+
   @Column({ length: 100 })
   name: string;
 

@@ -4,15 +4,15 @@ export declare class WatchlistController {
     private readonly watchlistService;
     private readonly stockService;
     constructor(watchlistService: WatchlistService, stockService: StockService);
-    findAll(): Promise<{
+    findAll(req: any): Promise<{
         items: import("./watchlist.entity").WatchlistItem[];
     }>;
-    add(body: {
+    add(req: any, body: {
         symbols: string[];
     }): Promise<{
         items: import("./watchlist.entity").WatchlistItem[];
     }>;
-    remove(symbol: string): Promise<{
+    remove(req: any, symbol: string): Promise<{
         success: boolean;
     }>;
 }

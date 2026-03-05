@@ -18,6 +18,10 @@ __decorate([
     __metadata("design:type", Number)
 ], AlertRule.prototype, "id", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], AlertRule.prototype, "userId", void 0);
+__decorate([
     (0, typeorm_1.Column)({ length: 20 }),
     __metadata("design:type", String)
 ], AlertRule.prototype, "symbol", void 0);

@@ -38,6 +38,7 @@ export class AlertEngineService {
       this.logger.warn(`Alert triggered: ${message}`);
 
       const history = await this.alertService.createHistory({
+        userId: rule.userId,
         ruleId: rule.id,
         symbol: rule.symbol,
         type: rule.type,

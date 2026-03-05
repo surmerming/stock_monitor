@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
 import { StockService } from '../stock/stock.service';
 import { WatchlistService } from '../watchlist/watchlist.service';
+import { CN_NAMES, getCnName } from '../common/cn-names';
 
 const yahooFinance = new YahooFinance();
 
@@ -72,43 +73,6 @@ interface ChartFlowResult {
 const OVERVIEW_CACHE_TTL = 3 * 60 * 1000;
 const DETAIL_CACHE_TTL = 60 * 1000;
 const HIST_CACHE_TTL = 10 * 60 * 1000;
-
-const CN_NAMES: Record<string, string> = {
-  '600519.SS': '贵州茅台', '000858.SZ': '五粮液', '601318.SS': '中国平安',
-  '600036.SS': '招商银行', '000333.SZ': '美的集团', '601398.SS': '工商银行',
-  '601939.SS': '建设银行', '600276.SS': '恒瑞医药', '000001.SZ': '平安银行',
-  '600000.SS': '浦发银行', '601888.SS': '中国中免', '300750.SZ': '宁德时代',
-  '002594.SZ': '比亚迪', '600900.SS': '长江电力', '601012.SS': '隆基绿能',
-  '000651.SZ': '格力电器', '601166.SS': '兴业银行', '600809.SS': '山西汾酒',
-  '002475.SZ': '立讯精密', '600030.SS': '中信证券', '601668.SS': '中国建筑',
-  '002714.SZ': '牧原股份', '600887.SS': '伊利股份', '300059.SZ': '东方财富',
-  '002415.SZ': '海康威视', '601899.SS': '紫金矿业', '300760.SZ': '迈瑞医疗',
-  '002371.SZ': '北方华创', '600585.SS': '海螺水泥', '000568.SZ': '泸州老窖',
-  '601088.SS': '中国神华', '600050.SS': '中国联通', '601857.SS': '中国石油',
-  '600028.SS': '中国石化', '600104.SS': '上汽集团', '600309.SS': '万华化学',
-  '000002.SZ': '万科A', '300015.SZ': '爱尔眼科', '601628.SS': '中国人寿',
-  '002304.SZ': '洋河股份', '002230.SZ': '科大讯飞', '300124.SZ': '汇川技术',
-  '600745.SS': '闻泰科技', '002352.SZ': '顺丰控股', '601919.SS': '中远海控',
-  '603259.SS': '药明康德', '600436.SS': '片仔癀', '002049.SZ': '紫光国微',
-  '601225.SS': '陕西煤业', '300274.SZ': '阳光电源', '600438.SS': '通威股份',
-  '002466.SZ': '天齐锂业', '601658.SS': '邮储银行', '300033.SZ': '同花顺',
-  '600048.SS': '保利发展', '002241.SZ': '歌尔股份', '601601.SS': '中国太保',
-  '000725.SZ': '京东方A', '600690.SS': '海尔智家', '603986.SS': '兆易创新',
-  '0700.HK': '腾讯控股', '9988.HK': '阿里巴巴-W', '9618.HK': '京东集团-SW',
-  '3690.HK': '美团-W', '1810.HK': '小米集团-W', '0005.HK': '汇丰控股',
-  '0941.HK': '中国移动', '0388.HK': '香港交易所', '2318.HK': '中国平安',
-  '1299.HK': '友邦保险', '0001.HK': '长和', '0027.HK': '银河娱乐',
-  '2020.HK': '安踏体育', '9999.HK': '网易-S', '1024.HK': '快手-W',
-  '0066.HK': '港铁公司', '0016.HK': '新鸿基地产', '0883.HK': '中国海油',
-  '0002.HK': '中电控股', '0003.HK': '中华煤气', '0011.HK': '恒生银行',
-  '0012.HK': '恒基地产', '1038.HK': '长江基建', '0006.HK': '电能实业',
-  '0823.HK': '领展房产', '2628.HK': '中国人寿', '1928.HK': '金沙中国',
-  '0669.HK': '创科实业', '0981.HK': '中芯国际', '9626.HK': '哔哩哔哩-W',
-  '6098.HK': '碧桂园服务', '2269.HK': '药明生物', '1211.HK': '比亚迪股份',
-  '0268.HK': '金蝶国际', '3988.HK': '中国银行', '1398.HK': '工商银行',
-  '2388.HK': '中银香港', '0939.HK': '建设银行', '0386.HK': '中国石化',
-  '1109.HK': '华润置地',
-};
 
 const A_SHARE_POOL = Object.keys(CN_NAMES).filter((s) => /\.(SS|SZ|BJ)$/i.test(s));
 const HK_STOCK_POOL = Object.keys(CN_NAMES).filter((s) => /\.HK$/i.test(s));
@@ -310,7 +274,7 @@ export class MoneyFlowService {
 
       return {
         symbol: d.symbol,
-        name: CN_NAMES[d.symbol] || d.symbol,
+        name: getCnName(d.symbol),
         market,
         price: d.close,
         change,
@@ -454,7 +418,7 @@ export class MoneyFlowService {
 
       return {
         symbol: q.symbol,
-        name: CN_NAMES[q.symbol] || q.shortName || q.longName || q.displayName || q.symbol,
+        name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
         market,
         price,
         change,
@@ -576,7 +540,7 @@ export class MoneyFlowService {
 
       if (!chartResult?.quotes?.length) return null;
 
-      const name = CN_NAMES[symbol] || quoteResult?.shortName || quoteResult?.longName || symbol;
+      const name = getCnName(symbol, quoteResult?.shortName || quoteResult?.longName || symbol);
 
       let bars = chartResult.quotes.filter(
         (q: any) => q.volume != null && q.close != null && q.open != null && q.high != null,

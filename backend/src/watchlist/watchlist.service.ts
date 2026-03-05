@@ -10,13 +10,18 @@ export class WatchlistService {
     private readonly repo: Repository<WatchlistItem>,
   ) {}
 
-  findAll(): Promise<WatchlistItem[]> {
+  findAll(userId?: number): Promise<WatchlistItem[]> {
+    const where = userId ? { userId } : {};
+    return this.repo.find({ where, order: { createdAt: 'ASC' } });
+  }
+
+  findAllSymbols(): Promise<WatchlistItem[]> {
     return this.repo.find({ order: { createdAt: 'ASC' } });
   }
 
-  async add(symbol: string, name?: string, market?: string): Promise<WatchlistItem> {
+  async add(userId: number, symbol: string, name?: string, market?: string): Promise<WatchlistItem> {
     const upper = symbol.toUpperCase();
-    const existing = await this.repo.findOneBy({ symbol: upper });
+    const existing = await this.repo.findOneBy({ userId, symbol: upper });
     if (existing) {
       if (name) existing.name = name;
       if (market) existing.market = market;
@@ -24,6 +29,7 @@ export class WatchlistService {
     }
     return this.repo.save(
       this.repo.create({
+        userId,
         symbol: upper,
         name: name || '',
         market: market || '',
@@ -32,18 +38,19 @@ export class WatchlistService {
   }
 
   async addBatch(
+    userId: number,
     items: { symbol: string; name?: string; market?: string }[],
   ): Promise<WatchlistItem[]> {
     const results: WatchlistItem[] = [];
     for (const item of items) {
-      results.push(await this.add(item.symbol, item.name, item.market));
+      results.push(await this.add(userId, item.symbol, item.name, item.market));
     }
     return results;
   }
 
-  async remove(symbol: string): Promise<boolean> {
-    const result = await this.repo.delete({ symbol: symbol.toUpperCase() });
-    return result.affected > 0;
+  async remove(userId: number, symbol: string): Promise<boolean> {
+    const result = await this.repo.delete({ userId, symbol: symbol.toUpperCase() });
+    return (result.affected ?? 0) > 0;
   }
 
   async updateNameAndMarket(symbol: string, name: string, market: string) {

@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StockService = void 0;
 const common_1 = require("@nestjs/common");
 const yahoo_finance2_1 = require("yahoo-finance2");
+const cn_names_1 = require("../common/cn-names");
 const yahooFinance = new yahoo_finance2_1.default();
 const A_SHARE_RE = /^(sh|sz|bj)?\d{6}$/i;
 const HK_RE = /^(hk)?\d{4,5}$/i;
@@ -91,7 +92,7 @@ let StockService = exports.StockService = StockService_1 = class StockService {
         const defaultCurrency = market === 'A股' ? 'CNY' : market === '港股' ? 'HKD' : 'USD';
         return {
             symbol: display,
-            name: raw.shortName || raw.longName || display,
+            name: (0, cn_names_1.getCnName)(display, raw.shortName || raw.longName || display),
             currency: raw.currency || defaultCurrency,
             current_price: current,
             prev_close: prevClose,

@@ -21,11 +21,11 @@ let WatchlistController = exports.WatchlistController = class WatchlistControlle
         this.watchlistService = watchlistService;
         this.stockService = stockService;
     }
-    async findAll() {
-        const items = await this.watchlistService.findAll();
+    async findAll(req) {
+        const items = await this.watchlistService.findAll(req.user.userId);
         return { items };
     }
-    async add(body) {
+    async add(req, body) {
         const symbols = body.symbols || [];
         if (symbols.length === 0)
             return { items: [] };
@@ -35,32 +35,35 @@ let WatchlistController = exports.WatchlistController = class WatchlistControlle
             name: r.data?.name || '',
             market: r.data?.market || '',
         }));
-        const items = await this.watchlistService.addBatch(toSave);
+        const items = await this.watchlistService.addBatch(req.user.userId, toSave);
         return { items };
     }
-    async remove(symbol) {
-        const ok = await this.watchlistService.remove(symbol);
+    async remove(req, symbol) {
+        const ok = await this.watchlistService.remove(req.user.userId, symbol);
         return { success: ok };
     }
 };
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], WatchlistController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], WatchlistController.prototype, "add", null);
 __decorate([
     (0, common_1.Delete)(':symbol'),
-    __param(0, (0, common_1.Param)('symbol')),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('symbol')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], WatchlistController.prototype, "remove", null);
 exports.WatchlistController = WatchlistController = __decorate([

@@ -11,6 +11,9 @@ export class AlertRule {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userId: number;
+
   @Column({ length: 20 })
   symbol: string;
 

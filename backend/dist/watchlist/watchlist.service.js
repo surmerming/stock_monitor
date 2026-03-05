@@ -21,12 +21,16 @@ let WatchlistService = exports.WatchlistService = class WatchlistService {
     constructor(repo) {
         this.repo = repo;
     }
-    findAll() {
+    findAll(userId) {
+        const where = userId ? { userId } : {};
+        return this.repo.find({ where, order: { createdAt: 'ASC' } });
+    }
+    findAllSymbols() {
         return this.repo.find({ order: { createdAt: 'ASC' } });
     }
-    async add(symbol, name, market) {
+    async add(userId, symbol, name, market) {
         const upper = symbol.toUpperCase();
-        const existing = await this.repo.findOneBy({ symbol: upper });
+        const existing = await this.repo.findOneBy({ userId, symbol: upper });
         if (existing) {
             if (name)
                 existing.name = name;
@@ -35,21 +39,22 @@ let WatchlistService = exports.WatchlistService = class WatchlistService {
             return this.repo.save(existing);
         }
         return this.repo.save(this.repo.create({
+            userId,
             symbol: upper,
             name: name || '',
             market: market || '',
         }));
     }
-    async addBatch(items) {
+    async addBatch(userId, items) {
         const results = [];
         for (const item of items) {
-            results.push(await this.add(item.symbol, item.name, item.market));
+            results.push(await this.add(userId, item.symbol, item.name, item.market));
         }
         return results;
     }
-    async remove(symbol) {
-        const result = await this.repo.delete({ symbol: symbol.toUpperCase() });
-        return result.affected > 0;
+    async remove(userId, symbol) {
+        const result = await this.repo.delete({ userId, symbol: symbol.toUpperCase() });
+        return (result.affected ?? 0) > 0;
     }
     async updateNameAndMarket(symbol, name, market) {
         await this.repo.update({ symbol: symbol.toUpperCase() }, { name, market });
