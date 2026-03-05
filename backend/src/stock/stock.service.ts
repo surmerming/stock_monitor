@@ -26,6 +26,13 @@ export interface StockQuote {
   timestamp: string;
   market: string;
   is_up: boolean;
+  market_state: string | null;
+  pre_market_price: number | null;
+  pre_market_change: number | null;
+  pre_market_change_percent: number | null;
+  post_market_price: number | null;
+  post_market_change: number | null;
+  post_market_change_percent: number | null;
 }
 
 const A_SHARE_RE = /^(sh|sz|bj)?\d{6}$/i;
@@ -146,6 +153,13 @@ export class StockService {
       timestamp: new Date().toISOString(),
       market,
       is_up: change >= 0,
+      market_state: raw.marketState ?? null,
+      pre_market_price: raw.preMarketPrice ?? null,
+      pre_market_change: raw.preMarketChange ?? null,
+      pre_market_change_percent: raw.preMarketChangePercent ?? null,
+      post_market_price: raw.postMarketPrice ?? null,
+      post_market_change: raw.postMarketChange ?? null,
+      post_market_change_percent: raw.postMarketChangePercent ?? null,
     };
   }
 

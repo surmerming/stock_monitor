@@ -116,6 +116,13 @@ let StockService = exports.StockService = StockService_1 = class StockService {
             timestamp: new Date().toISOString(),
             market,
             is_up: change >= 0,
+            market_state: raw.marketState ?? null,
+            pre_market_price: raw.preMarketPrice ?? null,
+            pre_market_change: raw.preMarketChange ?? null,
+            pre_market_change_percent: raw.preMarketChangePercent ?? null,
+            post_market_price: raw.postMarketPrice ?? null,
+            post_market_change: raw.postMarketChange ?? null,
+            post_market_change_percent: raw.postMarketChangePercent ?? null,
         };
     }
     async fetchQuote(symbol) {

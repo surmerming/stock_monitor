@@ -9,10 +9,11 @@ import './StockDetailPage.less';
 const CHART_RANGES = [
   { key: '1d', label: '分时', interval: '1m' },
   { key: '5d', label: '5日', interval: '5m' },
-  { key: '1mo', label: '1月', interval: '15m' },
-  { key: '3mo', label: '3月', interval: '1d' },
-  { key: '6mo', label: '6月', interval: '1d' },
-  { key: '1y', label: '1年', interval: '1d' },
+  { key: 'daily', label: '日K', interval: '1d' },
+  { key: 'weekly', label: '周K', interval: '1wk' },
+  { key: 'monthly', label: '月K', interval: '1mo' },
+  { key: 'quarterly', label: '季K', interval: '3mo' },
+  { key: 'yearly', label: '年K', interval: '1y' },
 ];
 
 const REC_LABELS: Record<string, string> = {
@@ -278,7 +279,7 @@ export default function StockDetailPage() {
   const isUp = change >= 0;
   const trend = isUp ? 'up' : 'down';
   const sign = isUp ? '+' : '';
-  const chartType = activeRange === '1d' ? 'area' : 'candle';
+  const chartType = activeRange === '1d' || activeRange === '5d' ? 'area' : 'candle';
 
   return (
     <div className="stock-detail">
@@ -324,7 +325,7 @@ export default function StockDetailPage() {
             <StockChart
               quotes={chartData.quotes}
               type={chartType}
-              prevClose={activeRange === '1d' ? chartData.meta?.chartPreviousClose ?? null : null}
+              prevClose={activeRange === '1d' || activeRange === '5d' ? chartData.meta?.chartPreviousClose ?? null : null}
               timezone={chartData.meta?.timezone}
             />
           ) : (

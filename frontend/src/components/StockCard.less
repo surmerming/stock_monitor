@@ -257,3 +257,47 @@
     background-position: -200% 0;
   }
 }
+
+.stock-card__extended {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  margin: 0 -16px;
+  background: #f8f9fb;
+  border-top: 1px dashed @border;
+  font-size: 12px;
+
+  &--up {
+    background: rgba(231, 76, 60, 0.03);
+  }
+
+  &--down {
+    background: rgba(39, 174, 96, 0.03);
+  }
+}
+
+.stock-card__extended-label {
+  color: @text-dim;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.stock-card__extended-price {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-weight: 600;
+  color: @text;
+}
+
+.stock-card__extended-change {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-weight: 500;
+
+  &--up {
+    color: @red;
+  }
+
+  &--down {
+    color: @green;
+  }
+}

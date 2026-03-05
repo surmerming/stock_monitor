@@ -20,7 +20,7 @@ let DetailController = exports.DetailController = class DetailController {
         this.detailService = detailService;
     }
     getChart(symbol, interval, range) {
-        const validIntervals = ['1m', '5m', '15m', '1d'];
+        const validIntervals = ['1m', '5m', '15m', '1d', '1wk', '1mo', '3mo', '1y'];
         const iv = validIntervals.includes(interval)
             ? interval
             : '1m';

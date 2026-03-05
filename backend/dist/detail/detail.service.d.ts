@@ -3,7 +3,7 @@ export declare class DetailService {
     private readonly stockService;
     private readonly logger;
     constructor(stockService: StockService);
-    getChart(rawSymbol: string, interval?: '1m' | '5m' | '15m' | '1d', range?: string): Promise<{
+    getChart(rawSymbol: string, interval?: '1m' | '5m' | '15m' | '1d' | '1wk' | '1mo' | '3mo' | '1y', range?: string): Promise<{
         meta: {
             symbol: any;
             currency: any;
@@ -21,6 +21,7 @@ export declare class DetailService {
         };
         quotes: any;
     }>;
+    private aggregateToYearly;
     getDetail(rawSymbol: string): Promise<{
         price: {
             symbol: any;

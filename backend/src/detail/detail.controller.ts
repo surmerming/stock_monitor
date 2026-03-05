@@ -11,7 +11,7 @@ export class DetailController {
     @Query('interval') interval?: string,
     @Query('range') range?: string,
   ) {
-    const validIntervals = ['1m', '5m', '15m', '1d'] as const;
+    const validIntervals = ['1m', '5m', '15m', '1d', '1wk', '1mo', '3mo', '1y'] as const;
     const iv = validIntervals.includes(interval as any)
       ? (interval as (typeof validIntervals)[number])
       : '1m';

@@ -22,15 +22,20 @@ export class QuoteEngineService implements OnModuleInit, OnModuleDestroy {
   private running = false;
 
   private static readonly MARKET_INDICES = [
-    '^GSPC',
-    '^DJI',
-    '^IXIC',
-    '000001.SS',
-    '399001.SZ',
-    '399006.SZ',
-    '^HSI',
-    '^HSCE',
-    'HSTECH.HK',
+    // A股指数
+    '000001.SS', '399001.SZ', '399006.SZ', '000300.SS', '399005.SZ',
+    // 港股指数
+    '^HSI', '^HSCE', 'HSTECH.HK', '^HSCC', '^HSNU',
+    // 美股指数
+    '^GSPC', '^DJI', '^IXIC',
+    // A股行业指数
+    '399997.SZ', '399967.SZ', '399395.SZ',
+    // 大宗商品
+    'GC=F', 'SI=F', 'CL=F', 'HG=F', 'NG=F',
+    // 利率债券
+    '^TNX', '^TYX', '^FVX', '^IRX',
+    // 外汇宏观
+    'DX-Y.NYB', 'CNY=X', '^VIX', 'BTC-USD',
   ];
 
   private static readonly INDUSTRY_ETFS = [
