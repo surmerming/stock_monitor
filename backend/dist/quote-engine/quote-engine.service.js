@@ -137,15 +137,13 @@ let QuoteEngineService = exports.QuoteEngineService = QuoteEngineService_1 = cla
     }
 };
 QuoteEngineService.MARKET_INDICES = [
-    '^GSPC',
-    '^DJI',
-    '^IXIC',
-    '000001.SS',
-    '399001.SZ',
-    '399006.SZ',
-    '^HSI',
-    '^HSCE',
-    'HSTECH.HK',
+    '000001.SS', '399001.SZ', '399006.SZ', '000300.SS', '399005.SZ',
+    '^HSI', '^HSCE', 'HSTECH.HK', '^HSCC', '^HSNU',
+    '^GSPC', '^DJI', '^IXIC',
+    '399997.SZ', '399967.SZ', '399395.SZ',
+    'GC=F', 'SI=F', 'CL=F', 'HG=F', 'NG=F',
+    '^TNX', '^TYX', '^FVX', '^IRX',
+    'DX-Y.NYB', 'CNY=X', '^VIX', 'BTC-USD',
 ];
 QuoteEngineService.INDUSTRY_ETFS = [
     'XLK', 'XLF', 'XLV', 'XLE', 'XLY', 'XLP', 'XLI', 'XLU', 'XLB', 'XLRE', 'XLC',

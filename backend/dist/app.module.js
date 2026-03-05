@@ -15,9 +15,16 @@ const quote_engine_module_1 = require("./quote-engine/quote-engine.module");
 const alert_module_1 = require("./alert/alert.module");
 const scanner_module_1 = require("./scanner/scanner.module");
 const detail_module_1 = require("./detail/detail.module");
+const screener_module_1 = require("./screener/screener.module");
+const moneyflow_module_1 = require("./moneyflow/moneyflow.module");
+const backtest_module_1 = require("./backtest/backtest.module");
+const sector_module_1 = require("./sector/sector.module");
+const pattern_module_1 = require("./pattern/pattern.module");
+const sentiment_module_1 = require("./sentiment/sentiment.module");
 const watchlist_entity_1 = require("./watchlist/watchlist.entity");
 const alert_rule_entity_1 = require("./alert/alert-rule.entity");
 const alert_history_entity_1 = require("./alert/alert-history.entity");
+const strategy_entity_1 = require("./screener/strategy.entity");
 let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
@@ -30,7 +37,7 @@ exports.AppModule = AppModule = __decorate([
                 username: 'root',
                 password: '123456',
                 database: 'stock_monitor',
-                entities: [watchlist_entity_1.WatchlistItem, alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory],
+                entities: [watchlist_entity_1.WatchlistItem, alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory, strategy_entity_1.ScreenerStrategy],
                 synchronize: true,
             }),
             stock_module_1.StockModule,
@@ -39,6 +46,12 @@ exports.AppModule = AppModule = __decorate([
             alert_module_1.AlertModule,
             scanner_module_1.ScannerModule,
             detail_module_1.DetailModule,
+            screener_module_1.ScreenerModule,
+            moneyflow_module_1.MoneyFlowModule,
+            backtest_module_1.BacktestModule,
+            sector_module_1.SectorModule,
+            pattern_module_1.PatternModule,
+            sentiment_module_1.SentimentModule,
         ],
     })
 ], AppModule);

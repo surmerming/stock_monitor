@@ -19,11 +19,13 @@ export function formatPrice(val: number | null | undefined): string {
 }
 
 export function formatTurnover(val: number | null | undefined): string {
-  if (!val) return '—';
-  if (val >= 1e12) return `${(val / 1e12).toFixed(2)}万亿`;
-  if (val >= 1e8) return `${(val / 1e8).toFixed(2)}亿`;
-  if (val >= 1e4) return `${(val / 1e4).toFixed(2)}万`;
-  return val.toLocaleString();
+  if (val == null || val === 0) return '—';
+  const sign = val < 0 ? '-' : '';
+  const abs = Math.abs(val);
+  if (abs >= 1e12) return `${sign}${(abs / 1e12).toFixed(2)}万亿`;
+  if (abs >= 1e8) return `${sign}${(abs / 1e8).toFixed(2)}亿`;
+  if (abs >= 1e4) return `${sign}${(abs / 1e4).toFixed(2)}万`;
+  return `${sign}${abs.toLocaleString()}`;
 }
 
 export function formatPercent(val: number | null | undefined): string {

@@ -1,0 +1,133 @@
+@primary: #5b8def;
+@up: #e8364e;
+@down: #00a86b;
+@text: #1a1a2e;
+@text-dim: #8892a4;
+@border: #ebedf0;
+@bg: #f7f8fa;
+@card: #ffffff;
+@mono: 'SF Mono', Menlo, Consolas, monospace;
+
+.bt-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  &__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  &__title { font-size: 20px; font-weight: 700; color: @text; margin: 0; }
+  &__body { display: flex; gap: 20px; }
+  &__sidebar { width: 180px; flex-shrink: 0; }
+  &__main { flex: 1; min-width: 0; }
+  &__run {
+    display: block; width: 100%; padding: 10px; border: none; border-radius: 8px;
+    background: @primary; color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin: 16px 0;
+    &:hover { opacity: 0.9; }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+  &__error { padding: 10px 14px; border-radius: 8px; background: #fff0f0; color: @up; font-size: 13px; margin-bottom: 16px; }
+}
+
+.bt-sidebar {
+  background: @card; border-radius: 10px; padding: 14px; border: 1px solid @border;
+  &__heading { font-size: 13px; font-weight: 600; color: @text-dim; margin: 0 0 10px; }
+  &__item {
+    display: block; width: 100%; text-align: left; padding: 8px 10px; border: none;
+    background: none; border-radius: 6px; font-size: 13px; color: @text; cursor: pointer;
+    margin-bottom: 2px;
+    &:hover { background: @bg; }
+    &--active { background: fade(@primary, 10%); color: @primary; font-weight: 600; }
+  }
+}
+
+.bt-config {
+  background: @card; border-radius: 10px; padding: 16px; border: 1px solid @border;
+  &__row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  &__label { font-size: 13px; color: @text-dim; white-space: nowrap; min-width: 70px; }
+  &__input {
+    padding: 6px 10px; border: 1px solid @border; border-radius: 6px; font-size: 13px;
+    font-family: @mono; color: @text; background: @bg; outline: none; width: 140px;
+    &:focus { border-color: @primary; }
+    &--date { width: 150px; }
+    &--sm { width: 80px; }
+  }
+  &__sep { color: @text-dim; font-size: 13px; }
+}
+
+.bt-filters {
+  background: @card; border-radius: 10px; padding: 16px; border: 1px solid @border; margin-top: 12px;
+  &__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  &__title { font-size: 14px; font-weight: 600; color: @text; margin: 0; }
+  &__add {
+    border: none; background: none; color: @primary; font-size: 13px; cursor: pointer;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.bt-filter-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  &__field, &__op {
+    padding: 5px 8px; border: 1px solid @border; border-radius: 6px; font-size: 12px;
+    background: @bg; color: @text; outline: none;
+  }
+  &__field { width: 140px; }
+  &__op { width: 60px; }
+  &__val {
+    width: 70px; padding: 5px 8px; border: 1px solid @border; border-radius: 6px;
+    font-size: 12px; font-family: @mono; color: @text; background: @bg; outline: none;
+    &:focus { border-color: @primary; }
+  }
+  &__sep { color: @text-dim; font-size: 12px; }
+  &__del {
+    width: 24px; height: 24px; border: none; background: none; color: @text-dim;
+    font-size: 16px; cursor: pointer; border-radius: 4px;
+    &:hover { background: #fff0f0; color: @up; }
+  }
+}
+
+.bt-result {
+  &__title { font-size: 16px; font-weight: 700; color: @text; margin: 0 0 16px; }
+}
+
+.bt-stats {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px;
+}
+
+.bt-stat {
+  background: @card; border: 1px solid @border; border-radius: 10px; padding: 12px 14px; text-align: center;
+  &__label { font-size: 11px; color: @text-dim; margin-bottom: 4px; }
+  &__value { font-size: 16px; font-weight: 700; font-family: @mono; color: @text; }
+  &--up .bt-stat__value { color: @up; }
+  &--down .bt-stat__value { color: @down; }
+}
+
+.bt-chart {
+  background: @card; border: 1px solid @border; border-radius: 10px; padding: 16px; margin-bottom: 20px;
+  &__title { font-size: 14px; font-weight: 600; color: @text; margin: 0 0 10px; }
+  &__canvas { width: 100%; }
+}
+
+.bt-trades {
+  background: @card; border: 1px solid @border; border-radius: 10px; padding: 16px;
+  &__title { font-size: 14px; font-weight: 600; color: @text; margin: 0 0 12px; }
+  &__table { overflow-x: auto; }
+  &__head {
+    display: flex; gap: 0; padding: 8px 0; border-bottom: 2px solid @border;
+    font-size: 11px; font-weight: 600; color: @text-dim; text-transform: uppercase;
+  }
+  &__row {
+    display: flex; gap: 0; padding: 7px 0; border-bottom: 1px solid @border;
+    font-size: 12px; color: @text; font-family: @mono;
+    &:hover { background: @bg; }
+  }
+  &__col {
+    flex-shrink: 0; padding: 0 6px;
+    &--idx { width: 36px; text-align: center; }
+    &--date { width: 100px; }
+    &--price { width: 80px; text-align: right; }
+    &--pnl { width: 80px; text-align: right; }
+    &--hold { width: 60px; text-align: center; }
+    &--reason { width: 80px; text-align: center; }
+  }
+  &__up { color: @up; }
+  &__down { color: @down; }
+}

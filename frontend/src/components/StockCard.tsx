@@ -106,6 +106,8 @@ export default function StockCard({ data, symbol, onRemove, onClick }: StockCard
         </span>
       </div>
 
+      <ExtendedHoursBar data={data} />
+
       <div className="stock-card__grid">
         <div className="stock-card__field">
           <span className="stock-card__label">今开</span>
@@ -178,6 +180,32 @@ export default function StockCard({ data, symbol, onRemove, onClick }: StockCard
       <div className="stock-card__footer">
         更新于 {new Date(data.timestamp).toLocaleTimeString('zh-CN', { hour12: false })}
       </div>
+    </div>
+  );
+}
+
+function ExtendedHoursBar({ data }: { data: QuoteData }) {
+  const state = data.market_state;
+  const hasPre = state === 'PRE' && data.pre_market_price != null;
+  const hasPost = (state === 'POST' || state === 'CLOSED') && data.post_market_price != null;
+
+  if (!hasPre && !hasPost) return null;
+
+  const price = hasPre ? data.pre_market_price! : data.post_market_price!;
+  const change = hasPre ? data.pre_market_change! : data.post_market_change!;
+  const pct = hasPre ? data.pre_market_change_percent! : data.post_market_change_percent!;
+  const label = hasPre ? '盘前' : '盘后';
+  const isUp = change >= 0;
+  const trend = isUp ? 'up' : 'down';
+  const sign = isUp ? '+' : '';
+
+  return (
+    <div className={`stock-card__extended stock-card__extended--${trend}`}>
+      <span className="stock-card__extended-label">{label}</span>
+      <span className="stock-card__extended-price">{price.toFixed(2)}</span>
+      <span className={`stock-card__extended-change stock-card__extended-change--${trend}`}>
+        {sign}{change.toFixed(2)} ({sign}{pct.toFixed(2)}%)
+      </span>
     </div>
   );
 }

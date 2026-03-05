@@ -14,7 +14,7 @@ export class DetailService {
 
   async getChart(
     rawSymbol: string,
-    interval: '1m' | '5m' | '15m' | '1d' = '1m',
+    interval: '1m' | '5m' | '15m' | '1d' | '1wk' | '1mo' | '3mo' | '1y' = '1m',
     range: string = '1d',
   ) {
     const rangeToP1: Record<string, number> = {
@@ -24,46 +24,99 @@ export class DetailService {
       '3mo': 90,
       '6mo': 180,
       '1y': 365,
+      daily: 365,
+      weekly: 3 * 365,
+      monthly: 10 * 365,
+      quarterly: 20 * 365,
+      yearly: 30 * 365,
     };
     const days = rangeToP1[range] ?? 1;
     const period1 = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const { yahoo: symbol } = this.stockService.normalizeSymbol(rawSymbol);
 
-    try {
-      const result: any = await yahooFinance.chart(symbol, {
-        period1,
-        interval,
-      }, { validateResult: false });
+    const isYearly = interval === '1y';
+    const fetchInterval = isYearly ? '1mo' : interval;
 
-      return {
-        meta: {
-          symbol: result.meta.symbol,
-          currency: result.meta.currency,
-          exchangeName: result.meta.exchangeName,
-          longName: result.meta.longName,
-          shortName: result.meta.shortName,
-          regularMarketPrice: result.meta.regularMarketPrice,
-          chartPreviousClose: result.meta.chartPreviousClose ?? result.meta.previousClose,
-          regularMarketDayHigh: result.meta.regularMarketDayHigh,
-          regularMarketDayLow: result.meta.regularMarketDayLow,
-          regularMarketVolume: result.meta.regularMarketVolume,
-          fiftyTwoWeekHigh: result.meta.fiftyTwoWeekHigh,
-          fiftyTwoWeekLow: result.meta.fiftyTwoWeekLow,
-          timezone: result.meta.timezone,
-        },
-        quotes: result.quotes.map((q) => ({
-          date: q.date,
-          open: q.open,
-          high: q.high,
-          low: q.low,
-          close: q.close,
-          volume: q.volume,
-        })),
+    try {
+      const result: any = await yahooFinance.chart(
+        symbol,
+        { period1, interval: fetchInterval },
+        { validateResult: false },
+      );
+
+      const meta = {
+        symbol: result.meta.symbol,
+        currency: result.meta.currency,
+        exchangeName: result.meta.exchangeName,
+        longName: result.meta.longName,
+        shortName: result.meta.shortName,
+        regularMarketPrice: result.meta.regularMarketPrice,
+        chartPreviousClose:
+          result.meta.chartPreviousClose ?? result.meta.previousClose,
+        regularMarketDayHigh: result.meta.regularMarketDayHigh,
+        regularMarketDayLow: result.meta.regularMarketDayLow,
+        regularMarketVolume: result.meta.regularMarketVolume,
+        fiftyTwoWeekHigh: result.meta.fiftyTwoWeekHigh,
+        fiftyTwoWeekLow: result.meta.fiftyTwoWeekLow,
+        timezone: result.meta.timezone,
       };
+
+      let quotes = result.quotes.map((q) => ({
+        date: q.date,
+        open: q.open,
+        high: q.high,
+        low: q.low,
+        close: q.close,
+        volume: q.volume,
+      }));
+
+      if (isYearly) {
+        quotes = this.aggregateToYearly(quotes);
+      }
+
+      return { meta, quotes };
     } catch (err) {
       this.logger.error(`Chart fetch error for ${symbol}: ${err.message}`);
       throw err;
     }
+  }
+
+  private aggregateToYearly(
+    monthlyQuotes: { date: any; open: number; high: number; low: number; close: number; volume: number }[],
+  ) {
+    const yearMap = new Map<
+      number,
+      { date: any; open: number; high: number; low: number; close: number; volume: number }
+    >();
+
+    for (const q of monthlyQuotes) {
+      if (q.close == null) continue;
+      const d = new Date(q.date);
+      const year = d.getFullYear();
+      const existing = yearMap.get(year);
+
+      if (!existing) {
+        yearMap.set(year, { ...q });
+      } else {
+        if (q.high != null && (existing.high == null || q.high > existing.high))
+          existing.high = q.high;
+        if (q.low != null && (existing.low == null || q.low < existing.low))
+          existing.low = q.low;
+        existing.close = q.close;
+        existing.volume = (existing.volume ?? 0) + (q.volume ?? 0);
+      }
+    }
+
+    return [...yearMap.entries()]
+      .sort(([a], [b]) => a - b)
+      .map(([year, q]) => ({
+        date: new Date(year, 0, 1).toISOString(),
+        open: q.open,
+        high: q.high,
+        low: q.low,
+        close: q.close,
+        volume: q.volume,
+      }));
   }
 
   async getDetail(rawSymbol: string) {
@@ -152,17 +205,38 @@ export class DetailService {
             }
           : null,
         shortInterest: keyStats
-          ? {
-              sharesShort: keyStats.sharesShort,
-              sharesShortPriorMonth: keyStats.sharesShortPriorMonth,
-              shortRatio: keyStats.shortRatio,
-              shortPercentOfFloat: keyStats.shortPercentOfFloat,
-              dateShortInterest: keyStats.dateShortInterest,
-              sharesOutstanding: keyStats.sharesOutstanding,
-              floatShares: keyStats.floatShares,
-              heldPercentInsiders: keyStats.heldPercentInsiders,
-              heldPercentInstitutions: keyStats.heldPercentInstitutions,
-            }
+          ? (() => {
+              let floatShares = keyStats.floatShares;
+              const outstanding = keyStats.sharesOutstanding;
+              if (
+                floatShares != null &&
+                outstanding != null &&
+                floatShares > outstanding * 1.1
+              ) {
+                for (const adrRatio of [2, 4, 5, 8, 10, 20]) {
+                  if (floatShares / adrRatio <= outstanding) {
+                    floatShares = Math.round(floatShares / adrRatio);
+                    break;
+                  }
+                }
+              }
+              return {
+                sharesShort: keyStats.sharesShort,
+                sharesShortPriorMonth:
+                  keyStats.sharesShortPriorMonth instanceof Date
+                    ? Math.round(
+                        keyStats.sharesShortPriorMonth.getTime() / 1000,
+                      )
+                    : keyStats.sharesShortPriorMonth,
+                shortRatio: keyStats.shortRatio,
+                shortPercentOfFloat: keyStats.shortPercentOfFloat,
+                dateShortInterest: keyStats.dateShortInterest,
+                sharesOutstanding: outstanding,
+                floatShares,
+                heldPercentInsiders: keyStats.heldPercentInsiders,
+                heldPercentInstitutions: keyStats.heldPercentInstitutions,
+              };
+            })()
           : null,
         majorHolders: holders
           ? {

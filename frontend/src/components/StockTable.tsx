@@ -191,7 +191,8 @@ function StockRow({ sym, data, onSymbolClick }: StockRowProps) {
         <span className="stock-table__symbol">{data.symbol}</span>
       </td>
       <td className={`stock-table__td stock-table__td--mono stock-table__td--${trend}`}>
-        {data.currency} {data.current_price.toFixed(2)}
+        <span>{data.currency} {data.current_price.toFixed(2)}</span>
+        <ExtendedHoursInline data={data} />
       </td>
       <td className={`stock-table__td stock-table__td--mono stock-table__td--${trend}`}>
         {sign}
@@ -217,5 +218,24 @@ function StockRow({ sym, data, onSymbolClick }: StockRowProps) {
         {data.pe_ratio ? data.pe_ratio.toFixed(2) : '—'}
       </td>
     </tr>
+  );
+}
+
+function ExtendedHoursInline({ data }: { data: QuoteData }) {
+  const state = data.market_state;
+  const hasPre = state === 'PRE' && data.pre_market_price != null;
+  const hasPost = (state === 'POST' || state === 'CLOSED') && data.post_market_price != null;
+
+  if (!hasPre && !hasPost) return null;
+
+  const pct = hasPre ? data.pre_market_change_percent! : data.post_market_change_percent!;
+  const label = hasPre ? '盘前' : '盘后';
+  const isUp = pct >= 0;
+  const sign = isUp ? '+' : '';
+
+  return (
+    <span className={`stock-table__ext stock-table__ext--${isUp ? 'up' : 'down'}`}>
+      {label} {sign}{pct.toFixed(2)}%
+    </span>
   );
 }
