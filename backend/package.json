@@ -26,16 +26,22 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^11.0.0",
+    "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "cross-fetch": "^4.1.0",
+    "https-proxy-agent": "^9.1.0",
     "mysql2": "^3.18.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "puppeteer": "^25.2.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.28",
-    "yahoo-finance2": "^3.13.2"
+    "undici": "^8.5.0",
+    "yahoo-finance2": "^3.13.2",
+    "yfinance": "^0.0.6"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
@@ -78,5 +84,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "allowScripts": {
+    "puppeteer@25.2.1": true
   }
 }

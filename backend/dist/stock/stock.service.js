@@ -5,13 +5,130 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var StockService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StockService = void 0;
 const common_1 = require("@nestjs/common");
-const yahoo_finance2_1 = require("yahoo-finance2");
+const yahoo_finance2_1 = __importDefault(require("yahoo-finance2"));
+const axios_1 = __importDefault(require("axios"));
 const cn_names_1 = require("../common/cn-names");
-const yahooFinance = new yahoo_finance2_1.default();
+function getSystemProxy() {
+    const envVars = ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'];
+    for (const envVar of envVars) {
+        const proxy = process.env[envVar];
+        if (proxy && proxy.trim()) {
+            return proxy.trim();
+        }
+    }
+    return undefined;
+}
+const proxyUrl = getSystemProxy();
+let proxyAgent = undefined;
+async function ensureProxyAgent() {
+    if (proxyAgent)
+        return proxyAgent;
+    if (!proxyUrl)
+        return undefined;
+    try {
+        const { HttpsProxyAgent } = await import('https-proxy-agent');
+        proxyAgent = new HttpsProxyAgent(proxyUrl);
+        return proxyAgent;
+    }
+    catch {
+        return undefined;
+    }
+}
+const customFetch = async (input, init) => {
+    const url = typeof input === 'string' ? input : input.url;
+    const method = init?.method || 'GET';
+    const agent = await ensureProxyAgent();
+    const axiosConfig = {
+        url,
+        method,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+            'Accept-Encoding': 'gzip, deflate, br',
+            Connection: 'keep-alive',
+            ...init?.headers,
+        },
+        httpsAgent: agent,
+        httpAgent: agent,
+        maxRedirects: init?.redirect === 'manual' ? 0 : 10,
+        validateStatus: () => true,
+    };
+    if (init?.body) {
+        axiosConfig.data = init.body;
+    }
+    try {
+        const response = await (0, axios_1.default)(axiosConfig);
+        const headers = new Headers();
+        for (const [key, value] of Object.entries(response.headers || {})) {
+            headers.set(key, String(value));
+        }
+        const data = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+        const customResp = {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+            text: () => Promise.resolve(data),
+            json: () => Promise.resolve(typeof response.data === 'string' ? JSON.parse(response.data) : response.data),
+            ok: response.status >= 200 && response.status < 300,
+            redirected: false,
+            type: 'basic',
+            url,
+            body: null,
+            bodyUsed: false,
+            arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+            blob: () => Promise.resolve(new Blob([])),
+            formData: () => Promise.resolve(new FormData()),
+            clone: () => ({ ...customResp }),
+            bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
+        };
+        return customResp;
+    }
+    catch (error) {
+        if (error.response) {
+            const headers = new Headers();
+            for (const [key, value] of Object.entries(error.response.headers || {})) {
+                headers.set(key, String(value));
+            }
+            const data = typeof error.response.data === 'string'
+                ? error.response.data
+                : JSON.stringify(error.response.data);
+            const customResp = {
+                status: error.response.status,
+                statusText: error.response.statusText,
+                headers,
+                text: () => Promise.resolve(data),
+                json: () => Promise.resolve(typeof error.response.data === 'string'
+                    ? JSON.parse(error.response.data)
+                    : error.response.data),
+                ok: false,
+                redirected: false,
+                type: 'basic',
+                url,
+                body: null,
+                bodyUsed: false,
+                arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+                blob: () => Promise.resolve(new Blob([])),
+                formData: () => Promise.resolve(new FormData()),
+                clone: () => ({ ...customResp }),
+                bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
+            };
+            return customResp;
+        }
+        throw error;
+    }
+};
+const yahooFinance = new yahoo_finance2_1.default({
+    suppressNotices: ['yahooSurvey'],
+    fetch: customFetch,
+});
 const A_SHARE_RE = /^(sh|sz|bj)?\d{6}$/i;
 const HK_RE = /^(hk)?\d{4,5}$/i;
 function isAShare(symbol) {
@@ -55,7 +172,7 @@ function toYahooHK(symbol) {
     const code = (s.replace(/^0+/, '') || '0').padStart(4, '0');
     return { yahoo: `${code}.HK`, display: `HK${code}` };
 }
-let StockService = exports.StockService = StockService_1 = class StockService {
+let StockService = StockService_1 = class StockService {
     constructor() {
         this.logger = new common_1.Logger(StockService_1.name);
     }
@@ -197,6 +314,7 @@ let StockService = exports.StockService = StockService_1 = class StockService {
         return result;
     }
 };
+exports.StockService = StockService;
 exports.StockService = StockService = StockService_1 = __decorate([
     (0, common_1.Injectable)()
 ], StockService);

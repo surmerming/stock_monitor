@@ -1,8 +1,136 @@
 import { Injectable, Logger } from '@nestjs/common';
 import YahooFinance from 'yahoo-finance2';
+import axios from 'axios';
 import { getCnName } from '../common/cn-names';
 
-const yahooFinance = new YahooFinance();
+function getSystemProxy(): string | undefined {
+  const envVars = ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'];
+  for (const envVar of envVars) {
+    const proxy = process.env[envVar];
+    if (proxy && proxy.trim()) {
+      return proxy.trim();
+    }
+  }
+  return undefined;
+}
+
+const proxyUrl = getSystemProxy();
+let proxyAgent: any = undefined;
+
+async function ensureProxyAgent(): Promise<any> {
+  if (proxyAgent) return proxyAgent;
+  if (!proxyUrl) return undefined;
+  try {
+    const { HttpsProxyAgent } = await import('https-proxy-agent');
+    proxyAgent = new HttpsProxyAgent(proxyUrl);
+    return proxyAgent;
+  } catch {
+    return undefined;
+  }
+}
+
+const customFetch = async (input: any, init: any): Promise<Response> => {
+  const url = typeof input === 'string' ? input : input.url;
+  const method = init?.method || 'GET';
+  const agent = await ensureProxyAgent();
+
+  const axiosConfig: any = {
+    url,
+    method,
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      Accept:
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+      'Accept-Encoding': 'gzip, deflate, br',
+      Connection: 'keep-alive',
+      ...(init?.headers as Record<string, string>),
+    },
+    httpsAgent: agent,
+    httpAgent: agent,
+    maxRedirects: init?.redirect === 'manual' ? 0 : 10,
+    validateStatus: () => true,
+  };
+
+  if (init?.body) {
+    axiosConfig.data = init.body;
+  }
+
+  try {
+    const response = await axios(axiosConfig);
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(response.headers || {})) {
+      headers.set(key, String(value));
+    }
+    const data = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+
+    const customResp = {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+      text: () => Promise.resolve(data),
+      json: () =>
+        Promise.resolve(
+          typeof response.data === 'string' ? JSON.parse(response.data) : response.data,
+        ),
+      ok: response.status >= 200 && response.status < 300,
+      redirected: false,
+      type: 'basic' as const,
+      url,
+      body: null,
+      bodyUsed: false,
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      blob: () => Promise.resolve(new Blob([])),
+      formData: () => Promise.resolve(new FormData()),
+      clone: () => ({ ...customResp }),
+      bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
+    };
+    return customResp;
+  } catch (error: any) {
+    if (error.response) {
+      const headers = new Headers();
+      for (const [key, value] of Object.entries(error.response.headers || {})) {
+        headers.set(key, String(value));
+      }
+      const data =
+        typeof error.response.data === 'string'
+          ? error.response.data
+          : JSON.stringify(error.response.data);
+
+      const customResp = {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        headers,
+        text: () => Promise.resolve(data),
+        json: () =>
+          Promise.resolve(
+            typeof error.response.data === 'string'
+              ? JSON.parse(error.response.data)
+              : error.response.data,
+          ),
+        ok: false,
+        redirected: false,
+        type: 'basic' as const,
+        url,
+        body: null,
+        bodyUsed: false,
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+        blob: () => Promise.resolve(new Blob([])),
+        formData: () => Promise.resolve(new FormData()),
+        clone: () => ({ ...customResp }),
+        bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
+      };
+      return customResp;
+    }
+    throw error;
+  }
+};
+
+const yahooFinance = new YahooFinance({
+  suppressNotices: ['yahooSurvey'],
+  fetch: customFetch as any,
+});
 
 export interface StockQuote {
   symbol: string;

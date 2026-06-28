@@ -11,8 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlertHistory = void 0;
 const typeorm_1 = require("typeorm");
-let AlertHistory = exports.AlertHistory = class AlertHistory {
+let AlertHistory = class AlertHistory {
 };
+exports.AlertHistory = AlertHistory;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)

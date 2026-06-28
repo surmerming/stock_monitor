@@ -35,8 +35,9 @@ const review_note_entity_1 = require("./review-note/review-note.entity");
 const user_entity_1 = require("./auth/user.entity");
 const login_attempt_entity_1 = require("./auth/login-attempt.entity");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
-let AppModule = exports.AppModule = class AppModule {
+let AppModule = class AppModule {
 };
+exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [

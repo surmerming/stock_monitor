@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DetailController = void 0;
 const common_1 = require("@nestjs/common");
 const detail_service_1 = require("./detail.service");
-let DetailController = exports.DetailController = class DetailController {
+let DetailController = class DetailController {
     constructor(detailService) {
         this.detailService = detailService;
     }
@@ -33,6 +33,7 @@ let DetailController = exports.DetailController = class DetailController {
         return this.detailService.getFinancials(symbol);
     }
 };
+exports.DetailController = DetailController;
 __decorate([
     (0, common_1.Get)(':symbol/chart'),
     __param(0, (0, common_1.Param)('symbol')),

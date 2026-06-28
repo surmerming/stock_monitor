@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPollingInterval = exports.getMarketSessions = void 0;
+exports.getMarketSessions = getMarketSessions;
+exports.getPollingInterval = getPollingInterval;
 function getNowInTimezone(tz) {
     const now = new Date();
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -59,11 +60,9 @@ function getMarketSessions() {
         },
     ];
 }
-exports.getMarketSessions = getMarketSessions;
 function getPollingInterval() {
     const sessions = getMarketSessions();
     const anyTrading = sessions.some((s) => s.isTrading);
-    return anyTrading ? 10000 : 5 * 60000;
+    return anyTrading ? 10_000 : 5 * 60_000;
 }
-exports.getPollingInterval = getPollingInterval;
 //# sourceMappingURL=market-hours.js.map

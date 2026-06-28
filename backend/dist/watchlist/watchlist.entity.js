@@ -11,8 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WatchlistItem = void 0;
 const typeorm_1 = require("typeorm");
-let WatchlistItem = exports.WatchlistItem = class WatchlistItem {
+let WatchlistItem = class WatchlistItem {
 };
+exports.WatchlistItem = WatchlistItem;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)

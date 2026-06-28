@@ -5,8 +5,8 @@ export declare class StockController {
     getQuotes(symbols: string): Promise<{
         quotes: {
             symbol: string;
-            data: import("./stock.service").StockQuote;
-            error: string;
+            data: import("./stock.service").StockQuote | null;
+            error: string | null;
         }[];
     }>;
 }

@@ -21,7 +21,7 @@ const ALERT_TYPE_LABELS = {
     volume_ratio_above: '量比超过',
     turnover_rate_above: '换手率超过',
 };
-let AlertEngineService = exports.AlertEngineService = AlertEngineService_1 = class AlertEngineService {
+let AlertEngineService = AlertEngineService_1 = class AlertEngineService {
     constructor(alertService) {
         this.alertService = alertService;
         this.logger = new common_1.Logger(AlertEngineService_1.name);
@@ -94,6 +94,7 @@ let AlertEngineService = exports.AlertEngineService = AlertEngineService_1 = cla
         }
     }
 };
+exports.AlertEngineService = AlertEngineService;
 exports.AlertEngineService = AlertEngineService = AlertEngineService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [alert_service_1.AlertService])

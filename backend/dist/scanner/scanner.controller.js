@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScannerController = void 0;
 const common_1 = require("@nestjs/common");
 const scanner_service_1 = require("./scanner.service");
-let ScannerController = exports.ScannerController = class ScannerController {
+let ScannerController = class ScannerController {
     constructor(scannerService) {
         this.scannerService = scannerService;
     }
@@ -32,6 +32,7 @@ let ScannerController = exports.ScannerController = class ScannerController {
         return this.scannerService.getTrendingWithQuotes();
     }
 };
+exports.ScannerController = ScannerController;
 __decorate([
     (0, common_1.Get)('gainers'),
     __param(0, (0, common_1.Query)('count')),

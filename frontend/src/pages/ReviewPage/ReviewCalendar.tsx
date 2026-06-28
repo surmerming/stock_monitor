@@ -8,6 +8,11 @@ interface DayRecord {
   tradeCount: number;
 }
 
+interface DailyFile {
+  fileName: string;
+  date: string;
+}
+
 export default function ReviewCalendar() {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
@@ -17,13 +22,16 @@ export default function ReviewCalendar() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [noteDetail, setNoteDetail] = useState<any>(null);
+  const [dailyFileDates, setDailyFileDates] = useState<Set<string>>(new Set());
+  const [dailyFileMap, setDailyFileMap] = useState<Map<string, string>>(new Map());
 
   const fetchMonthData = useCallback(async () => {
     setLoading(true);
     try {
-      const [notesRes, tradesRes] = await Promise.all([
+      const [notesRes, tradesRes, dailyFilesRes] = await Promise.all([
         apiFetch('/api/review/notes'),
         apiFetch('/api/trades'),
+        apiFetch('/api/review/daily-files'),
       ]);
 
       const records: DayRecord[] = [];
@@ -57,6 +65,21 @@ export default function ReviewCalendar() {
       }
 
       setNotes(records);
+
+      // 解析每日复盘文件
+      if (dailyFilesRes.ok) {
+        const { files } = await dailyFilesRes.json() as { files: DailyFile[] };
+        const dateSet = new Set<string>();
+        const fileMap = new Map<string, string>();
+        for (const f of files) {
+          if (f.date) {
+            dateSet.add(f.date);
+            fileMap.set(f.date, f.fileName);
+          }
+        }
+        setDailyFileDates(dateSet);
+        setDailyFileMap(fileMap);
+      }
     } catch {
       // handle error
     } finally {
@@ -69,6 +92,15 @@ export default function ReviewCalendar() {
   }, [fetchMonthData]);
 
   const handleSelectDate = async (date: string) => {
+    // 如果有每日复盘 HTML 文件，用新窗口打开
+    if (dailyFileDates.has(date)) {
+      const fileName = dailyFileMap.get(date);
+      if (fileName) {
+        window.open(`/daily_review/${encodeURIComponent(fileName)}`, '_blank');
+        return;
+      }
+    }
+
     setSelectedDate(date);
     try {
       const res = await apiFetch('/api/review/notes');
@@ -136,14 +168,28 @@ export default function ReviewCalendar() {
             const record = noteMap.get(dateStr);
             const isToday = dateStr === new Date().toISOString().slice(0, 10);
             const isSelected = dateStr === selectedDate;
+            const hasDailyReview = dailyFileDates.has(dateStr);
+
+            const classNames = [
+              'rv-calendar__day',
+              isToday && 'rv-calendar__day--today',
+              isSelected && 'rv-calendar__day--selected',
+              record && 'rv-calendar__day--has-data',
+              hasDailyReview && 'rv-calendar__day--has-review',
+            ]
+              .filter(Boolean)
+              .join(' ');
 
             return (
               <div
                 key={dateStr}
-                className={`rv-calendar__day ${isToday ? 'rv-calendar__day--today' : ''} ${isSelected ? 'rv-calendar__day--selected' : ''} ${record ? 'rv-calendar__day--has-data' : ''}`}
+                className={classNames}
                 onClick={() => handleSelectDate(dateStr)}
               >
                 <span className="rv-calendar__day-num">{day}</span>
+                {hasDailyReview && (
+                  <span className="rv-calendar__day-review-badge" title="有每日复盘文件">📄</span>
+                )}
                 {record && (
                   <div className="rv-calendar__day-indicators">
                     {record.hasNote && (

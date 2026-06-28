@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const watchlist_entity_1 = require("./watchlist.entity");
-let WatchlistService = exports.WatchlistService = class WatchlistService {
+let WatchlistService = class WatchlistService {
     constructor(repo) {
         this.repo = repo;
     }
@@ -60,6 +60,7 @@ let WatchlistService = exports.WatchlistService = class WatchlistService {
         await this.repo.update({ symbol: symbol.toUpperCase() }, { name, market });
     }
 };
+exports.WatchlistService = WatchlistService;
 exports.WatchlistService = WatchlistService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(watchlist_entity_1.WatchlistItem)),

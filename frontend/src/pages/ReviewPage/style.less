@@ -1111,6 +1111,11 @@
       background: @bg;
     }
 
+    &--has-review {
+      background: rgba(91, 141, 239, 0.04);
+      border-color: rgba(91, 141, 239, 0.25);
+    }
+
     &-num {
       font-size: 13px;
       color: @text;
@@ -1136,6 +1141,18 @@
       padding: 1px 5px;
       border-radius: 3px;
       font-weight: 600;
+    }
+  }
+
+  &__day-review-badge {
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+
+    .rv-calendar__day:hover & {
+      opacity: 1;
     }
   }
 

@@ -10,6 +10,10 @@ export default defineConfig({
         target: 'http://localhost:4444',
         changeOrigin: true,
       },
+      '/daily_review': {
+        target: 'http://localhost:4444',
+        changeOrigin: true,
+      },
     },
   },
   css: {

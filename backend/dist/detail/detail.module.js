@@ -11,8 +11,9 @@ const common_1 = require("@nestjs/common");
 const stock_module_1 = require("../stock/stock.module");
 const detail_service_1 = require("./detail.service");
 const detail_controller_1 = require("./detail.controller");
-let DetailModule = exports.DetailModule = class DetailModule {
+let DetailModule = class DetailModule {
 };
+exports.DetailModule = DetailModule;
 exports.DetailModule = DetailModule = __decorate([
     (0, common_1.Module)({
         imports: [stock_module_1.StockModule],

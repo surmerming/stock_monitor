@@ -18,7 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const alert_rule_entity_1 = require("./alert-rule.entity");
 const alert_history_entity_1 = require("./alert-history.entity");
-let AlertService = exports.AlertService = class AlertService {
+let AlertService = class AlertService {
     constructor(ruleRepo, historyRepo) {
         this.ruleRepo = ruleRepo;
         this.historyRepo = historyRepo;
@@ -59,6 +59,7 @@ let AlertService = exports.AlertService = class AlertService {
         await this.historyRepo.update({ userId, read: false }, { read: true });
     }
 };
+exports.AlertService = AlertService;
 exports.AlertService = AlertService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(alert_rule_entity_1.AlertRule)),

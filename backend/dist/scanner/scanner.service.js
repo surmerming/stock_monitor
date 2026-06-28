@@ -5,15 +5,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var ScannerService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScannerService = void 0;
 const common_1 = require("@nestjs/common");
-const yahoo_finance2_1 = require("yahoo-finance2");
+const yahoo_finance2_1 = __importDefault(require("yahoo-finance2"));
 const cn_names_1 = require("../common/cn-names");
 const yahooFinance = new yahoo_finance2_1.default();
 const CACHE_TTL = 2 * 60 * 1000;
-let ScannerService = exports.ScannerService = ScannerService_1 = class ScannerService {
+let ScannerService = ScannerService_1 = class ScannerService {
     constructor() {
         this.logger = new common_1.Logger(ScannerService_1.name);
         this.cache = new Map();
@@ -158,6 +161,7 @@ let ScannerService = exports.ScannerService = ScannerService_1 = class ScannerSe
         }
     }
 };
+exports.ScannerService = ScannerService;
 exports.ScannerService = ScannerService = ScannerService_1 = __decorate([
     (0, common_1.Injectable)()
 ], ScannerService);

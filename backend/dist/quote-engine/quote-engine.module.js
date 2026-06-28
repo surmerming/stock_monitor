@@ -13,8 +13,9 @@ const quote_engine_controller_1 = require("./quote-engine.controller");
 const stock_module_1 = require("../stock/stock.module");
 const watchlist_module_1 = require("../watchlist/watchlist.module");
 const alert_module_1 = require("../alert/alert.module");
-let QuoteEngineModule = exports.QuoteEngineModule = class QuoteEngineModule {
+let QuoteEngineModule = class QuoteEngineModule {
 };
+exports.QuoteEngineModule = QuoteEngineModule;
 exports.QuoteEngineModule = QuoteEngineModule = __decorate([
     (0, common_1.Module)({
         imports: [stock_module_1.StockModule, watchlist_module_1.WatchlistModule, alert_module_1.AlertModule],

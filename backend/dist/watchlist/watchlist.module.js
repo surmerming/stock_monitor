@@ -13,8 +13,9 @@ const watchlist_entity_1 = require("./watchlist.entity");
 const watchlist_service_1 = require("./watchlist.service");
 const watchlist_controller_1 = require("./watchlist.controller");
 const stock_module_1 = require("../stock/stock.module");
-let WatchlistModule = exports.WatchlistModule = class WatchlistModule {
+let WatchlistModule = class WatchlistModule {
 };
+exports.WatchlistModule = WatchlistModule;
 exports.WatchlistModule = WatchlistModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([watchlist_entity_1.WatchlistItem]), stock_module_1.StockModule],

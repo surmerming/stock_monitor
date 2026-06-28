@@ -14,8 +14,9 @@ const alert_history_entity_1 = require("./alert-history.entity");
 const alert_service_1 = require("./alert.service");
 const alert_engine_service_1 = require("./alert-engine.service");
 const alert_controller_1 = require("./alert.controller");
-let AlertModule = exports.AlertModule = class AlertModule {
+let AlertModule = class AlertModule {
 };
+exports.AlertModule = AlertModule;
 exports.AlertModule = AlertModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([alert_rule_entity_1.AlertRule, alert_history_entity_1.AlertHistory])],

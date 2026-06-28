@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlertController = void 0;
 const common_1 = require("@nestjs/common");
 const alert_service_1 = require("./alert.service");
-let AlertController = exports.AlertController = class AlertController {
+let AlertController = class AlertController {
     constructor(alertService) {
         this.alertService = alertService;
     }
@@ -49,6 +49,7 @@ let AlertController = exports.AlertController = class AlertController {
         return this.alertService.markAllRead(req.user.userId);
     }
 };
+exports.AlertController = AlertController;
 __decorate([
     (0, common_1.Get)('rules'),
     __param(0, (0, common_1.Request)()),

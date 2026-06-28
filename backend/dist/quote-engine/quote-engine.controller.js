@@ -13,7 +13,7 @@ exports.QuoteEngineController = void 0;
 const common_1 = require("@nestjs/common");
 const rxjs_1 = require("rxjs");
 const quote_engine_service_1 = require("./quote-engine.service");
-let QuoteEngineController = exports.QuoteEngineController = class QuoteEngineController {
+let QuoteEngineController = class QuoteEngineController {
     constructor(quoteEngineService) {
         this.quoteEngineService = quoteEngineService;
     }
@@ -28,6 +28,7 @@ let QuoteEngineController = exports.QuoteEngineController = class QuoteEngineCon
         };
     }
 };
+exports.QuoteEngineController = QuoteEngineController;
 __decorate([
     (0, common_1.Sse)('stream'),
     __metadata("design:type", Function),

@@ -17,7 +17,7 @@ const stock_service_1 = require("../stock/stock.service");
 const watchlist_service_1 = require("../watchlist/watchlist.service");
 const alert_engine_service_1 = require("../alert/alert-engine.service");
 const market_hours_1 = require("./market-hours");
-let QuoteEngineService = exports.QuoteEngineService = QuoteEngineService_1 = class QuoteEngineService {
+let QuoteEngineService = QuoteEngineService_1 = class QuoteEngineService {
     constructor(stockService, watchlistService, alertEngine) {
         this.stockService = stockService;
         this.watchlistService = watchlistService;
@@ -79,7 +79,7 @@ let QuoteEngineService = exports.QuoteEngineService = QuoteEngineService_1 = cla
             this.logger.error(`Quote engine tick error: ${err.message}`);
         }
         const interval = (0, market_hours_1.getPollingInterval)();
-        this.logger.debug(`Next tick in ${interval / 1000}s (${interval < 60000 ? 'trading' : 'off-hours'})`);
+        this.logger.debug(`Next tick in ${interval / 1000}s (${interval < 60_000 ? 'trading' : 'off-hours'})`);
         this.timer = setTimeout(() => this.tick(), interval);
     }
     getSnapshot() {
@@ -127,7 +127,7 @@ let QuoteEngineService = exports.QuoteEngineService = QuoteEngineService_1 = cla
                         timestamp: new Date().toISOString(),
                     },
                 });
-            }, 30000);
+            }, 30_000);
             return () => {
                 quoteSub.unsubscribe();
                 alertSub.unsubscribe();
@@ -136,6 +136,7 @@ let QuoteEngineService = exports.QuoteEngineService = QuoteEngineService_1 = cla
         });
     }
 };
+exports.QuoteEngineService = QuoteEngineService;
 QuoteEngineService.MARKET_INDICES = [
     '000001.SS', '399001.SZ', '399006.SZ', '000300.SS', '399005.SZ',
     '^HSI', '^HSCE', 'HSTECH.HK', '^HSCC', '^HSNU',

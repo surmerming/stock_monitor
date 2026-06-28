@@ -16,7 +16,7 @@ exports.WatchlistController = void 0;
 const common_1 = require("@nestjs/common");
 const watchlist_service_1 = require("./watchlist.service");
 const stock_service_1 = require("../stock/stock.service");
-let WatchlistController = exports.WatchlistController = class WatchlistController {
+let WatchlistController = class WatchlistController {
     constructor(watchlistService, stockService) {
         this.watchlistService = watchlistService;
         this.stockService = stockService;
@@ -43,6 +43,7 @@ let WatchlistController = exports.WatchlistController = class WatchlistControlle
         return { success: ok };
     }
 };
+exports.WatchlistController = WatchlistController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Request)()),

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StockController = void 0;
 const common_1 = require("@nestjs/common");
 const stock_service_1 = require("./stock.service");
-let StockController = exports.StockController = class StockController {
+let StockController = class StockController {
     constructor(stockService) {
         this.stockService = stockService;
     }
@@ -28,6 +28,7 @@ let StockController = exports.StockController = class StockController {
         return { quotes };
     }
 };
+exports.StockController = StockController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('symbols')),

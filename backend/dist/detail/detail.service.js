@@ -8,15 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var DetailService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DetailService = void 0;
 const common_1 = require("@nestjs/common");
-const yahoo_finance2_1 = require("yahoo-finance2");
+const yahoo_finance2_1 = __importDefault(require("yahoo-finance2"));
 const stock_service_1 = require("../stock/stock.service");
 const cn_names_1 = require("../common/cn-names");
 const yahooFinance = new yahoo_finance2_1.default();
-let DetailService = exports.DetailService = DetailService_1 = class DetailService {
+let DetailService = DetailService_1 = class DetailService {
     constructor(stockService) {
         this.stockService = stockService;
         this.logger = new common_1.Logger(DetailService_1.name);
@@ -333,6 +336,7 @@ let DetailService = exports.DetailService = DetailService_1 = class DetailServic
         }
     }
 };
+exports.DetailService = DetailService;
 exports.DetailService = DetailService = DetailService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [stock_service_1.StockService])
