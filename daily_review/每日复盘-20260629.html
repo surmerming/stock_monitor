@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日复盘 — 2026年6月29日（周一）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --border: #e8ecf1;
+    --red: #e74c3c;
+    --green: #27ae60;
+    --blue: #3498db;
+    --orange: #f39c12;
+    --purple: #8e44ad;
+    --tag-red-bg: #fdecea;
+    --tag-green-bg: #eafaf1;
+    --tag-orange-bg: #fef5e7;
+    --tag-blue-bg: #eaf2f8;
+    --tag-purple-bg: #f4ecf7;
+    --shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 24px;
+  }
+  .container { max-width: 1020px; margin: 0 auto; }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .header .meta { font-size: 14px; opacity: 0.75; display: flex; gap: 20px; flex-wrap: wrap; }
+  .header .divider-line { height: 3px; width: 60px; background: var(--orange); margin-top: 16px; border-radius: 2px; }
+
+  .tldr {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+    border: 1px solid #ffc107;
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .tldr h3 { font-size: 16px; font-weight: 700; color: #856404; margin-bottom: 8px; }
+  .tldr p { font-size: 14px; color: #856404; margin: 0; line-height: 1.6; }
+
+  .section {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .section h2 {
+    font-size: 18px; font-weight: 700; margin-bottom: 16px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section h2 .icon { font-size: 22px; }
+  .section h3 {
+    font-size: 15px; font-weight: 600; margin: 18px 0 10px;
+    color: #34495e; padding-left: 8px; border-left: 3px solid var(--blue);
+  }
+  .section p, .section li { font-size: 14px; margin-bottom: 6px; }
+  .section ul { padding-left: 20px; margin: 8px 0; }
+  .section ul li { margin-bottom: 4px; }
+  .section ol { padding-left: 20px; margin: 8px 0; }
+  .section ol li { margin-bottom: 4px; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0 16px;
+  }
+  th { background: #f0f3f7; font-weight: 600; color: #555; padding: 10px 8px; text-align: center; white-space: nowrap; }
+  td { padding: 9px 8px; text-align: center; border-bottom: 1px solid var(--border); }
+  tr:hover { background: #fafbfc; }
+  td:first-child, th:first-child { text-align: left; padding-left: 12px; }
+  .change-up { color: var(--red); font-weight: 600; }
+  .change-down { color: var(--green); font-weight: 600; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-up { background: var(--tag-red-bg); color: var(--red); }
+  .badge-down { background: var(--tag-green-bg); color: var(--green); }
+  .badge-info { background: var(--tag-blue-bg); color: var(--blue); }
+  .badge-warn { background: var(--tag-orange-bg); color: var(--orange); }
+  .badge-purple { background: var(--tag-purple-bg); color: var(--purple); }
+
+  .news-item {
+    background: #f8f9fa;
+    border-left: 3px solid var(--blue);
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+  }
+  .news-item.important {
+    border-left-color: var(--red);
+    background: #fff5f5;
+  }
+
+  .flex-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .stat-card {
+    background: #f8f9fb;
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; }
+  .stat-card .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  .chart-box { width: 100%; height: 380px; margin: 16px 0; }
+  .divider { border-top: 1px dashed var(--border); margin: 16px 0; }
+  .footnote { font-size: 12px; color: var(--text-secondary); margin-top: 12px; text-align: center; }
+  .highlight-box {
+    background: #f0f7ff; border: 1px solid #bbd8f7;
+    border-radius: 8px; padding: 14px 18px; margin: 12px 0;
+    font-size: 13px;
+  }
+  .alert-box {
+    background: #fff5f5; border: 1px solid #f5c6cb;
+    border-radius: 8px; padding: 14px 18px; margin: 12px 0;
+    font-size: 13px;
+  }
+  .plan-card {
+    background: #f0fff4;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .plan-card h4 { font-size: 14px; margin-bottom: 8px; color: #155724; }
+  .plan-card li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>📊 每日复盘 — 2026年6月29日（周一）</h1>
+  <div class="meta">
+    <span>📅 交易日：2026-06-29</span>
+    <span>🕐 生成时间：2026-06-30 09:30</span>
+    <span>📈 科创50 <span style="color:#e74c3c">+4.61%</span></span>
+  </div>
+  <div class="divider-line"></div>
+</div>
+
+<!-- TL;DR -->
+<div class="tldr">
+  <h3>🔑 今日速览（TL;DR）</h3>
+  <p>
+    <strong>V型反弹 + 极度分化：</strong>科创50暴涨+4.61%领跑全市场，上证+1.16%尾盘拉红；但盘中一度超4000股下跌，最终涨跌比约1:1。<br>
+    <strong>医药/半导体双主线爆发：</strong>药明康德+6.76%、兆易创新+9.09%；高位CPO/通信继续杀跌，中际旭创-2.70%。<br>
+    <strong>国常会定调"人工智能+"：</strong>审议通过"十五五"碳达峰/国民健康规划，教育"十五五"规划印发，政策利好集中释放。<br>
+    <strong>港股强力反弹：</strong>恒生科技+3.23%，腾讯/美团/快手均涨超2%；但南向资金净卖出103亿港元需关注。<br>
+    <strong>⚠️ 风险提示：</strong>高位牛股宏和科技（36倍涨幅）1分钟跌停，山东玻纤跌停，市场高低切换信号明显。
+  </p>
+</div>
+
+<!-- 一、大盘环境诊断 -->
+<div class="section">
+  <h2><span class="icon">📈</span>一、大盘环境诊断（定仓位）</h2>
+
+  <h3>1. A股指数趋势</h3>
+  <div class="flex-cards">
+    <div class="stat-card">
+      <div class="label">上证指数</div>
+      <div class="value change-up">4,073.90</div>
+      <div class="sub">+1.16% | 成交1.67万亿</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">深证成指</div>
+      <div class="value change-up">15,812.87</div>
+      <div class="sub">+0.19% | 成交1.85万亿</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">创业板指</div>
+      <div class="value change-up">4,216.70</div>
+      <div class="sub">+0.54% | 成交0.92万亿</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">科创50 ⭐</div>
+      <div class="value change-up">2,126.01</div>
+      <div class="sub">+4.61% | 成交0.23万亿</div>
+    </div>
+  </div>
+  <p>
+    <strong>判断：</strong>指数整体呈V型反转走势。科创50暴涨+4.61%，创近期单日最大涨幅，振幅高达5.62%，说明资金在半导体/医药方向集中进攻。上证指数开盘一度跌至3992点（-0.87%），午后强势拉红至4073点。深成指和创业板涨幅相对温和，显示资金偏好向科创方向倾斜。
+  </p>
+
+  <h3>2. 量能表现</h3>
+  <div class="flex-cards">
+    <div class="stat-card">
+      <div class="label">两市总成交</div>
+      <div class="value">3.52万亿</div>
+      <div class="sub">较上周五缩量约300亿</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">上证成交额</div>
+      <div class="value">1.67万亿</div>
+      <div class="sub">沪市</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">深证成交额</div>
+      <div class="value">1.85万亿</div>
+      <div class="sub">深市</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">科创50成交</div>
+      <div class="value">0.23万亿</div>
+      <div class="sub">放量明显</div>
+    </div>
+  </div>
+  <p>
+    两市成交约3.52万亿，较上周五缩量约300亿元但仍在3.5万亿活跃水平。科创50放量明显（成交2301亿），说明资金向科创方向集中。整体呈现"缩量分化、聚焦科创"特征——这不是全面进攻而是结构性行情。
+  </p>
+
+  <h3>3. 赚钱效应与情绪</h3>
+  <p>
+    开盘仅1745家上涨 vs 2989家下跌，盘中一度超4000只个股下跌，但午后强势拉回，最终涨跌比约1:1。早盘涨停12只，午盘涨停71只（封板率63%），连板股仅4只。最高连板：威派格7天4板、柏诚股份4天3板、海南海药5天3板。连板高度偏低，市场接力情绪谨慎，热点以首板和低位反弹为主。
+  </p>
+  <p>
+    <strong>分时特征：</strong>黄白线分化明显，早盘中小盘杀跌严重，午后权重（证券、保险、白酒）拉升带动指数翻红，但个股层面修复力度有限。当日跌幅榜上出现了宏和科技（36倍涨幅后1分钟跌停）、山东玻纤（跌停）、长盈通（-20cm跌停）等高位牛股集体杀跌——这是市场风险偏好收紧的明确信号。
+  </p>
+
+  <h3>4. 港股大盘</h3>
+  <div class="flex-cards">
+    <div class="stat-card">
+      <div class="label">恒生指数</div>
+      <div class="value change-up">23,026.68</div>
+      <div class="sub">+1.57% | 成交3154亿港元</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">恒生科技指数</div>
+      <div class="value change-up">4,393.01</div>
+      <div class="sub">+3.23% | 成交835亿港元</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">南向资金</div>
+      <div class="value change-down">-103.39亿</div>
+      <div class="sub">净卖出（港元）</div>
+    </div>
+  </div>
+  <p>
+    港股延续反弹，恒生科技+3.23%领涨，互联网科技龙头普涨。但南向资金净卖出103.39亿港元，连续净流出值得警惕——反弹更像是外资和空头回补驱动，而非内资主动加仓。机构认为港股科技在业绩修复与估值双击预期下具备中期配置性价比。
+  </p>
+
+  <h3>5. 美股大盘（6月26日隔夜收盘）</h3>
+  <div class="flex-cards">
+    <div class="stat-card">
+      <div class="label">纳斯达克</div>
+      <div class="value change-down">25,297.62</div>
+      <div class="sub">-0.24%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">标普500</div>
+      <div class="value change-down">7,354.02</div>
+      <div class="sub">-0.05%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">道琼斯</div>
+      <div class="value change-down">51,876.11</div>
+      <div class="sub">-0.09%</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">费城半导体</div>
+      <div class="value change-down">-5.29%</div>
+      <div class="sub">芯片重挫</div>
+    </div>
+  </div>
+  <p>
+    美股连续回调，纳指五连跌、标普四连跌。费城半导体指数暴跌5.29%，美光科技-6.69%、恩智浦-7.24%。核心PCE通胀升至3.4%（2023年10月以来最高），市场对美联储加息预期升温。但值得注意的是：<strong>A股半导体板块并未跟随美股半导体下跌</strong>，科创50反而暴涨+4.61%，说明当前A股半导体由内资定价、走国产替代逻辑，与美股科技脱钩。
+  </p>
+
+  <div class="highlight-box">
+    <strong>📌 仓位判断：</strong>中性偏积极，建议5-7成仓位。结构性行情下重板块轻指数，聚焦科创（半导体/医药）主线，回避高位CPO/通信。美股科技风险尚未释放完毕，对港股科技形成压制，但A股科技国产替代逻辑独立性强。
+  </div>
+</div>
+
+<!-- 二、板块与资金流向 -->
+<div class="section">
+  <h2><span class="icon">💰</span>二、板块与资金流向（定方向）</h2>
+
+  <h3>1. A股热点板块</h3>
+  <table>
+    <tr><th>板块</th><th>涨跌幅</th><th>驱动逻辑</th></tr>
+    <tr><td>教育</td><td class="change-up">+2.17%</td><td>国务院印发《教育发展"十五五"规划》</td></tr>
+    <tr><td>风电设备</td><td class="change-up">+1.79%</td><td>"十五五"碳达峰行动方案审议通过，新能源政策预期</td></tr>
+    <tr><td>自动化设备</td><td class="change-up">+1.38%</td><td>AI+机器人概念延续</td></tr>
+    <tr><td>航天装备</td><td class="change-up">+1.23%</td><td>军工+航天政策催化</td></tr>
+    <tr><td>光学光电子</td><td class="change-up">+1.05%</td><td>半导体产业链扩散，水晶光电涨停</td></tr>
+    <tr><td>通信设备</td><td class="change-up">+0.97%</td><td>广和通+6.63%领涨，通信内部剧烈分化</td></tr>
+  </table>
+
+  <p><strong>领跌板块：</strong>高位题材股集体杀跌。宏和科技（36倍涨幅后1分钟跌停）、山东玻纤（跌停）、长盈通（20cm跌停）、风华高科（跌停）。PCB/CPO/元器件板块盘中一度大跌4-5%，尾盘虽有所拉回但整体弱势。市场呈现清晰的高低切换格局。</p>
+
+  <h3>2. 资金动向</h3>
+  <p>
+    当日资金主线流入方向：<span class="badge badge-up">半导体材料/设备</span> <span class="badge badge-up">医药CRO</span> <span class="badge badge-up">白酒消费</span> <span class="badge badge-up">证券保险</span>。主力资金净流入概念板块以"昨日高振幅"（4.77亿）和"MR头显"（3.36亿）居前，光伏概念也有3.62亿净流入。科技方向内部剧烈分化：半导体设备和材料获资金净买入，但存储/CPO方向遭抛售。
+  </p>
+
+  <h3>3. 港股板块资金</h3>
+  <p>
+    南向资金净卖出103.39亿港元（沪港通-54.74亿、深港通-48.64亿），呈现明显获利了结特征。但港股科技板块仍强势反弹，恒生科技成分股普涨：百度集团+5%（30日开盘）、小鹏集团+4%（30日开盘），显示外资回补意愿较强。南向资金对港股通标的整体持股比例达19.59%，258只个股持股超20%。
+  </p>
+
+  <h3>4. 板块持续性判断</h3>
+  <p>
+    <strong>半导体主线：</strong>有持续性逻辑支撑——AI算力需求爆发、半导体扩产潮（A股封测/晶圆厂商披露扩产项目近450亿元）、硅片开启两轮调价、PCB厂商7月或再涨价20-30%。不是纯题材炒作。<br>
+    <strong>医药主线：</strong>政策+产业双轮驱动——生物医药被确立为新兴支柱产业，通用技术生物药物研究院揭牌聚焦细胞基因治疗。但需区分创新药（有支撑）和原料药/仿制药（逻辑弱）。<br>
+    <strong>风电/光伏：</strong>"十五五"碳达峰政策催化，但属于低位超跌反弹，需观察后续订单落地情况。<br>
+    <strong>教育：</strong>政策驱动（教育"十五五"规划），但行业基本面改善仍需时间，暂定性为事件驱动型反弹。
+  </p>
+</div>
+
+<!-- 三、个股表现与消息面 -->
+<div class="section">
+  <h2><span class="icon">📰</span>三、个股表现与消息面</h2>
+
+  <h3>1. 涨跌榜复盘</h3>
+
+  <p><strong>涨幅榜前列（剔除ST/退市）：</strong></p>
+  <table>
+    <tr><th>股票</th><th>涨跌幅</th><th>逻辑</th></tr>
+    <tr><td>银河微电</td><td class="change-up">+18.11%</td><td>半导体分立器件，科创20cm</td></tr>
+    <tr><td>盛达资源</td><td class="change-up">+10.00%</td><td>有色金属资源股</td></tr>
+    <tr><td>鲁信创投</td><td class="change-up">+9.83%</td><td>创投概念</td></tr>
+    <tr><td>万邦医药</td><td class="change-up">+9.70%</td><td>医药CRO，跟随板块</td></tr>
+    <tr><td>水晶光电</td><td class="change-up">+9.61%</td><td>光学光电子+MR头显</td></tr>
+    <tr><td>多氟多</td><td class="change-up">+9.05%</td><td>氟化工/锂电池材料</td></tr>
+    <tr><td>太龙药业</td><td class="change-up">+8.97%</td><td>医药</td></tr>
+    <tr><td>兴业股份</td><td class="change-up">+7.43%</td><td>昨日连板概念领涨股</td></tr>
+  </table>
+
+  <p><strong>跌幅榜前列：</strong></p>
+  <table>
+    <tr><th>股票</th><th>涨跌幅</th><th>原因</th></tr>
+    <tr><td>ST荣科</td><td class="change-down">-19.98%</td><td>ST股风险释放</td></tr>
+    <tr><td>ST荃银</td><td class="change-down">-19.02%</td><td>ST股风险释放</td></tr>
+    <tr><td>百合花</td><td class="change-down">-10.00%</td><td>高位杀跌</td></tr>
+    <tr><td>京基智农</td><td class="change-down">-10.00%</td><td>高位杀跌</td></tr>
+    <tr><td>风华高科</td><td class="change-down">-10.00%</td><td>MLCC概念，高位回落</td></tr>
+    <tr><td>兴业科技</td><td class="change-down">-10.00%</td><td>高位杀跌</td></tr>
+    <tr><td>雄韬股份</td><td class="change-down">-10.00%</td><td>高位杀跌</td></tr>
+    <tr><td>山东玻纤</td><td class="change-down">-9.98%</td><td>36倍涨幅后跌停</td></tr>
+  </table>
+
+  <p><strong>重点观察对象：</strong>银河微电（首板，半导体分立器件+20cm涨停）、水晶光电（首板，光学光电子+MR头显概念）、万邦医药（首板，医药CRO）、多氟多（首板，锂电池材料）。这些首板个股共性：低位+产业逻辑+放量，值得加入观察池跟踪次日溢价情况。</p>
+
+  <h3>2. 昨日强势股表现</h3>
+  <p>
+    早盘"昨日涨停"概念板块涨+1.83%，"昨日连板"涨+2.27%。但连板高度有限（最高7天4板），且高位大牛股（宏和科技、山东玻纤、长盈通）集体跌停，说明市场接力情绪并不强。首板次日溢价需要精选，不宜盲目追高。
+  </p>
+
+  <h3>3. 消息与公告</h3>
+
+  <div class="news-item important">
+    <strong>🔴 国常会：深入实施"人工智能+"行动</strong><br>
+    6月29日国常会听取AI发展情况汇报，强调发挥产业体系完备、应用场景丰富等优势，促进智能产品和服务规模化商业应用。同步审议通过"十五五"碳达峰行动方案和国民健康"十五五"规划。长期利好AI应用、新能源、医药健康方向。
+  </div>
+
+  <div class="news-item important">
+    <strong>🔴 国务院印发《教育发展"十五五"规划》</strong><br>
+    到2030年高质量教育体系基本建成，部署23项重点任务+15个重大工程项目。直面人口结构变化和AI影响两大变量。教育板块受此提振涨+2.17%。
+  </div>
+
+  <div class="news-item">
+    <strong>🟡 前5月工业企业利润增长18.8%，电子行业+103.9%</strong><br>
+    国家统计局数据：1-5月规上工业企业利润同比增长18.8%，其中电子行业利润增长103.9%，贡献率达43.1%。AI技术变革带来高端算力芯片和存储芯片需求爆发，有力支撑了A股半导体板块的强势表现。
+  </div>
+
+  <div class="news-item">
+    <strong>🟡 半导体扩产潮：A股厂商披露近450亿扩产项目</strong><br>
+    长电科技、通富微电、华天科技等封测厂商及芯联集成等晶圆厂持续扩产。全球硅片已开启两轮调价，PCB厂商7月或再涨价20-30%。半导体设备和材料厂商率先受益。
+  </div>
+
+  <div class="news-item">
+    <strong>🔴 宏和科技1分钟跌停：36倍大牛股的警示</strong><br>
+    电子布龙头宏和科技从2025年4月起暴涨近3600%，6月29日开盘直线跌停。公司公告称PE高达804倍，显著偏离基本面。同日山东玻纤（+207%年初至今）跌停、长盈通（+328%年初至今）20cm跌停。高位牛股集中释放风险，市场风险偏好明显收缩。
+  </div>
+
+  <div class="news-item">
+    <strong>🟡 通用技术生物药物研究院揭牌</strong><br>
+    聚焦细胞与基因治疗等前沿赛道，首批入库98个研发项目（干细胞/免疫细胞/基因治疗等），细胞治疗占比超50%。生物医药板块迎来央企级产业布局利好。
+  </div>
+</div>
+
+<!-- 四、个股跟踪 -->
+<div class="section">
+  <h2><span class="icon">🔍</span>四、个股跟踪</h2>
+
+  <h3>1. 自选股跟踪和分析</h3>
+
+  <table>
+    <tr><th>市场</th><th>股票</th><th>收盘价</th><th>涨跌幅</th><th>成交额</th><th>判断</th></tr>
+    <tr>
+      <td>A股</td><td>兆易创新</td>
+      <td>840.00</td>
+      <td class="change-up">+9.09%</td>
+      <td>431.50亿</td>
+      <td>⭐ 存储芯片龙头，放量暴涨8.1%换手。AI算力+存储涨价双驱动，但振幅12.55%显示多空激烈博弈。短期不宜追高，关注5日线支撑。</td>
+    </tr>
+    <tr>
+      <td>A股</td><td>药明康德</td>
+      <td>126.17</td>
+      <td class="change-up">+6.76%</td>
+      <td>127.44亿</td>
+      <td>⭐ CRO龙头放量突破，换手4.17%。医药政策利好+生物医药产业定位升级。短期强势，关注130元附近压力。</td>
+    </tr>
+    <tr>
+      <td>A股</td><td>贵州茅台</td>
+      <td>1,194.96</td>
+      <td class="change-up">+2.25%</td>
+      <td>79.49亿</td>
+      <td>消费龙头温和反弹，振幅5.48%盘中探底1151后拉回。与证券保险共同扮演"稳指数"角色。趋势偏中性，等待突破确认。</td>
+    </tr>
+    <tr>
+      <td>A股</td><td>五粮液</td>
+      <td>74.00</td>
+      <td class="change-up">+1.13%</td>
+      <td>31.49亿</td>
+      <td>跟随茅台反弹，但涨幅弱于茅台。白酒板块整体偏防御属性，非当前主线。</td>
+    </tr>
+    <tr>
+      <td>A股</td><td>中际旭创</td>
+      <td>1,220.00</td>
+      <td class="change-down">-2.70%</td>
+      <td>426.32亿</td>
+      <td>⚠️ CPO龙头连续调整，盘中一度跌超7%后拉回。高换手3.18%+巨量成交说明分歧极大。美股科技连续下跌+AI泡沫担忧是压制因素。关注能否在1200附近企稳。</td>
+    </tr>
+    <tr>
+      <td>港股</td><td>中国平安</td>
+      <td>51.90港元</td>
+      <td class="change-up">+2.67%</td>
+      <td>22.77亿港元</td>
+      <td>保险权重股温和反弹，与A股证券保险联动。趋势中性偏稳。</td>
+    </tr>
+    <tr>
+      <td>港股</td><td>腾讯控股</td>
+      <td>420.20港元</td>
+      <td class="change-up">+2.04%</td>
+      <td>139.56亿港元</td>
+      <td>互联网龙头反弹，振幅4.13%。AI+云计算+游戏业务均受益"人工智能+"政策。关注430港元前高压力。</td>
+    </tr>
+    <tr>
+      <td>港股</td><td>快手</td>
+      <td>41.00港元</td>
+      <td class="change-up">+2.02%</td>
+      <td>14.80亿港元</td>
+      <td>跟随恒生科技反弹，短期趋势向好。</td>
+    </tr>
+    <tr>
+      <td>美股ADR</td><td>阿里巴巴</td>
+      <td>95.51美元</td>
+      <td class="change-up">+0.74%</td>
+      <td>20.09亿美元</td>
+      <td>温和上涨，但涨幅弱于恒生科技整体。中概股仍受美股科技风险压制。</td>
+    </tr>
+    <tr>
+      <td>美股ADR</td><td>美团</td>
+      <td>17.24美元</td>
+      <td class="change-up">+3.42%</td>
+      <td>545万美元</td>
+      <td>强势反弹，与港股科技共振。</td>
+    </tr>
+    <tr>
+      <td>美股ADR</td><td>理想汽车</td>
+      <td>11.89美元</td>
+      <td class="change-down">-1.25%</td>
+      <td>5411万美元</td>
+      <td>小幅回调，新能源车竞争加剧背景下承压。</td>
+    </tr>
+    <tr>
+      <td>美股</td><td>苹果</td>
+      <td>283.78美元</td>
+      <td class="change-up">+3.14%</td>
+      <td>738亿美元</td>
+      <td>（6/26收盘）前日-6%后反弹。产品涨价引发需求担忧，关注后续销量数据。</td>
+    </tr>
+    <tr>
+      <td>美股</td><td>英伟达</td>
+      <td>192.53美元</td>
+      <td class="change-down">-1.64%</td>
+      <td>347亿美元</td>
+      <td>（6/26收盘）连续回调，费半指数-5.29%。AI泡沫担忧升温。关注190美元支撑。</td>
+    </tr>
+    <tr>
+      <td>美股</td><td>特斯拉</td>
+      <td>379.71美元</td>
+      <td class="change-up">+1.22%</td>
+      <td>203亿美元</td>
+      <td>（6/26收盘）相对抗跌，柏林工厂10月扩产20%。</td>
+    </tr>
+    <tr>
+      <td>美股</td><td>美光科技</td>
+      <td>1,132.33美元</td>
+      <td class="change-down">-6.69%</td>
+      <td>994亿美元</td>
+      <td>（6/26收盘）存储龙头大幅回调，高换手7.66%。业绩大超预期后获利了结。与A股存储（兆易创新+9%）分化明显。</td>
+    </tr>
+    <tr>
+      <td>美股</td><td>谷歌</td>
+      <td>337.39美元</td>
+      <td class="change-down">-1.84%</td>
+      <td>388亿美元</td>
+      <td>（6/26收盘）跟随科技板块回调。</td>
+    </tr>
+  </table>
+
+  <h3>2. 板块和个股跟进</h3>
+  <p>
+    <strong>半导体方向（重点关注）：</strong>兆易创新+9.09%放量突破，斯达半导+5.03%，华海清科+4.32%，雅克科技+4.23%。半导体设备和材料板块形成明显赚钱效应。台积电预计全球半导体市场今年突破1万亿美元，AI驱动扩产大潮下设备/材料厂商率先受益。<br><br>
+    <strong>医药CRO方向（新增关注）：</strong>药明康德+6.76%、万邦医药+9.70%、百奥赛图+4.48%。生物医药产业定位升级+央企布局细胞基因治疗，CRO/创新药主线初步形成。<br><br>
+    <strong>CPO/光模块方向（观望）：</strong>中际旭创-2.70%，通信设备板块内部分化严重。美股科技持续回调+AI泡沫担忧形成压制。但中长期看AI算力需求仍在增长，关注板块企稳信号。
+  </p>
+</div>
+
+<!-- 图表：自选股涨跌幅 -->
+<div class="section">
+  <h3>📊 自选股当日涨跌幅对比</h3>
+  <div id="chart-stock" class="chart-box"></div>
+</div>
+
+<!-- 五、制定明日交易计划 -->
+<div class="section">
+  <h2><span class="icon">🎯</span>五、制定明日交易计划</h2>
+
+  <h3>市场总体判断</h3>
+  <p>
+    当前市场处于<strong>结构性行情 + 高低切换</strong>阶段。科创50暴涨+4.61%表明资金在半导体/医药方向形成合力，但高位牛股集体跌停（宏和科技、山东玻纤、长盈通等）警示市场风险偏好正在收缩。国常会"人工智能+"定调和十五五规划密集发布为中长期指明方向，但短期需警惕美股科技持续回调的传导风险。
+  </p>
+
+  <h3>明日（6月30日）操作建议</h3>
+
+  <div class="plan-card">
+    <h4>🟢 重点关注（可择机加仓或新开）</h4>
+    <ul>
+      <li><strong>半导体设备/材料：</strong>斯达半导、华海清科、雅克科技——AI扩产逻辑最确定，且与美股半导体回调脱钩（国产替代逻辑独立）。关注回调至5日线附近的低吸机会。</li>
+      <li><strong>医药CRO：</strong>药明康德——放量突破+政策催化，关注能否站稳120元上方。万邦医药首板，观察次日溢价。</li>
+      <li><strong>存储芯片：</strong>兆易创新——注意短期已大幅上涨，不宜追高。若回调至800元附近可考虑分批建仓。</li>
+    </ul>
+  </div>
+
+  <div class="plan-card" style="background:#fff8e1;border-color:#ffc107;">
+    <h4 style="color:#856404;">🟡 持仓观察（持有但需密切关注）</h4>
+    <ul>
+      <li><strong>中际旭创：</strong>CPO龙头连续调整，若跌破1200元整数关口且无法快速收回，建议减仓1/3。关注美股英伟达走势作为领先指标。</li>
+      <li><strong>贵州茅台/五粮液：</strong>防御性持有，不急于加仓。白酒板块非当前主线，等待更明确的突破信号。</li>
+      <li><strong>腾讯控股/美团：</strong>港股科技反弹中持有，关注南向资金是否转为净流入。若南向持续净卖出需警惕反弹不可持续。</li>
+    </ul>
+  </div>
+
+  <div class="plan-card" style="background:#fff5f5;border-color:#f5c6cb;">
+    <h4 style="color:#721c24;">🔴 风险提示与减仓考虑</h4>
+    <ul>
+      <li><strong>美光科技：</strong>美股存储龙头-6.69%，与A股兆易创新走势背离。若美股半导体继续下跌，A股半导体补跌风险加大。</li>
+      <li><strong>苹果/英伟达：</strong>美股科技七巨头仍有下行风险（核心PCE超预期+加息担忧），对港股科技形成间接压制。</li>
+      <li><strong>高位题材股：</strong>坚决回避宏和科技、山东玻纤等36倍涨幅类标的，此类个股一旦崩盘回调幅度可超50%。</li>
+    </ul>
+  </div>
+
+  <h3>关键观察指标（6月30日）</h3>
+  <table>
+    <tr><th>指标</th><th>关注点</th><th>阈值</th></tr>
+    <tr><td>科创50</td><td>能否站稳2100点</td><td>若跌破2050则短期趋势转弱</td></tr>
+    <tr><td>两市成交额</td><td>是否维持3万亿以上</td><td>低于2.8万亿则市场热度下降</td></tr>
+    <tr><td>南向资金</td><td>是否转为净流入</td><td>连续3日净卖出则港股反弹存疑</td></tr>
+    <tr><td>中际旭创</td><td>1200元支撑</td><td>跌破且无法收回则减仓</td></tr>
+    <tr><td>兆易创新</td><td>800元支撑</td><td>回调至此可考虑分批建仓</td></tr>
+    <tr><td>涨跌家数</td><td>赚钱效应</td><td>上涨家数<1500则市场情绪恶化</td></tr>
+    <tr><td>宏和科技</td><td>高位股风险扩散</td><td>若次日继续跌停，警惕其他高位股连锁反应</td></tr>
+  </table>
+
+  <div class="highlight-box" style="margin-top:16px;">
+    <strong>📌 仓位管理建议：</strong>总仓位控制在5-7成。半导体/医药主线占比40%，消费/金融防御仓位30%，现金保留30%等待更好介入时机。若科创50跌破2050，总仓位降至5成以下。
+  </div>
+</div>
+
+<div class="footnote">
+  <p>⚠️ 免责声明：本报告仅供个人投资参考，不构成投资建议。数据来源：NeoData Financial Search、腾讯自选股。投资有风险，入市需谨慎。</p>
+  <p>生成时间：2026-06-30 09:30 CST | 数据截止：2026-06-29 收盘</p>
+</div>
+
+</div>
+
+<script>
+// 自选股涨跌幅对比图
+(function(){
+  var dom = document.getElementById('chart-stock');
+  if (!dom) return;
+  var chart = echarts.init(dom);
+  var categories = ['兆易创新','药明康德','美团ADR','中国平安H','贵州茅台','腾讯控股','快手','五粮液','阿里巴巴','特斯拉','苹果','理想汽车','谷歌','中际旭创','英伟达','美光科技'];
+  var values = [9.09, 6.76, 3.42, 2.67, 2.25, 2.04, 2.02, 1.13, 0.74, 1.22, 3.14, -1.25, -1.84, -2.70, -1.64, -6.69];
+  var colors = values.map(function(v){ return v >= 0 ? '#e74c3c' : '#27ae60'; });
+  chart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '8%', bottom: '12%', top: '5%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLabel: { rotate: 45, fontSize: 11 }
+    },
+    yAxis: {
+      type: 'value',
+      name: '涨跌幅(%)',
+      axisLabel: { formatter: '{value}%' }
+    },
+    series: [{
+      type: 'bar',
+      data: values.map(function(v, i){
+        return { value: v, itemStyle: { color: colors[i] } };
+      }),
+      label: {
+        show: true,
+        position: 'top',
+        formatter: function(p){ return (p.value > 0 ? '+' : '') + p.value.toFixed(2) + '%'; },
+        fontSize: 10
+      },
+      barMaxWidth: 28
+    }]
+  });
+})();
+</script>
+
+</body>
+</html>
