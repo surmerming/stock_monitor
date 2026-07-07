@@ -1,3 +1,4 @@
+import { AkShareService } from '../akshare/akshare.service';
 export interface ScannerItem {
     symbol: string;
     name: string;
@@ -10,8 +11,10 @@ export interface ScannerItem {
     avgVolume3m: number | null;
 }
 export declare class ScannerService {
+    private readonly akShareService;
     private readonly logger;
     private cache;
+    constructor(akShareService: AkShareService);
     private getCached;
     private setCache;
     private transformQuote;

@@ -10,11 +10,13 @@ exports.ScannerModule = void 0;
 const common_1 = require("@nestjs/common");
 const scanner_service_1 = require("./scanner.service");
 const scanner_controller_1 = require("./scanner.controller");
+const akshare_module_1 = require("../akshare/akshare.module");
 let ScannerModule = class ScannerModule {
 };
 exports.ScannerModule = ScannerModule;
 exports.ScannerModule = ScannerModule = __decorate([
     (0, common_1.Module)({
+        imports: [akshare_module_1.AkShareModule],
         providers: [scanner_service_1.ScannerService],
         controllers: [scanner_controller_1.ScannerController],
         exports: [scanner_service_1.ScannerService],

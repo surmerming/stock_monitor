@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
+import { StockService } from '../stock/stock.service';
 import { getCnName } from '../common/cn-names';
 import {
   OHLCV,
   computeIndicators,
   TECHNICAL_FIELDS,
 } from '../screener/technical.util';
-
-const yahooFinance = new YahooFinance();
 
 export interface BacktestFilter {
   field: string;
@@ -69,29 +68,25 @@ export interface BacktestResult {
 export class BacktestService {
   private readonly logger = new Logger(BacktestService.name);
 
+  constructor(
+    private readonly akShareService: AkShareService,
+    private readonly stockService: StockService,
+  ) {}
+
   private async fetchBars(
     symbol: string,
     startDate: string,
     endDate: string,
   ): Promise<DayBar[]> {
-    const start = new Date(startDate);
-    start.setDate(start.getDate() - 300);
-
-    const chart = await yahooFinance.chart(symbol, {
-      period1: start,
-      period2: new Date(endDate),
-      interval: '1d' as any,
-    });
+    const { akshare: akSymbol } = this.stockService.normalizeSymbol(symbol);
+    const chart = await this.akShareService.getChart(akSymbol, 'daily');
 
     if (!chart?.quotes) return [];
 
     return chart.quotes
-      .filter((q: any) => q.close != null)
-      .map((q: any) => ({
-        date:
-          q.date instanceof Date
-            ? q.date.toISOString().slice(0, 10)
-            : String(q.date).slice(0, 10),
+      .filter((q: ChartQuote) => q.close != null)
+      .map((q: ChartQuote) => ({
+        date: q.date || '',
         open: q.open ?? q.close,
         high: q.high ?? q.close,
         low: q.low ?? q.close,
@@ -182,8 +177,9 @@ export class BacktestService {
 
     let symbolName = symbol;
     try {
-      const q: any = await yahooFinance.quote(symbol, {}, { validateResult: false });
-      symbolName = getCnName(symbol, q?.shortName || q?.longName || q?.displayName || symbol);
+      const { akshare: akSymbol } = this.stockService.normalizeSymbol(symbol);
+      const q = await this.akShareService.getQuote(akSymbol);
+      symbolName = getCnName(akSymbol, q?.name || symbol);
     } catch {}
 
     const trades: Trade[] = [];

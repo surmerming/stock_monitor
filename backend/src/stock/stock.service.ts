@@ -1,136 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
-import axios from 'axios';
+import { AkShareService, QuoteResult } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
-
-function getSystemProxy(): string | undefined {
-  const envVars = ['HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy'];
-  for (const envVar of envVars) {
-    const proxy = process.env[envVar];
-    if (proxy && proxy.trim()) {
-      return proxy.trim();
-    }
-  }
-  return undefined;
-}
-
-const proxyUrl = getSystemProxy();
-let proxyAgent: any = undefined;
-
-async function ensureProxyAgent(): Promise<any> {
-  if (proxyAgent) return proxyAgent;
-  if (!proxyUrl) return undefined;
-  try {
-    const { HttpsProxyAgent } = await import('https-proxy-agent');
-    proxyAgent = new HttpsProxyAgent(proxyUrl);
-    return proxyAgent;
-  } catch {
-    return undefined;
-  }
-}
-
-const customFetch = async (input: any, init: any): Promise<Response> => {
-  const url = typeof input === 'string' ? input : input.url;
-  const method = init?.method || 'GET';
-  const agent = await ensureProxyAgent();
-
-  const axiosConfig: any = {
-    url,
-    method,
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      Accept:
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-      'Accept-Encoding': 'gzip, deflate, br',
-      Connection: 'keep-alive',
-      ...(init?.headers as Record<string, string>),
-    },
-    httpsAgent: agent,
-    httpAgent: agent,
-    maxRedirects: init?.redirect === 'manual' ? 0 : 10,
-    validateStatus: () => true,
-  };
-
-  if (init?.body) {
-    axiosConfig.data = init.body;
-  }
-
-  try {
-    const response = await axios(axiosConfig);
-    const headers = new Headers();
-    for (const [key, value] of Object.entries(response.headers || {})) {
-      headers.set(key, String(value));
-    }
-    const data = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-
-    const customResp = {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
-      text: () => Promise.resolve(data),
-      json: () =>
-        Promise.resolve(
-          typeof response.data === 'string' ? JSON.parse(response.data) : response.data,
-        ),
-      ok: response.status >= 200 && response.status < 300,
-      redirected: false,
-      type: 'basic' as const,
-      url,
-      body: null,
-      bodyUsed: false,
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-      blob: () => Promise.resolve(new Blob([])),
-      formData: () => Promise.resolve(new FormData()),
-      clone: () => ({ ...customResp }),
-      bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
-    };
-    return customResp;
-  } catch (error: any) {
-    if (error.response) {
-      const headers = new Headers();
-      for (const [key, value] of Object.entries(error.response.headers || {})) {
-        headers.set(key, String(value));
-      }
-      const data =
-        typeof error.response.data === 'string'
-          ? error.response.data
-          : JSON.stringify(error.response.data);
-
-      const customResp = {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        headers,
-        text: () => Promise.resolve(data),
-        json: () =>
-          Promise.resolve(
-            typeof error.response.data === 'string'
-              ? JSON.parse(error.response.data)
-              : error.response.data,
-          ),
-        ok: false,
-        redirected: false,
-        type: 'basic' as const,
-        url,
-        body: null,
-        bodyUsed: false,
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-        blob: () => Promise.resolve(new Blob([])),
-        formData: () => Promise.resolve(new FormData()),
-        clone: () => ({ ...customResp }),
-        bytes: () => Promise.resolve(new Uint8Array(new ArrayBuffer(0))),
-      };
-      return customResp;
-    }
-    throw error;
-  }
-};
-
-const yahooFinance = new YahooFinance({
-  suppressNotices: ['yahooSurvey'],
-  fetch: customFetch as any,
-});
 
 export interface StockQuote {
   symbol: string;
@@ -164,139 +34,97 @@ export interface StockQuote {
   post_market_change_percent: number | null;
 }
 
-const A_SHARE_RE = /^(sh|sz|bj)?\d{6}$/i;
-const HK_RE = /^(hk)?\d{4,5}$/i;
-
-function isAShare(symbol: string): boolean {
-  return A_SHARE_RE.test(symbol.trim());
-}
-
-function isHK(symbol: string): boolean {
-  const s = symbol.trim().toLowerCase();
-  return s.endsWith('.hk') || HK_RE.test(s);
-}
-
-function toYahooAShare(symbol: string): { yahoo: string; display: string } {
-  const s = symbol.trim().toLowerCase();
-  let prefix: string;
-  let code: string;
-
-  if (['sh', 'sz', 'bj'].includes(s.slice(0, 2))) {
-    prefix = s.slice(0, 2);
-    code = s.slice(2);
-  } else {
-    code = s;
-    if (code.startsWith('6')) prefix = 'sh';
-    else if (code.startsWith('0') || code.startsWith('3')) prefix = 'sz';
-    else if (code.startsWith('4') || code.startsWith('8')) prefix = 'bj';
-    else prefix = 'sh';
-  }
-
-  const suffix = prefix === 'sh' ? '.SS' : prefix === 'sz' ? '.SZ' : '.BJ';
-  return {
-    yahoo: `${code}${suffix}`,
-    display: `${prefix.toUpperCase()}${code}`,
-  };
-}
-
-function toYahooHK(symbol: string): { yahoo: string; display: string } {
-  let s = symbol.trim().toLowerCase();
-  if (s.endsWith('.hk')) s = s.slice(0, -3);
-  else if (s.startsWith('hk')) s = s.slice(2);
-
-  const code = (s.replace(/^0+/, '') || '0').padStart(4, '0');
-  return { yahoo: `${code}.HK`, display: `HK${code}` };
-}
-
 @Injectable()
 export class StockService {
   private readonly logger = new Logger(StockService.name);
 
+  constructor(private readonly akShareService: AkShareService) {}
+
   normalizeSymbol(input: string): {
-    yahoo: string;
+    akshare: string;
     display: string;
     market: string;
   } {
     const trimmed = input.trim();
+    const s = trimmed.toLowerCase();
 
-    if (/\.(SS|SZ|BJ)$/i.test(trimmed)) {
-      return { yahoo: trimmed, display: trimmed, market: 'A股' };
+    if (s.endsWith('.ss')) {
+      return { akshare: trimmed, display: `SH${trimmed.slice(0, -3)}`, market: 'A股' };
     }
-    if (/\.HK$/i.test(trimmed)) {
-      return { yahoo: trimmed, display: trimmed, market: '港股' };
+    if (s.endsWith('.sz')) {
+      return { akshare: trimmed, display: `SZ${trimmed.slice(0, -3)}`, market: 'A股' };
     }
-    if (trimmed.startsWith('^')) {
-      return { yahoo: trimmed, display: trimmed, market: '美股' };
+    if (s.endsWith('.bj')) {
+      return { akshare: trimmed, display: `BJ${trimmed.slice(0, -3)}`, market: 'A股' };
+    }
+    if (s.endsWith('.hk')) {
+      return { akshare: trimmed, display: `HK${trimmed.slice(0, -3)}`, market: '港股' };
     }
 
-    if (isAShare(trimmed)) {
-      const r = toYahooAShare(trimmed);
-      return { yahoo: r.yahoo, display: r.display, market: 'A股' };
+    if (/^(sh|sz|bj)?\d{6}$/i.test(trimmed)) {
+      const code = s.replace(/^(sh|sz|bj)/, '');
+      if (code.startsWith('6')) {
+        return { akshare: `SH${code}`, display: `SH${code}`, market: 'A股' };
+      } else if (code.startsWith('0') || code.startsWith('3')) {
+        return { akshare: `SZ${code}`, display: `SZ${code}`, market: 'A股' };
+      } else if (code.startsWith('4') || code.startsWith('8')) {
+        return { akshare: `BJ${code}`, display: `BJ${code}`, market: 'A股' };
+      } else {
+        return { akshare: `SH${code}`, display: `SH${code}`, market: 'A股' };
+      }
     }
-    if (isHK(trimmed)) {
-      const r = toYahooHK(trimmed);
-      return { yahoo: r.yahoo, display: r.display, market: '港股' };
+
+    if (/^(hk)?\d{4,5}$/i.test(trimmed)) {
+      const code = s.replace(/^hk/, '').padStart(5, '0');
+      return { akshare: `HK${code}`, display: `HK${code}`, market: '港股' };
     }
 
     return {
-      yahoo: trimmed.toUpperCase(),
+      akshare: trimmed.toUpperCase(),
       display: trimmed.toUpperCase(),
       market: '美股',
     };
   }
 
-  private transformRawQuote(raw: any, display: string, market: string): StockQuote {
-    const current = raw.regularMarketPrice ?? 0;
-    const prevClose = raw.regularMarketPreviousClose ?? 0;
-    const change = current - prevClose;
-    const changePct = prevClose ? (change / prevClose) * 100 : 0;
-    const defaultCurrency = market === 'A股' ? 'CNY' : market === '港股' ? 'HKD' : 'USD';
-
+  private transformAkShareQuote(raw: QuoteResult, display: string): StockQuote {
     return {
       symbol: display,
-      name: getCnName(display, raw.shortName || raw.longName || display),
-      currency: raw.currency || defaultCurrency,
-      current_price: current,
-      prev_close: prevClose,
-      open_price: raw.regularMarketOpen ?? 0,
-      day_high: raw.regularMarketDayHigh ?? 0,
-      day_low: raw.regularMarketDayLow ?? 0,
-      volume: raw.regularMarketVolume ?? 0,
-      market_cap: raw.marketCap ?? null,
-      pe_ratio: raw.trailingPE ?? null,
-      week_52_high: raw.fiftyTwoWeekHigh ?? null,
-      week_52_low: raw.fiftyTwoWeekLow ?? null,
-      avg_volume: raw.averageDailyVolume10Day ?? null,
-      turnover:
-        (raw.regularMarketVolume ?? 0) && current ? (raw.regularMarketVolume ?? 0) * current : null,
-      turnover_rate:
-        raw.sharesOutstanding && (raw.regularMarketVolume ?? 0)
-          ? ((raw.regularMarketVolume ?? 0) / raw.sharesOutstanding) * 100
-          : null,
-      volume_ratio:
-        (raw.regularMarketVolume ?? 0) && (raw.averageDailyVolume10Day ?? 0)
-          ? (raw.regularMarketVolume ?? 0) / (raw.averageDailyVolume10Day ?? 1)
-          : null,
-      change,
-      change_percent: changePct,
+      name: getCnName(display, raw.name),
+      currency: raw.currency,
+      current_price: raw.current_price,
+      prev_close: raw.prev_close,
+      open_price: raw.open_price,
+      day_high: raw.day_high,
+      day_low: raw.day_low,
+      volume: raw.volume,
+      market_cap: raw.market_cap ?? null,
+      pe_ratio: raw.pe_ratio ?? null,
+      week_52_high: null,
+      week_52_low: null,
+      avg_volume: null,
+      turnover: raw.turnover ?? null,
+      turnover_rate: raw.turnover_rate ?? null,
+      volume_ratio: null,
+      change: raw.change,
+      change_percent: raw.change_percent,
       timestamp: new Date().toISOString(),
-      market,
-      is_up: change >= 0,
-      market_state: raw.marketState ?? null,
-      pre_market_price: raw.preMarketPrice ?? null,
-      pre_market_change: raw.preMarketChange ?? null,
-      pre_market_change_percent: raw.preMarketChangePercent ?? null,
-      post_market_price: raw.postMarketPrice ?? null,
-      post_market_change: raw.postMarketChange ?? null,
-      post_market_change_percent: raw.postMarketChangePercent ?? null,
+      market: raw.market,
+      is_up: raw.change >= 0,
+      market_state: null,
+      pre_market_price: null,
+      pre_market_change: null,
+      pre_market_change_percent: null,
+      post_market_price: null,
+      post_market_change: null,
+      post_market_change_percent: null,
     };
   }
 
   async fetchQuote(symbol: string): Promise<StockQuote> {
-    const { yahoo, display, market } = this.normalizeSymbol(symbol);
-    const raw: any = await yahooFinance.quote(yahoo, {}, { validateResult: false });
-    if (!raw) throw new Error(`No data returned for ${yahoo}`);
-    return this.transformRawQuote(raw, display, market);
+    const { akshare, display } = this.normalizeSymbol(symbol);
+    const raw = await this.akShareService.getQuote(akshare);
+    if (!raw) throw new Error(`No data returned for ${akshare}`);
+    return this.transformAkShareQuote(raw, display);
   }
 
   async fetchQuotes(
@@ -325,48 +153,20 @@ export class StockService {
       ...this.normalizeSymbol(sym),
     }));
 
-    const yahooToEntries = new Map<
-      string,
-      { input: string; yahoo: string; display: string; market: string }[]
-    >();
-    for (const entry of entries) {
-      const list = yahooToEntries.get(entry.yahoo) || [];
-      list.push(entry);
-      yahooToEntries.set(entry.yahoo, list);
-    }
+    const akshareSymbols = entries.map((e) => e.akshare);
+    const batchResults = await this.akShareService.getQuotesBatch(akshareSymbols);
 
-    const uniqueYahoo = [...yahooToEntries.keys()];
-    const CHUNK_SIZE = 50;
-    const allRaw: any[] = [];
-
-    for (let i = 0; i < uniqueYahoo.length; i += CHUNK_SIZE) {
-      const chunk = uniqueYahoo.slice(i, i + CHUNK_SIZE);
-      try {
-        const res: any = await yahooFinance.quote(chunk, {}, { validateResult: false });
-        const arr = Array.isArray(res) ? res : [res];
-        allRaw.push(...arr);
-      } catch (err) {
-        this.logger.warn(`Batch quote chunk failed: ${err.message}`);
-        for (const sym of chunk) {
-          try {
-            const single: any = await yahooFinance.quote(sym, {}, { validateResult: false });
-            if (single) allRaw.push(single);
-          } catch {
-            // skip failed individual symbol
-          }
-        }
+    const rawMap = new Map<string, QuoteResult>();
+    for (const res of batchResults) {
+      if (res.data) {
+        rawMap.set(res.symbol, res.data);
       }
     }
 
-    const rawMap = new Map<string, any>();
-    for (const raw of allRaw) {
-      if (raw?.symbol) rawMap.set(raw.symbol, raw);
-    }
-
     for (const entry of entries) {
-      const raw = rawMap.get(entry.yahoo);
+      const raw = rawMap.get(entry.akshare);
       if (raw) {
-        result.set(entry.input, this.transformRawQuote(raw, entry.display, entry.market));
+        result.set(entry.input, this.transformAkShareQuote(raw, entry.display));
       }
     }
 

@@ -1,3 +1,4 @@
+import { AkShareService } from '../akshare/akshare.service';
 export interface StockQuote {
     symbol: string;
     name: string;
@@ -30,13 +31,15 @@ export interface StockQuote {
     post_market_change_percent: number | null;
 }
 export declare class StockService {
+    private readonly akShareService;
     private readonly logger;
+    constructor(akShareService: AkShareService);
     normalizeSymbol(input: string): {
-        yahoo: string;
+        akshare: string;
         display: string;
         market: string;
     };
-    private transformRawQuote;
+    private transformAkShareQuote;
     fetchQuote(symbol: string): Promise<StockQuote>;
     fetchQuotes(symbols: string[]): Promise<{
         symbol: string;

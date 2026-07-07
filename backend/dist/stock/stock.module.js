@@ -10,11 +10,13 @@ exports.StockModule = void 0;
 const common_1 = require("@nestjs/common");
 const stock_service_1 = require("./stock.service");
 const stock_controller_1 = require("./stock.controller");
+const akshare_module_1 = require("../akshare/akshare.module");
 let StockModule = class StockModule {
 };
 exports.StockModule = StockModule;
 exports.StockModule = StockModule = __decorate([
     (0, common_1.Module)({
+        imports: [akshare_module_1.AkShareModule],
         providers: [stock_service_1.StockService],
         controllers: [stock_controller_1.StockController],
         exports: [stock_service_1.StockService],

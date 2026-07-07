@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
 import { WatchlistService } from '../watchlist/watchlist.service';
 import { StockService } from '../stock/stock.service';
 import { MoneyFlowService } from '../moneyflow/moneyflow.service';
@@ -7,10 +6,9 @@ import { PatternService, PatternSignal, SupportResistance } from '../pattern/pat
 import { SentimentService } from '../sentiment/sentiment.service';
 import { SectorService } from '../sector/sector.service';
 import { DetailService } from '../detail/detail.service';
+import { AkShareService, ChartQuote, QuoteResult } from '../akshare/akshare.service';
 import { computeIndicators, TechnicalValues, OHLCV } from '../screener/technical.util';
 import { getCnName } from '../common/cn-names';
-
-const yahooFinance = new YahooFinance();
 
 export interface MaStatus {
   ma5: number | null;
@@ -134,27 +132,29 @@ export class ReviewService {
     private readonly sentimentService: SentimentService,
     private readonly sectorService: SectorService,
     private readonly detailService: DetailService,
+    private readonly akShareService: AkShareService,
   ) {}
 
   async getComparison(symbols: string[], range = '3mo') {
-    const days = range === '1mo' ? 30 : range === '6mo' ? 180 : range === '1y' ? 365 : 90;
-    const period1 = new Date(Date.now() - days * 24 * 3600 * 1000);
+    const periodMap: Record<string, string> = {
+      '1mo': 'daily',
+      '3mo': 'daily',
+      '6mo': 'daily',
+      '1y': 'weekly',
+    };
+    const period = periodMap[range] || 'daily';
 
     const results = await Promise.all(
       symbols.slice(0, 5).map(async (rawSymbol) => {
-        const { yahoo: symbol, display } = this.stockService.normalizeSymbol(rawSymbol);
+        const { akshare: symbol, display } = this.stockService.normalizeSymbol(rawSymbol);
         try {
-          const chart: any = await yahooFinance.chart(
-            symbol,
-            { period1, interval: '1d' as any },
-            { validateResult: false },
-          );
-          if (!chart?.quotes?.length) return null;
+          const chartResult = await this.akShareService.getChart(symbol, period);
+          if (!chartResult?.quotes?.length) return null;
 
-          const bars = chart.quotes
-            .filter((q: any) => q.close != null)
-            .map((q: any) => ({
-              date: q.date instanceof Date ? q.date.toISOString().slice(0, 10) : String(q.date).slice(0, 10),
+          const bars = chartResult.quotes
+            .filter((q: ChartQuote) => q.close != null)
+            .map((q: ChartQuote) => ({
+              date: q.date || '',
               close: q.close,
               volume: q.volume ?? 0,
             }));
@@ -179,7 +179,6 @@ export class ReviewService {
 
     const series = results.filter((r): r is NonNullable<typeof r> => r !== null);
 
-    // Correlation matrix
     const correlation: { a: string; b: string; corr: number }[] = [];
     for (let i = 0; i < series.length; i++) {
       for (let j = i + 1; j < series.length; j++) {
@@ -257,34 +256,31 @@ export class ReviewService {
     const cached = this.getCached<StockReviewDetail>(cacheKey);
     if (cached) return cached;
 
-    const { yahoo: symbol, display, market } = this.stockService.normalizeSymbol(rawSymbol);
+    const { akshare: symbol, display, market } = this.stockService.normalizeSymbol(rawSymbol);
 
     try {
       const [quoteResult, chartResult, patternResult, flowDetail] = await Promise.allSettled([
-        yahooFinance.quote(symbol, {}, { validateResult: false }),
-        yahooFinance.chart(symbol, {
-          period1: new Date(Date.now() - 365 * 24 * 3600 * 1000),
-          interval: '1d' as any,
-        }, { validateResult: false }),
+        this.akShareService.getQuote(symbol),
+        this.akShareService.getChart(symbol, 'daily'),
         this.patternService.detect(symbol, '6mo'),
         this.moneyFlowService.getDetail(rawSymbol),
       ]);
 
-      const raw: any = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
-      const chart: any = chartResult.status === 'fulfilled' ? chartResult.value : null;
+      const raw = quoteResult.status === 'fulfilled' ? quoteResult.value : null;
+      const chart = chartResult.status === 'fulfilled' ? chartResult.value : null;
       const pattern = patternResult.status === 'fulfilled' ? patternResult.value : null;
       const flow = flowDetail.status === 'fulfilled' ? flowDetail.value : null;
 
       if (!raw) return null;
 
-      const price = raw.regularMarketPrice ?? 0;
-      const prevClose = raw.regularMarketPreviousClose ?? 0;
-      const change = price - prevClose;
-      const changePct = prevClose ? (change / prevClose) * 100 : 0;
+      const price = raw.current_price;
+      const prevClose = raw.prev_close;
+      const change = raw.change;
+      const changePct = raw.change_percent;
 
       const bars: OHLCV[] = (chart?.quotes ?? [])
-        .filter((q: any) => q.close != null && q.volume != null)
-        .map((q: any) => ({
+        .filter((q: ChartQuote) => q.close != null && q.volume != null)
+        .map((q: ChartQuote) => ({
           open: q.open ?? q.close,
           high: q.high ?? q.close,
           low: q.low ?? q.close,
@@ -293,10 +289,10 @@ export class ReviewService {
         }));
 
       const chartBars = (chart?.quotes ?? [])
-        .filter((q: any) => q.close != null)
+        .filter((q: ChartQuote) => q.close != null)
         .slice(-120)
-        .map((q: any) => ({
-          date: q.date instanceof Date ? q.date.toISOString().slice(0, 10) : String(q.date).slice(0, 10),
+        .map((q: ChartQuote) => ({
+          date: q.date || '',
           open: q.open ?? q.close,
           high: q.high ?? q.close,
           low: q.low ?? q.close,
@@ -310,7 +306,7 @@ export class ReviewService {
       const anomalies = this.detectAnomalies(bars, indicators);
       const score = this.computeScore(indicators, anomalies, pattern?.patterns ?? [], flow);
 
-      const name = getCnName(symbol, raw.shortName || raw.longName || display);
+      const name = getCnName(symbol, raw.name || display);
 
       const volumePrice = this.computeVolumePriceAnalysis(chartBars);
 
@@ -322,16 +318,16 @@ export class ReviewService {
           price,
           change,
           changePercent: changePct,
-          open: raw.regularMarketOpen ?? 0,
-          high: raw.regularMarketDayHigh ?? 0,
-          low: raw.regularMarketDayLow ?? 0,
+          open: raw.open_price,
+          high: raw.day_high,
+          low: raw.day_low,
           prevClose,
-          volume: raw.regularMarketVolume ?? 0,
-          turnover: (raw.regularMarketVolume ?? 0) * price,
-          turnoverRate: raw.sharesOutstanding ? ((raw.regularMarketVolume ?? 0) / raw.sharesOutstanding) * 100 : null,
-          volumeRatio: raw.averageDailyVolume10Day ? (raw.regularMarketVolume ?? 0) / raw.averageDailyVolume10Day : null,
-          marketCap: raw.marketCap ?? null,
-          pe: raw.trailingPE ?? null,
+          volume: raw.volume,
+          turnover: raw.turnover ?? 0,
+          turnoverRate: raw.turnover_rate ?? null,
+          volumeRatio: null,
+          marketCap: raw.market_cap ?? null,
+          pe: raw.pe_ratio ?? null,
         },
         maStatus,
         technicals,
@@ -422,24 +418,21 @@ export class ReviewService {
     const quote = quotesMap.get(inputSymbol);
     if (!quote) return null;
 
-    const { yahoo: symbol } = this.stockService.normalizeSymbol(inputSymbol);
+    const { akshare: symbol } = this.stockService.normalizeSymbol(inputSymbol);
 
     const [chartResult, patternResult, flowResult] = await Promise.allSettled([
-      yahooFinance.chart(symbol, {
-        period1: new Date(Date.now() - 365 * 24 * 3600 * 1000),
-        interval: '1d' as any,
-      }, { validateResult: false }),
+      this.akShareService.getChart(symbol, 'daily'),
       this.patternService.detect(symbol, '6mo'),
       this.moneyFlowService.getDetail(inputSymbol),
     ]);
 
-    const chart: any = chartResult.status === 'fulfilled' ? chartResult.value : null;
+    const chart = chartResult.status === 'fulfilled' ? chartResult.value : null;
     const pattern = patternResult.status === 'fulfilled' ? patternResult.value : null;
     const flow = flowResult.status === 'fulfilled' ? flowResult.value : null;
 
     const bars: OHLCV[] = (chart?.quotes ?? [])
-      .filter((q: any) => q.close != null && q.volume != null)
-      .map((q: any) => ({
+      .filter((q: ChartQuote) => q.close != null && q.volume != null)
+      .map((q: ChartQuote) => ({
         open: q.open ?? q.close,
         high: q.high ?? q.close,
         low: q.low ?? q.close,
@@ -473,8 +466,8 @@ export class ReviewService {
       volume: quote.volume,
       turnover: quote.turnover ?? 0,
       turnoverRate: quote.turnover_rate ?? null,
-      volumeRatio: quote.volume_ratio ?? null,
-      avgVolume: quote.avg_volume ?? null,
+      volumeRatio: null,
+      avgVolume: null,
       volMa5Ratio: indicators.volMa5Ratio as number | null,
       netFlow: flow?.summary?.netFlow ?? 0,
       largeNetFlow: flow?.summary?.largeNetFlow ?? 0,
@@ -510,7 +503,6 @@ export class ReviewService {
       });
     }
 
-    // Detect divergences using 10-bar windows
     const windowSize = 10;
     for (let i = windowSize * 2; i < points.length; i++) {
       const recent = points.slice(i - windowSize, i);
@@ -615,7 +607,6 @@ export class ReviewService {
     const last = bars[bars.length - 1];
     const prev = bars[bars.length - 2];
 
-    // Volume breakout
     const volRatio = indicators.volMa5Ratio as number | null;
     if (volRatio != null && volRatio > 2.0 && last.close > prev.close) {
       tags.push({
@@ -635,7 +626,6 @@ export class ReviewService {
       });
     }
 
-    // Shrink pullback
     if (volRatio != null && volRatio < 0.6 && last.close < prev.close) {
       tags.push({
         type: 'shrink_pullback',
@@ -645,7 +635,6 @@ export class ReviewService {
       });
     }
 
-    // Gap detection
     if (last.low > prev.high) {
       const gapPct = prev.close > 0 ? ((last.low - prev.high) / prev.close * 100) : 0;
       tags.push({
@@ -665,7 +654,6 @@ export class ReviewService {
       });
     }
 
-    // MACD cross
     if (indicators.macdGoldenCross) {
       tags.push({
         type: 'macd_golden',
@@ -683,7 +671,6 @@ export class ReviewService {
       });
     }
 
-    // KDJ cross
     if (indicators.kdjGoldenCross) {
       tags.push({
         type: 'kdj_golden',
@@ -701,7 +688,6 @@ export class ReviewService {
       });
     }
 
-    // Volume-price divergence (price new high but volume decreasing)
     if (bars.length >= 20) {
       const recent5 = bars.slice(-5);
       const prev5 = bars.slice(-10, -5);
@@ -731,7 +717,6 @@ export class ReviewService {
       }
     }
 
-    // Bollinger band extremes
     const bollPos = indicators.bollPosition as number | null;
     if (bollPos != null) {
       if (bollPos > 95) {
@@ -761,7 +746,6 @@ export class ReviewService {
     patterns: PatternSignal[],
     flow: any,
   ): ReviewScore {
-    // Trend score (25%) - based on MA alignment and bias
     let trend = 50;
     const ma5Bias = indicators.ma5Bias as number | null;
     const ma10Bias = indicators.ma10Bias as number | null;
@@ -775,7 +759,6 @@ export class ReviewService {
       else if (ma5Bias < 0) trend = 40;
     }
 
-    // Volume score (20%) - volume-price coordination
     let volume = 50;
     const volRatio = indicators.volMa5Ratio as number | null;
     if (volRatio != null) {
@@ -785,7 +768,6 @@ export class ReviewService {
       else volume = 50;
     }
 
-    // Technical score (20%) - MACD, KDJ signals
     let technical = 50;
     if (indicators.macdGoldenCross) technical += 20;
     if (indicators.macdDeathCross) technical -= 20;
@@ -796,7 +778,6 @@ export class ReviewService {
     }
     technical = Math.max(0, Math.min(100, technical));
 
-    // Money flow score (20%)
     let moneyFlowScore = 50;
     if (flow?.summary) {
       const netFlow = flow.summary.netFlow ?? 0;
@@ -807,7 +788,6 @@ export class ReviewService {
       else if (netFlow < 0) moneyFlowScore = 35;
     }
 
-    // Pattern score (15%)
     let patternScore = 50;
     for (const p of patterns) {
       if (p.direction === 'bullish') patternScore += p.strength * 0.3;

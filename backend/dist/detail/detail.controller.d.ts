@@ -4,42 +4,49 @@ export declare class DetailController {
     constructor(detailService: DetailService);
     getChart(symbol: string, interval?: string, range?: string): Promise<{
         meta: {
-            symbol: any;
-            currency: any;
-            exchangeName: any;
-            longName: any;
-            shortName: any;
-            regularMarketPrice: any;
-            chartPreviousClose: any;
-            regularMarketDayHigh: any;
-            regularMarketDayLow: any;
-            regularMarketVolume: any;
+            symbol: string;
+            currency: string;
+            exchangeName: string;
+            longName: string;
+            shortName: string;
+            regularMarketPrice: number;
+            chartPreviousClose: number;
+            regularMarketDayHigh: number;
+            regularMarketDayLow: number;
+            regularMarketVolume: number;
             fiftyTwoWeekHigh: any;
             fiftyTwoWeekLow: any;
-            timezone: any;
+            timezone: string;
         };
-        quotes: any;
+        quotes: {
+            date: number;
+            open: number;
+            high: number;
+            low: number;
+            close: number;
+            volume: number;
+        }[];
     }>;
     getDetail(symbol: string): Promise<{
         price: {
-            symbol: any;
+            symbol: string;
             shortName: string;
             longName: string;
-            currency: any;
-            exchange: any;
+            currency: string;
+            exchange: string;
             marketState: any;
-            regularMarketPrice: any;
-            regularMarketChange: any;
-            regularMarketChangePercent: any;
-            regularMarketDayHigh: any;
-            regularMarketDayLow: any;
-            regularMarketVolume: any;
-            regularMarketOpen: any;
-            regularMarketPreviousClose: any;
-            marketCap: any;
+            regularMarketPrice: number;
+            regularMarketChange: number;
+            regularMarketChangePercent: number;
+            regularMarketDayHigh: number;
+            regularMarketDayLow: number;
+            regularMarketVolume: number;
+            regularMarketOpen: number;
+            regularMarketPreviousClose: number;
+            marketCap: number;
         };
         summaryDetail: {
-            trailingPE: any;
+            trailingPE: number;
             forwardPE: any;
             priceToBook: any;
             dividendYield: any;
@@ -51,7 +58,7 @@ export declare class DetailController {
             twoHundredDayAverage: any;
             averageVolume: any;
             averageVolume10days: any;
-            marketCap: any;
+            marketCap: number;
         };
         financialData: {
             targetHighPrice: any;
@@ -70,76 +77,22 @@ export declare class DetailController {
             debtToEquity: any;
             earningsGrowth: any;
         };
-        shortInterest: {
-            sharesShort: any;
-            sharesShortPriorMonth: any;
-            shortRatio: any;
-            shortPercentOfFloat: any;
-            dateShortInterest: any;
-            sharesOutstanding: any;
-            floatShares: any;
-            heldPercentInsiders: any;
-            heldPercentInstitutions: any;
-        };
-        majorHolders: {
-            insidersPercentHeld: any;
-            institutionsPercentHeld: any;
-            institutionsFloatPercentHeld: any;
-            institutionsCount: any;
-        };
-        recommendationTrend: any;
-        insights: {
-            instrumentInfo: any;
-            recommendation: any;
-            companySnapshot: any;
-            sigDevs: any;
-        };
-        news: any;
+        shortInterest: any;
+        majorHolders: any;
+        recommendationTrend: any[];
+        insights: any;
+        news: any[];
     }>;
     getFinancials(symbol: string): Promise<{
         quarterly: {
-            income: {
-                date: any;
-                periodType: any;
-                totalRevenue: any;
-                grossProfit: any;
-                operatingIncome: any;
-                netIncome: any;
-                ebit: any;
-                ebitda: any;
-                dilutedEPS: any;
-                basicEPS: any;
-                costOfRevenue: any;
-                researchAndDevelopment: any;
-                sellingGeneralAndAdministration: any;
-            }[];
-            balance: {
-                date: any;
-                periodType: any;
-                totalAssets: any;
-                totalLiabilitiesNetMinorityInterest: any;
-                stockholdersEquity: any;
-                cashAndCashEquivalents: any;
-                totalDebt: any;
-                currentAssets: any;
-                currentLiabilities: any;
-                inventory: any;
-                receivables: any;
-            }[];
-            cashflow: {
-                date: any;
-                periodType: any;
-                operatingCashFlow: any;
-                capitalExpenditure: any;
-                freeCashFlow: any;
-                investingCashFlow: any;
-                financingCashFlow: any;
-            }[];
+            income: any[];
+            balance: any[];
+            cashflow: any[];
         };
         annual: {
             income: {
                 date: any;
-                periodType: any;
+                periodType: string;
                 totalRevenue: any;
                 grossProfit: any;
                 operatingIncome: any;
@@ -154,7 +107,7 @@ export declare class DetailController {
             }[];
             balance: {
                 date: any;
-                periodType: any;
+                periodType: string;
                 totalAssets: any;
                 totalLiabilitiesNetMinorityInterest: any;
                 stockholdersEquity: any;
@@ -167,7 +120,7 @@ export declare class DetailController {
             }[];
             cashflow: {
                 date: any;
-                periodType: any;
+                periodType: string;
                 operatingCashFlow: any;
                 capitalExpenditure: any;
                 freeCashFlow: any;

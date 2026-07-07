@@ -39,9 +39,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.28",
-    "undici": "^8.5.0",
-    "yahoo-finance2": "^3.13.2",
-    "yfinance": "^0.0.6"
+    "undici": "^8.5.0"
+    
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

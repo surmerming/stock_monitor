@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { ReviewController } from './review.controller';
-import { WatchlistModule } from '../watchlist/watchlist.module';
+import { AkShareModule } from '../akshare/akshare.module';
 import { StockModule } from '../stock/stock.module';
+import { WatchlistModule } from '../watchlist/watchlist.module';
 import { MoneyFlowModule } from '../moneyflow/moneyflow.module';
 import { PatternModule } from '../pattern/pattern.module';
 import { SentimentModule } from '../sentiment/sentiment.module';
@@ -11,8 +12,9 @@ import { DetailModule } from '../detail/detail.module';
 
 @Module({
   imports: [
-    WatchlistModule,
+    AkShareModule,
     StockModule,
+    WatchlistModule,
     MoneyFlowModule,
     PatternModule,
     SentimentModule,

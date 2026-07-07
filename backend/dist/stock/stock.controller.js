@@ -19,8 +19,8 @@ let StockController = class StockController {
     constructor(stockService) {
         this.stockService = stockService;
     }
-    async getQuotes(symbols) {
-        const list = symbols
+    async getQuotes(symbol, symbols) {
+        const list = (symbols || symbol || '')
             .split(',')
             .map((s) => s.trim())
             .filter(Boolean);
@@ -31,9 +31,10 @@ let StockController = class StockController {
 exports.StockController = StockController;
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)('symbols')),
+    __param(0, (0, common_1.Query)('symbol')),
+    __param(1, (0, common_1.Query)('symbols')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], StockController.prototype, "getQuotes", null);
 exports.StockController = StockController = __decorate([

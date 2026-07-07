@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
-
-const yahooFinance = new YahooFinance();
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 
 interface Bar {
   date: string;
@@ -42,24 +40,23 @@ export class PatternService {
   private cache = new Map<string, { data: PatternResult; timestamp: number }>();
   private readonly CACHE_TTL = 5 * 60 * 1000;
 
+  constructor(private readonly akShareService: AkShareService) {}
+
   private async fetchBars(symbol: string, range: string): Promise<Bar[]> {
-    const days =
-      range === '3mo' ? 90 : range === '1y' ? 365 : 180;
-    const period1 = new Date(Date.now() - days * 24 * 3600 * 1000);
+    const periodMap: Record<string, string> = {
+      '3mo': 'daily',
+      '1y': 'weekly',
+      default: 'daily',
+    };
+    const period = periodMap[range] || periodMap.default;
 
-    const chart = await yahooFinance.chart(symbol, {
-      period1,
-      interval: '1d' as any,
-    });
-
+    const chart = await this.akShareService.getChart(symbol, period);
     if (!chart?.quotes) return [];
+
     return chart.quotes
-      .filter((q: any) => q.close != null)
-      .map((q: any) => ({
-        date:
-          q.date instanceof Date
-            ? q.date.toISOString().slice(0, 10)
-            : String(q.date).slice(0, 10),
+      .filter((q: ChartQuote) => q.close != null)
+      .map((q: ChartQuote) => ({
+        date: q.date || '',
         open: q.open ?? q.close,
         high: q.high ?? q.close,
         low: q.low ?? q.close,
@@ -109,7 +106,6 @@ export class PatternService {
       const range = c.high - c.low;
       const pBody = Math.abs(p.close - p.open);
 
-      // Hammer / Inverted Hammer
       if (range > 0 && body / range < 0.3) {
         const lowerShadow = Math.min(c.open, c.close) - c.low;
         const upperShadow = c.high - Math.max(c.open, c.close);
@@ -145,7 +141,6 @@ export class PatternService {
         }
       }
 
-      // Engulfing
       if (
         p.close < p.open &&
         c.close > c.open &&
@@ -182,7 +177,6 @@ export class PatternService {
         });
       }
 
-      // Morning Star
       if (
         i >= 2 &&
         pp.close < pp.open &&
@@ -201,7 +195,6 @@ export class PatternService {
         });
       }
 
-      // Evening Star
       if (
         i >= 2 &&
         pp.close > pp.open &&
@@ -220,7 +213,6 @@ export class PatternService {
         });
       }
 
-      // Doji
       if (range > 0 && body / range < 0.1) {
         signals.push({
           type: 'doji',
@@ -242,7 +234,6 @@ export class PatternService {
     const n = bars.length;
     if (n < 20) return signals;
 
-    // Double Bottom
     const lows = bars.map((b) => b.low);
     for (let win = 20; win <= Math.min(60, n); win += 10) {
       const segment = lows.slice(-win);
@@ -277,7 +268,6 @@ export class PatternService {
       }
     }
 
-    // Double Top
     const highs = bars.map((b) => b.high);
     for (let win = 20; win <= Math.min(60, n); win += 10) {
       const segment = highs.slice(-win);
@@ -312,7 +302,6 @@ export class PatternService {
       }
     }
 
-    // Triangle Convergence
     if (n >= 20) {
       const recent = bars.slice(-20);
       const recentHighs = recent.map((b) => b.high);
@@ -344,7 +333,6 @@ export class PatternService {
     const last = bars[n - 1];
     const prev = bars[n - 2];
 
-    // Volume breakout with new high
     const high20 = Math.max(...bars.slice(-21, -1).map((b) => b.high));
     const avgVol20 =
       bars.slice(-21, -1).reduce((s, b) => s + b.volume, 0) / 20;
@@ -365,7 +353,6 @@ export class PatternService {
       });
     }
 
-    // Volume breakdown
     const low20 = Math.min(...bars.slice(-21, -1).map((b) => b.low));
     if (
       last.close < low20 &&
@@ -383,7 +370,6 @@ export class PatternService {
       });
     }
 
-    // 52-week high
     if (n >= 250) {
       const high52 = Math.max(...bars.slice(-252, -1).map((b) => b.high));
       if (last.close > high52 && prev.close <= high52) {
@@ -399,7 +385,6 @@ export class PatternService {
       }
     }
 
-    // MA golden/death cross
     if (n >= 60) {
       const closes = bars.map((b) => b.close);
       const ma5 = this.sma(closes, 5);
@@ -522,7 +507,6 @@ export class PatternService {
       type: 'up' | 'down';
     }[] = [];
 
-    // Find uptrend line from recent lows
     const recentLowIdxs: number[] = [];
     for (let i = 2; i < n - 2; i++) {
       if (
@@ -549,7 +533,6 @@ export class PatternService {
       }
     }
 
-    // Find downtrend line from recent highs
     const recentHighIdxs: number[] = [];
     for (let i = 2; i < n - 2; i++) {
       if (

@@ -1,338 +1,235 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
+import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
 
-const yahooFinance = new YahooFinance();
-
-export interface MarketBreadth {
-  advancers: number;
-  decliners: number;
-  unchanged: number;
-  advanceRatio: number;
-  aboveMa20Pct: number;
-  aboveMa50Pct: number;
-  newHighs: number;
-  newLows: number;
-}
-
-export interface VixData {
-  current: number;
-  change: number;
+export interface SentimentItem {
+  symbol: string;
+  name: string;
+  price: number;
   changePercent: number;
-  level: 'low' | 'medium' | 'high' | 'extreme';
-}
-
-export interface VolumeAnalysis {
-  totalVolume: number;
+  volume: number;
   avgVolume: number;
   volumeRatio: number;
-  volumeLevel: 'shrink' | 'normal' | 'expand' | 'surge';
+  rsi: number;
+  macdSignal: number;
+  volatility: number;
+  trend: 'bullish' | 'bearish' | 'neutral';
+  strength: number;
 }
 
-export interface SentimentGauge {
-  score: number;
-  level: 'extreme_fear' | 'fear' | 'neutral' | 'greed' | 'extreme_greed';
-  label: string;
-  components: { name: string; score: number; weight: number }[];
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
 }
-
-export interface SentimentResult {
-  gauge: SentimentGauge;
-  vix: VixData | null;
-  breadth: MarketBreadth;
-  volume: VolumeAnalysis;
-  indices: {
-    symbol: string;
-    name: string;
-    price: number;
-    change: number;
-    changePercent: number;
-  }[];
-  putCallRatio: number | null;
-  timestamp: string;
-}
-
-const MARKET_INDICES = [
-  { symbol: '^GSPC', name: '标普500' },
-  { symbol: '^DJI', name: '道琼斯' },
-  { symbol: '^IXIC', name: '纳斯达克' },
-  { symbol: '^RUT', name: '罗素2000' },
-  { symbol: '000001.SS', name: '上证指数' },
-  { symbol: '399001.SZ', name: '深证成指' },
-  { symbol: '399006.SZ', name: '创业板指' },
-  { symbol: '^HSI', name: '恒生指数' },
-];
-
-const BREADTH_POOL = [
-  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B',
-  'UNH', 'JNJ', 'V', 'XOM', 'JPM', 'WMT', 'PG', 'MA', 'HD', 'CVX',
-  'MRK', 'ABBV', 'LLY', 'PEP', 'KO', 'COST', 'AVGO', 'TMO', 'MCD',
-  'CSCO', 'ACN', 'ABT', 'DHR', 'NEE', 'TXN', 'PM', 'CMCSA', 'VZ',
-  'INTC', 'AMD', 'QCOM', 'CRM', 'ORCL', 'IBM', 'ADBE', 'NFLX',
-  'DIS', 'NKE', 'BA', 'GS', 'MS', 'C', 'BAC', 'WFC', 'AXP',
-  'CAT', 'DE', 'MMM', 'GE', 'HON', 'LMT', 'RTX', 'UPS', 'FDX',
-  'PFE', 'BMY', 'GILD', 'AMGN', 'REGN', 'ISRG', 'SYK', 'MDT',
-  'COP', 'EOG', 'SLB', 'PSX', 'VLO', 'OXY', 'MPC', 'PXD',
-  'SPG', 'PLD', 'AMT', 'EQIX', 'O', 'DLR',
-  'PYPL', 'SQ', 'SHOP', 'SNOW', 'DDOG', 'ZS', 'NET', 'CRWD',
-];
 
 @Injectable()
 export class SentimentService {
   private readonly logger = new Logger(SentimentService.name);
-  private cached: { data: SentimentResult; timestamp: number } | null = null;
-  private readonly CACHE_TTL = 3 * 60 * 1000;
+  private cache = new Map<string, CacheEntry<any>>();
+  private readonly CACHE_TTL = 5 * 60 * 1000;
 
-  async getSentiment(): Promise<SentimentResult> {
-    if (this.cached && Date.now() - this.cached.timestamp < this.CACHE_TTL) {
-      return this.cached.data;
+  constructor(private readonly akShareService: AkShareService) {}
+
+  private getCached<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (entry && Date.now() - entry.timestamp < this.CACHE_TTL) {
+      return entry.data as T;
     }
+    return null;
+  }
 
-    const [indices, vix, breadth, volume] = await Promise.all([
-      this.fetchIndices(),
-      this.fetchVix(),
-      this.fetchBreadth(),
-      this.fetchVolume(),
-    ]);
+  private setCache<T>(key: string, data: T): void {
+    this.cache.set(key, { data, timestamp: Date.now() });
+  }
 
-    const gauge = this.computeGauge(indices, vix, breadth, volume);
-
-    const result: SentimentResult = {
-      gauge,
-      vix,
-      breadth,
-      volume,
-      indices,
-      putCallRatio: null,
-      timestamp: new Date().toISOString(),
-    };
-
-    const isValid =
-      indices.length > 0 &&
-      indices.some((i) => i.price > 0) &&
-      (breadth.advancers + breadth.decliners) > 0;
-
-    if (isValid) {
-      this.cached = { data: result, timestamp: Date.now() };
-    } else {
-      this.logger.warn(
-        `Skipping cache: data looks invalid (indices=${indices.length}, ` +
-        `breadthTotal=${breadth.advancers + breadth.decliners + breadth.unchanged})`,
-      );
-      if (this.cached) {
-        this.logger.warn('Returning stale cached data instead of zeros');
-        return this.cached.data;
-      }
+  private calculateRsi(prices: number[], period = 14): number {
+    if (prices.length < period + 1) return 50;
+    const deltas = prices.slice(1).map((p, i) => p - prices[i]);
+    const gains = deltas.map((d) => (d > 0 ? d : 0));
+    const losses = deltas.map((d) => (d < 0 ? Math.abs(d) : 0));
+    let avgGain = gains.slice(0, period).reduce((a, b) => a + b, 0) / period;
+    let avgLoss = losses.slice(0, period).reduce((a, b) => a + b, 0) / period;
+    for (let i = period; i < gains.length; i++) {
+      avgGain = (avgGain * (period - 1) + gains[i]) / period;
+      avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
     }
+    const rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
+    return 100 - 100 / (1 + rs);
+  }
 
+  private calculateMacdSignal(prices: number[]): number {
+    const ema12 = this.ema(prices, 12);
+    const ema26 = this.ema(prices, 26);
+    const ema9 = this.ema(prices, 9);
+    const macd = (ema12[ema12.length - 1] || 0) - (ema26[ema26.length - 1] || 0);
+    const signal = ema9[ema9.length - 1] || 0;
+    return macd - signal;
+  }
+
+  private ema(prices: number[], period: number): number[] {
+    const result: number[] = [];
+    const multiplier = 2 / (period + 1);
+    let ema = prices[0] || 0;
+    for (let i = 0; i < prices.length; i++) {
+      ema = prices[i] * multiplier + ema * (1 - multiplier);
+      result.push(ema);
+    }
     return result;
   }
 
-  private async fetchIndices(): Promise<SentimentResult['indices']> {
-    const results: SentimentResult['indices'] = [];
-    const settled = await Promise.allSettled(
-      MARKET_INDICES.map(async ({ symbol, name }) => {
-        const q: any = await yahooFinance
-          .quote(symbol, {}, { validateResult: false })
-          .catch((err) => {
-            this.logger.warn(`fetchIndices: ${symbol} failed – ${err?.message}`);
-            return null;
-          });
-        if (!q || !q.regularMarketPrice) return null;
-        return {
-          symbol,
-          name,
-          price: q.regularMarketPrice,
-          change: q.regularMarketChange ?? 0,
-          changePercent: q.regularMarketChangePercent ?? 0,
-        };
-      }),
-    );
-    for (const s of settled) {
-      if (s.status === 'fulfilled' && s.value) results.push(s.value);
-    }
-    this.logger.debug(`fetchIndices: got ${results.length}/${MARKET_INDICES.length}`);
-    return results;
+  private calculateVolatility(prices: number[]): number {
+    if (prices.length < 2) return 0;
+    const returns = prices.slice(1).map((p, i) => Math.log(p / prices[i]));
+    const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+    const variance = returns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / returns.length;
+    return Math.sqrt(variance) * Math.sqrt(252) * 100;
   }
 
-  private async fetchVix(): Promise<VixData | null> {
+  async analyze(symbol: string): Promise<SentimentItem | null> {
+    const cached = this.getCached<SentimentItem>(`sentiment:${symbol}`);
+    if (cached) return cached;
+
     try {
-      const q: any = await yahooFinance.quote('^VIX', {}, { validateResult: false });
-      if (!q || !q.regularMarketPrice) {
-        this.logger.warn('fetchVix: no data or zero price returned');
+      const [quoteResult, chartResult] = await Promise.all([
+        this.akShareService.getQuote(symbol),
+        this.akShareService.getChart(symbol, 'daily'),
+      ]);
+
+      if (!quoteResult || !chartResult) {
+        this.logger.warn(`No data for ${symbol}`);
         return null;
       }
-      const current = q.regularMarketPrice;
-      const change = q.regularMarketChange ?? 0;
-      const changePercent = q.regularMarketChangePercent ?? 0;
 
-      let level: VixData['level'] = 'low';
-      if (current >= 30) level = 'extreme';
-      else if (current >= 20) level = 'high';
-      else if (current >= 15) level = 'medium';
+      const quotes = chartResult.quotes || [];
+      const prices = quotes
+        .filter((q: ChartQuote) => q.close != null)
+        .map((q: ChartQuote) => q.close);
 
-      return { current, change, changePercent, level };
-    } catch (err: any) {
-      this.logger.warn(`fetchVix failed: ${err?.message}`);
+      if (prices.length < 30) {
+        this.logger.warn(`Insufficient data for ${symbol}: ${prices.length} bars`);
+        return null;
+      }
+
+      const volumes = quotes
+        .filter((q: ChartQuote) => q.volume != null)
+        .map((q: ChartQuote) => q.volume);
+      const avgVolume =
+        volumes.length > 0 ? volumes.reduce((a, b) => a + b, 0) / volumes.length : 0;
+
+      const rsi = this.calculateRsi(prices);
+      const macdSignal = this.calculateMacdSignal(prices);
+      const volatility = this.calculateVolatility(prices);
+
+      let trend: 'bullish' | 'bearish' | 'neutral' = 'neutral';
+      let strength = 0;
+
+      if (rsi > 55 && macdSignal > 0) {
+        trend = 'bullish';
+        strength = Math.min(100, (rsi - 50) * 2 + macdSignal * 10);
+      } else if (rsi < 45 && macdSignal < 0) {
+        trend = 'bearish';
+        strength = Math.min(100, (50 - rsi) * 2 - macdSignal * 10);
+      }
+
+      const item: SentimentItem = {
+        symbol: quoteResult.symbol,
+        name: quoteResult.name,
+        price: quoteResult.current_price,
+        changePercent: quoteResult.change_percent,
+        volume: quoteResult.volume,
+        avgVolume: avgVolume,
+        volumeRatio: avgVolume > 0 ? quoteResult.volume / avgVolume : 1,
+        rsi: parseFloat(rsi.toFixed(2)),
+        macdSignal: parseFloat(macdSignal.toFixed(4)),
+        volatility: parseFloat(volatility.toFixed(2)),
+        trend,
+        strength: parseFloat(strength.toFixed(2)),
+      };
+
+      this.setCache(`sentiment:${symbol}`, item);
+      return item;
+    } catch (err) {
+      this.logger.error(`Sentiment analysis failed for ${symbol}: ${err.message}`);
       return null;
     }
   }
 
-  private async fetchBreadth(): Promise<MarketBreadth> {
-    let advancers = 0;
-    let decliners = 0;
-    let unchanged = 0;
-    let aboveMa20 = 0;
-    let aboveMa50 = 0;
-    let newHighs = 0;
-    let newLows = 0;
-    let total = 0;
-
-    const batchSize = 30;
-    for (let i = 0; i < BREADTH_POOL.length; i += batchSize) {
-      const chunk = BREADTH_POOL.slice(i, i + batchSize);
-      try {
-        const res: any = await yahooFinance.quote(chunk, {}, { validateResult: false });
-        const quotes = Array.isArray(res) ? res : [res];
-        for (const q of quotes) {
-          if (!q || !q.regularMarketPrice) continue;
-          total++;
-          const chg = q.regularMarketChangePercent ?? 0;
-          if (chg > 0.1) advancers++;
-          else if (chg < -0.1) decliners++;
-          else unchanged++;
-
-          const price = q.regularMarketPrice;
-          if (q.fiftyDayAverage && price > q.fiftyDayAverage) aboveMa50++;
-          if (q.twoHundredDayAverage != null) {
-            const ma20Approx = q.fiftyDayAverage ?? price;
-            if (price > ma20Approx) aboveMa20++;
-          } else {
-            aboveMa20++;
-          }
-
-          if (q.fiftyTwoWeekHigh && price >= q.fiftyTwoWeekHigh * 0.98)
-            newHighs++;
-          if (q.fiftyTwoWeekLow && price <= q.fiftyTwoWeekLow * 1.02)
-            newLows++;
-        }
-      } catch (err: any) {
-        this.logger.warn(`fetchBreadth batch ${i / batchSize + 1} failed: ${err?.message}`);
-      }
-    }
-
-    this.logger.debug(
-      `fetchBreadth: total=${total}, up=${advancers}, down=${decliners}, ` +
-      `newHighs=${newHighs}, newLows=${newLows}`,
-    );
-    return {
-      advancers,
-      decliners,
-      unchanged,
-      advanceRatio: total > 0 ? (advancers / total) * 100 : 50,
-      aboveMa20Pct: total > 0 ? (aboveMa20 / total) * 100 : 50,
-      aboveMa50Pct: total > 0 ? (aboveMa50 / total) * 100 : 50,
-      newHighs,
-      newLows,
-    };
+  async analyzeBatch(symbols: string[]): Promise<(SentimentItem | null)[]> {
+    const results = await Promise.allSettled(symbols.map(async (s) => this.analyze(s)));
+    return results.map((r) => (r.status === 'fulfilled' ? r.value : null));
   }
 
-  private async fetchVolume(): Promise<VolumeAnalysis> {
+  async getSentiment() {
+    const cached = this.getCached<any>('market_sentiment');
+    if (cached) return cached;
+
     try {
-      const q: any = await yahooFinance.quote('SPY', {}, { validateResult: false });
+      const marketOverview = await this.akShareService.getMarketOverview();
+      
+      const indices: { symbol: string; name: string }[] = [
+        { symbol: 'sh000001', name: '上证指数' },
+        { symbol: 'sz399001', name: '深证成指' },
+        { symbol: 'sz399006', name: '创业板指' },
+        { symbol: 'hk00001', name: '恒生指数' },
+        { symbol: '^GSPC', name: '标普500' },
+        { symbol: '^IXIC', name: '纳斯达克' },
+        { symbol: '^DJI', name: '道琼斯' },
+      ];
 
-      if (!q || !q.regularMarketVolume) {
-        this.logger.warn('fetchVolume: SPY returned no volume data');
-        return { totalVolume: 0, avgVolume: 0, volumeRatio: 1, volumeLevel: 'normal' };
-      }
+      const sentimentItems = await Promise.all(
+        indices.map(async (idx) => {
+          try {
+            return await this.analyze(idx.symbol);
+          } catch {
+            return null;
+          }
+        }),
+      );
 
-      const vol = q.regularMarketVolume;
-      const avg = q.averageDailyVolume3Month ?? q.averageDailyVolume10Day ?? 1;
-      const ratio = avg > 0 ? vol / avg : 1;
+      const validItems = sentimentItems.filter((s): s is SentimentItem => s !== null);
+      const bullishCount = validItems.filter((s) => s.trend === 'bullish').length;
+      const bearishCount = validItems.filter((s) => s.trend === 'bearish').length;
+      const neutralCount = validItems.filter((s) => s.trend === 'neutral').length;
 
-      let level: VolumeAnalysis['volumeLevel'] = 'normal';
-      if (ratio >= 2) level = 'surge';
-      else if (ratio >= 1.3) level = 'expand';
-      else if (ratio <= 0.7) level = 'shrink';
-
-      return { totalVolume: vol, avgVolume: avg, volumeRatio: ratio, volumeLevel: level };
-    } catch (err: any) {
-      this.logger.warn(`fetchVolume failed: ${err?.message}`);
-      return { totalVolume: 0, avgVolume: 0, volumeRatio: 1, volumeLevel: 'normal' };
-    }
-  }
-
-  private computeGauge(
-    indices: SentimentResult['indices'],
-    vix: VixData | null,
-    breadth: MarketBreadth,
-    volume: VolumeAnalysis,
-  ): SentimentGauge {
-    const components: SentimentGauge['components'] = [];
-
-    // Market momentum (SP500 change)
-    const sp500 = indices.find((i) => i.symbol === '^GSPC');
-    const momentumScore = sp500
-      ? Math.max(0, Math.min(100, 50 + sp500.changePercent * 20))
-      : 50;
-    components.push({ name: '市场动量', score: momentumScore, weight: 0.2 });
-
-    // VIX inverse
-    const vixScore = vix
-      ? Math.max(0, Math.min(100, 100 - (vix.current - 10) * 3))
-      : 50;
-    components.push({ name: 'VIX恐慌指数', score: vixScore, weight: 0.25 });
-
-    // Breadth
-    const breadthScore = breadth.advanceRatio;
-    components.push({ name: '涨跌比', score: breadthScore, weight: 0.2 });
-
-    // MA breadth
-    const maBreadthScore = breadth.aboveMa50Pct;
-    components.push({ name: '均线上方比例', score: maBreadthScore, weight: 0.15 });
-
-    // New high/low
-    const hlScore =
-      breadth.newHighs + breadth.newLows > 0
-        ? (breadth.newHighs / (breadth.newHighs + breadth.newLows)) * 100
+      const avgRsi = validItems.length > 0
+        ? validItems.reduce((sum, s) => sum + s.rsi, 0) / validItems.length
         : 50;
-    components.push({ name: '新高新低比', score: hlScore, weight: 0.1 });
+      const avgVolatility = validItems.length > 0
+        ? validItems.reduce((sum, s) => sum + s.volatility, 0) / validItems.length
+        : 0;
 
-    // Volume
-    const volScore = Math.max(
-      0,
-      Math.min(100, 50 + (volume.volumeRatio - 1) * 30),
-    );
-    components.push({ name: '成交量', score: volScore, weight: 0.1 });
+      let overallTrend: 'bullish' | 'bearish' | 'neutral' = 'neutral';
+      if (bullishCount > bearishCount * 1.5) overallTrend = 'bullish';
+      else if (bearishCount > bullishCount * 1.5) overallTrend = 'bearish';
 
-    const totalScore = components.reduce(
-      (s, c) => s + c.score * c.weight,
-      0,
-    );
+      const result = {
+        timestamp: Date.now(),
+        overallTrend,
+        counts: {
+          bullish: bullishCount,
+          bearish: bearishCount,
+          neutral: neutralCount,
+          total: validItems.length,
+        },
+        metrics: {
+          avgRsi: parseFloat(avgRsi.toFixed(2)),
+          avgVolatility: parseFloat(avgVolatility.toFixed(2)),
+        },
+        indices: validItems,
+        marketOverview,
+      };
 
-    let level: SentimentGauge['level'];
-    let label: string;
-    if (totalScore >= 80) {
-      level = 'extreme_greed';
-      label = '极度贪婪';
-    } else if (totalScore >= 60) {
-      level = 'greed';
-      label = '贪婪';
-    } else if (totalScore >= 40) {
-      level = 'neutral';
-      label = '中性';
-    } else if (totalScore >= 20) {
-      level = 'fear';
-      label = '恐惧';
-    } else {
-      level = 'extreme_fear';
-      label = '极度恐惧';
+      this.setCache('market_sentiment', result);
+      return result;
+    } catch (err) {
+      this.logger.error(`Get sentiment failed: ${err.message}`);
+      return {
+        timestamp: Date.now(),
+        overallTrend: 'neutral' as const,
+        counts: { bullish: 0, bearish: 0, neutral: 0, total: 0 },
+        metrics: { avgRsi: 50, avgVolatility: 0 },
+        indices: [],
+        marketOverview: null,
+      };
     }
-
-    return {
-      score: +totalScore.toFixed(1),
-      level,
-      label,
-      components,
-    };
   }
 }

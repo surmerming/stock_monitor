@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import YahooFinance from 'yahoo-finance2';
+import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
 import { ScreenerStrategy } from './strategy.entity';
 import {
@@ -10,13 +10,6 @@ import {
   TECHNICAL_FIELDS,
   computeIndicators,
 } from './technical.util';
-
-const yahooFinance = new YahooFinance();
-
-const UA =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-const CRUMB_TTL = 20 * 60 * 1000;
-const UNIVERSE_TTL = 3 * 60 * 1000;
 
 export interface ScreenerFilter {
   field: string;
@@ -59,326 +52,86 @@ export interface ScanResult {
   items: ScreenerResultItem[];
 }
 
-const YAHOO_FIELD_MAP: Record<string, string> = {
-  price: 'intradayprice',
-  changePercent: 'percentchange',
-  change: 'daychange',
-  volume: 'dayvolume',
-  avgVolume3m: 'avgdailyvol3m',
-  peTTM: 'peratio.lasttwelvemonths',
-  pbRatio: 'pricebookmrq',
-  psRatio: 'pricesalesttm',
-  marketCap: 'intradaymarketcap',
-  peg: 'pegratio_5y',
-  dividendYield: 'dividendyield',
-  trailingDividendYield: 'trailingannualdividendyield',
-  fiftyTwoWeekHighPct: 'fiftytwowkhighchangepercent',
-  fiftyTwoWeekLowPct: 'fiftytwowklowchangepercent',
-  beta: 'beta',
-  epsTTM: 'epsttm',
-  revenueTTM: 'revenue.lasttwelvemonths',
-};
-
 const SORT_FIELD_MAP: Record<string, string> = {
-  price: 'intradayprice',
-  changePercent: 'percentchange',
-  volume: 'dayvolume',
-  marketCap: 'intradaymarketcap',
-  peTTM: 'peratio.lasttwelvemonths',
-  dividendYield: 'dividendyield',
-  pbRatio: 'pricebookmrq',
+  price: 'price',
+  changePercent: 'changePercent',
+  volume: 'volume',
+  marketCap: 'marketCap',
+  peTTM: 'peTTM',
+  dividendYield: 'dividendYield',
+  pbRatio: 'pbRatio',
 };
 
-const REGION_MAP: Record<string, string> = {
-  美股: 'us',
-  港股: 'hk',
+const LOCAL_FIELD_MAP: Record<string, (q: QuoteResult) => number | null> = {
+  price: (q) => q.current_price,
+  changePercent: (q) => q.change_percent,
+  change: (q) => q.change,
+  volume: (q) => q.volume,
+  avgVolume3m: () => null,
+  peTTM: (q) => q.pe_ratio || null,
+  pbRatio: () => null,
+  psRatio: () => null,
+  marketCap: (q) => q.market_cap || null,
+  dividendYield: () => null,
+  epsTTM: () => null,
+  fiftyTwoWeekHighPct: () => null,
+  fiftyTwoWeekLowPct: () => null,
+  turnoverRate: (q) => q.turnover_rate || null,
+  volumeRatio: () => null,
+  amplitude: () => null,
+  turnover: (q) => q.turnover || null,
+  beta: () => null,
+  peg: () => null,
 };
 
-type FieldAccessor = (q: any) => number | null;
+const US_TOP_STOCKS = [
+  'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B',
+  'JPM', 'V', 'UNH', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'COST', 'MRK',
+  'ABBV', 'CRM', 'AMD', 'NFLX', 'PEP', 'KO', 'TMO', 'ADBE', 'LIN',
+];
 
-const LOCAL_FIELD_MAP: Record<string, FieldAccessor> = {
-  price: (q) => q.regularMarketPrice ?? null,
-  changePercent: (q) => q.regularMarketChangePercent ?? null,
-  change: (q) => q.regularMarketChange ?? null,
-  volume: (q) => q.regularMarketVolume ?? null,
-  avgVolume3m: (q) => q.averageDailyVolume3Month ?? null,
-  peTTM: (q) => q.trailingPE ?? null,
-  pbRatio: (q) => q.priceToBook ?? null,
-  psRatio: (q) => {
-    if (q.marketCap && q.revenue) return q.marketCap / q.revenue;
-    return null;
-  },
-  marketCap: (q) => q.marketCap ?? null,
-  dividendYield: (q) =>
-    q.trailingAnnualDividendYield != null
-      ? q.trailingAnnualDividendYield * 100
-      : null,
-  trailingDividendYield: (q) =>
-    q.trailingAnnualDividendYield != null
-      ? q.trailingAnnualDividendYield * 100
-      : null,
-  epsTTM: (q) => q.epsTrailingTwelveMonths ?? null,
-  fiftyTwoWeekHighPct: (q) => {
-    if (q.fiftyTwoWeekHigh && q.regularMarketPrice) {
-      return (
-        ((q.regularMarketPrice - q.fiftyTwoWeekHigh) / q.fiftyTwoWeekHigh) *
-        100
-      );
-    }
-    return null;
-  },
-  fiftyTwoWeekLowPct: (q) => {
-    if (q.fiftyTwoWeekLow && q.regularMarketPrice) {
-      return (
-        ((q.regularMarketPrice - q.fiftyTwoWeekLow) / q.fiftyTwoWeekLow) * 100
-      );
-    }
-    return null;
-  },
-  turnoverRate: (q) => {
-    if (q.sharesOutstanding && q.regularMarketVolume) {
-      return (q.regularMarketVolume / q.sharesOutstanding) * 100;
-    }
-    return null;
-  },
-  volumeRatio: (q) => {
-    if (q.regularMarketVolume && q.averageDailyVolume10Day) {
-      return q.regularMarketVolume / q.averageDailyVolume10Day;
-    }
-    return null;
-  },
-  amplitude: (q) => {
-    if (
-      q.regularMarketDayHigh &&
-      q.regularMarketDayLow &&
-      q.regularMarketPreviousClose
-    ) {
-      return (
-        ((q.regularMarketDayHigh - q.regularMarketDayLow) /
-          q.regularMarketPreviousClose) *
-        100
-      );
-    }
-    return null;
-  },
-  turnover: (q) => {
-    if (q.regularMarketVolume && q.regularMarketPrice) {
-      return q.regularMarketVolume * q.regularMarketPrice;
-    }
-    return null;
-  },
-  beta: (q) => q.beta ?? null,
-  peg: (q) => q.pegRatio ?? null,
-};
+const HK_TOP_STOCKS = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
+
+const CN_TOP_STOCKS = ['SH600519', 'SH000858', 'SZ000858', 'SH601318', 'SZ000001'];
 
 @Injectable()
 export class ScreenerService {
   private readonly logger = new Logger(ScreenerService.name);
-  private crumb: string | null = null;
-  private cookies: string | null = null;
-  private crumbTimestamp = 0;
-  private universeCache: { data: any[]; timestamp: number } | null = null;
+  private universeCache: { data: QuoteResult[]; timestamp: number } | null = null;
   private technicalCache = new Map<
     string,
     { data: TechnicalValues; timestamp: number }
   >();
   private readonly TECH_CACHE_TTL = 5 * 60 * 1000;
+  private readonly UNIVERSE_TTL = 3 * 60 * 1000;
 
   constructor(
     @InjectRepository(ScreenerStrategy)
     private readonly strategyRepo: Repository<ScreenerStrategy>,
+    private readonly akShareService: AkShareService,
   ) {}
 
-  // ===================== Yahoo Finance Custom Screener =====================
-
-  private async ensureCrumb(): Promise<void> {
-    if (this.crumb && Date.now() - this.crumbTimestamp < CRUMB_TTL) return;
-
-    const res1 = await fetch('https://fc.yahoo.com/', {
-      redirect: 'manual',
-      headers: { 'User-Agent': UA },
-    });
-
-    const cookieEntries: string[] = [];
-    if (typeof (res1.headers as any).getSetCookie === 'function') {
-      for (const c of (res1.headers as any).getSetCookie()) {
-        cookieEntries.push(c.split(';')[0]);
-      }
-    } else {
-      const raw = res1.headers.get('set-cookie');
-      if (raw) {
-        raw.split(/,(?=\s*[A-Za-z_]+=)/).forEach((c) => {
-          cookieEntries.push(c.trim().split(';')[0]);
-        });
-      }
-    }
-    this.cookies = cookieEntries.join('; ');
-
-    const res2 = await fetch(
-      'https://query2.finance.yahoo.com/v1/test/getcrumb',
-      {
-        headers: { Cookie: this.cookies, 'User-Agent': UA },
-      },
-    );
-    if (!res2.ok) throw new Error(`Crumb fetch failed: ${res2.status}`);
-
-    this.crumb = await res2.text();
-    this.crumbTimestamp = Date.now();
-    this.logger.debug(`Yahoo crumb refreshed`);
-  }
-
-  private buildYahooQuery(query: ScanQuery): object {
-    const operands: any[] = [];
-
-    if (query.market && query.market !== '全部' && REGION_MAP[query.market]) {
-      operands.push({
-        operator: 'or',
-        operands: [
-          { operator: 'EQ', operands: ['region', REGION_MAP[query.market]] },
-        ],
-      });
-    }
-
-    for (const filter of query.filters) {
-      const yahooField = YAHOO_FIELD_MAP[filter.field];
-      if (!yahooField) continue;
-
-      if (filter.operator === 'between' && filter.value2 != null) {
-        operands.push({
-          operator: 'btwn',
-          operands: [yahooField, filter.value, filter.value2],
-        });
-      } else {
-        operands.push({
-          operator: filter.operator,
-          operands: [yahooField, filter.value],
-        });
-      }
-    }
-
-    if (operands.length === 0) {
-      operands.push({ operator: 'gt', operands: ['intradaymarketcap', 0] });
-    }
-
-    return {
-      size: query.size || 50,
-      offset: query.offset || 0,
-      sortField:
-        SORT_FIELD_MAP[query.sortField || 'marketCap'] || 'intradaymarketcap',
-      sortType: query.sortType || 'DESC',
-      quoteType: 'EQUITY',
-      query: { operator: 'AND', operands },
-    };
-  }
-
-  private async customScreen(query: ScanQuery): Promise<ScanResult> {
-    await this.ensureCrumb();
-    const body = this.buildYahooQuery(query);
-    const url = `https://query2.finance.yahoo.com/v1/finance/screener?crumb=${encodeURIComponent(this.crumb!)}`;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Cookie: this.cookies!,
-        'User-Agent': UA,
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Yahoo screener API ${res.status}: ${text.slice(0, 200)}`);
-    }
-
-    const data: any = await res.json();
-    const result = data?.finance?.result?.[0];
-    if (!result) return { total: 0, items: [] };
-
-    const items = (result.quotes || []).map((q: any) =>
-      this.transformQuote(q),
-    );
-    return { total: result.total || items.length, items };
-  }
-
-  // ===================== Fallback: Predefined Screener + Local Filter =====================
-
-  private async getStockUniverse(): Promise<any[]> {
+  private async getStockUniverse(): Promise<QuoteResult[]> {
     if (
       this.universeCache &&
-      Date.now() - this.universeCache.timestamp < UNIVERSE_TTL
+      Date.now() - this.universeCache.timestamp < this.UNIVERSE_TTL
     ) {
       return this.universeCache.data;
     }
 
-    const screenerIds: Array<
-      | 'day_gainers'
-      | 'day_losers'
-      | 'most_actives'
-      | 'undervalued_growth_stocks'
-      | 'growth_technology_stocks'
-      | 'undervalued_large_caps'
-      | 'aggressive_small_caps'
-      | 'small_cap_gainers'
-    > = [
-      'day_gainers',
-      'day_losers',
-      'most_actives',
-      'undervalued_growth_stocks',
-      'growth_technology_stocks',
-      'undervalued_large_caps',
-      'aggressive_small_caps',
-      'small_cap_gainers',
-    ];
+    const allSymbols = [...US_TOP_STOCKS, ...HK_TOP_STOCKS, ...CN_TOP_STOCKS];
+    const results = await this.akShareService.getQuotesBatch(allSymbols);
+    const quotes = results.filter((r) => r.data).map((r) => r.data!);
 
-    const results = await Promise.allSettled(
-      screenerIds.map((scrIds) =>
-        yahooFinance.screener({ scrIds, count: 250 }),
-      ),
-    );
-
-    const allQuotes: any[] = [];
-    const seen = new Set<string>();
-
-    for (const result of results) {
-      if (result.status === 'fulfilled') {
-        const quotes = (result.value as any)?.quotes || [];
-        for (const q of quotes) {
-          if (q?.symbol && !seen.has(q.symbol)) {
-            seen.add(q.symbol);
-            allQuotes.push(q);
-          }
-        }
-      }
-    }
-
-    this.universeCache = { data: allQuotes, timestamp: Date.now() };
-    this.logger.debug(`Stock universe: ${allQuotes.length} symbols`);
-    return allQuotes;
+    this.universeCache = { data: quotes, timestamp: Date.now() };
+    this.logger.debug(`Stock universe: ${quotes.length} symbols`);
+    return quotes;
   }
 
-  private detectMarket(q: any): string {
-    const exchange = (
-      q.fullExchangeName ||
-      q.exchange ||
-      ''
-    ).toLowerCase();
+  private detectMarket(q: QuoteResult): string {
     const sym = q.symbol || '';
-    if (
-      exchange.includes('hong kong') ||
-      exchange.includes('hkse') ||
-      sym.endsWith('.HK')
-    ) {
-      return '港股';
-    }
-    if (
-      exchange.includes('shanghai') ||
-      exchange.includes('shenzhen') ||
-      sym.endsWith('.SS') ||
-      sym.endsWith('.SZ')
-    ) {
-      return 'A股';
-    }
+    if (sym.startsWith('HK')) return '港股';
+    if (sym.startsWith('SH') || sym.startsWith('SZ')) return 'A股';
     return '美股';
   }
 
@@ -400,94 +153,35 @@ export class ScreenerService {
     }
   }
 
-  private async fallbackScreen(query: ScanQuery): Promise<ScanResult> {
-    const universe = await this.getStockUniverse();
-    let filtered = [...universe];
-
-    if (query.market && query.market !== '全部') {
-      filtered = filtered.filter(
-        (q) => this.detectMarket(q) === query.market,
-      );
-    }
-
-    for (const filter of query.filters) {
-      const accessor = LOCAL_FIELD_MAP[filter.field];
-      if (!accessor) continue;
-      filtered = filtered.filter((q) =>
-        this.matchFilter(accessor(q), filter),
-      );
-    }
-
-    const sortAccessor = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
-    if (sortAccessor) {
-      const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
-      filtered.sort(
-        (a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir,
-      );
-    }
-
-    const total = filtered.length;
-    const offset = query.offset || 0;
-    const size = query.size || 50;
-    const page = filtered.slice(offset, offset + size);
-
+  private transformQuote(q: QuoteResult): ScreenerResultItem {
     return {
-      total,
-      items: page.map((q) => this.transformQuote(q)),
-    };
-  }
-
-  // ===================== Common =====================
-
-  private transformQuote(q: any): ScreenerResultItem {
-    const current = q.regularMarketPrice ?? 0;
-    const prevClose = q.regularMarketPreviousClose ?? 0;
-    const change = q.regularMarketChange ?? current - prevClose;
-    const changePct =
-      q.regularMarketChangePercent ??
-      (prevClose ? ((current - prevClose) / prevClose) * 100 : 0);
-
-    return {
-      symbol: q.symbol || '',
-      name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol || ''),
-      price: current,
-      change,
-      changePercent: changePct,
-      volume: q.regularMarketVolume ?? 0,
-      marketCap: q.marketCap ?? null,
-      peTTM: q.trailingPE ?? null,
-      pbRatio: q.priceToBook ?? null,
-      psRatio: q.priceToSales ?? null,
-      dividendYield:
-        q.trailingAnnualDividendYield != null
-          ? +(q.trailingAnnualDividendYield * 100).toFixed(2)
-          : null,
-      avgVolume3m: q.averageDailyVolume3Month ?? null,
-      turnoverRate:
-        q.sharesOutstanding && q.regularMarketVolume
-          ? +((q.regularMarketVolume / q.sharesOutstanding) * 100).toFixed(4)
-          : null,
-      week52High: q.fiftyTwoWeekHigh ?? null,
-      week52Low: q.fiftyTwoWeekLow ?? null,
-      exchange: q.fullExchangeName || q.exchange || '',
+      symbol: q.symbol,
+      name: getCnName(q.symbol, q.name),
+      price: q.current_price,
+      change: q.change,
+      changePercent: q.change_percent,
+      volume: q.volume,
+      marketCap: q.market_cap || null,
+      peTTM: q.pe_ratio || null,
+      pbRatio: null,
+      psRatio: null,
+      dividendYield: null,
+      avgVolume3m: null,
+      turnoverRate: q.turnover_rate || null,
+      week52High: null,
+      week52Low: null,
+      exchange: q.market,
       market: this.detectMarket(q),
     };
   }
 
-  // ===================== Technical Indicators =====================
-
   private async fetchHistoricalBars(symbol: string): Promise<OHLCV[]> {
-    const period1 = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000);
-    const chart = await yahooFinance.chart(symbol, {
-      period1,
-      interval: '1d' as any,
-    });
-
+    const chart = await this.akShareService.getChart(symbol, 'daily');
     if (!chart?.quotes) return [];
 
     return chart.quotes
-      .filter((q: any) => q.close != null)
-      .map((q: any) => ({
+      .filter((q: ChartQuote) => q.close != null)
+      .map((q: ChartQuote) => ({
         open: q.open ?? q.close,
         high: q.high ?? q.close,
         low: q.low ?? q.close,
@@ -539,8 +233,6 @@ export class ScreenerService {
     return result;
   }
 
-  // ===================== Main Scan =====================
-
   async scan(query: ScanQuery): Promise<ScanResult> {
     const basicFilters = query.filters.filter(
       (f) => !TECHNICAL_FIELDS.has(f.field),
@@ -551,62 +243,72 @@ export class ScreenerService {
     const hasTech = techFilters.length > 0;
     const sortIsTech = TECHNICAL_FIELDS.has(query.sortField || '');
 
-    const basicQuery: ScanQuery = {
-      ...query,
-      filters: basicFilters,
-      size: hasTech || sortIsTech ? 200 : (query.size || 50),
-      offset: hasTech || sortIsTech ? 0 : (query.offset || 0),
-    };
+    const universe = await this.getStockUniverse();
+    let filtered = [...universe];
 
-    let baseResult: ScanResult;
-    try {
-      baseResult = await this.customScreen(basicQuery);
-      this.logger.debug(
-        `Custom screener returned ${baseResult.total} results`,
-      );
-    } catch (err) {
-      this.logger.warn(
-        `Custom screener failed, using fallback: ${err.message}`,
-      );
-      this.crumb = null;
-      baseResult = await this.fallbackScreen(basicQuery);
+    if (query.market && query.market !== '全部') {
+      filtered = filtered.filter((q) => this.detectMarket(q) === query.market);
+    }
+
+    for (const filter of basicFilters) {
+      const accessor = LOCAL_FIELD_MAP[filter.field];
+      if (!accessor) continue;
+      filtered = filtered.filter((q) => this.matchFilter(accessor(q), filter));
     }
 
     if (!hasTech && !sortIsTech) {
-      return baseResult;
+      const sortAccessor = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
+      if (sortAccessor) {
+        const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
+        filtered.sort(
+          (a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir,
+        );
+      }
+      const total = filtered.length;
+      const offset = query.offset || 0;
+      const size = query.size || 50;
+      return {
+        total,
+        items: filtered.slice(offset, offset + size).map((q) => this.transformQuote(q)),
+      };
     }
 
-    const techMap = await this.batchComputeTechnical(
-      baseResult.items.map((it) => it.symbol),
-    );
+    const techMap = await this.batchComputeTechnical(filtered.map((it) => it.symbol));
 
-    let filtered = baseResult.items;
+    let techFiltered = filtered;
     if (hasTech) {
-      filtered = filtered.filter((item) => {
+      techFiltered = techFiltered.filter((item) => {
         const tech = techMap.get(item.symbol);
         if (!tech) return false;
-        return techFilters.every((f) =>
-          this.matchFilter(tech[f.field] ?? null, f),
-        );
+        return techFilters.every((f) => this.matchFilter(tech[f.field] ?? null, f));
       });
     }
 
     if (sortIsTech) {
       const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
-      filtered.sort((a, b) => {
+      techFiltered.sort((a, b) => {
         const va = (techMap.get(a.symbol)?.[query.sortField!] as number) ?? 0;
         const vb = (techMap.get(b.symbol)?.[query.sortField!] as number) ?? 0;
         return (va - vb) * dir;
       });
+    } else {
+      const sortAccessor = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
+      if (sortAccessor) {
+        const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
+        techFiltered.sort(
+          (a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir,
+        );
+      }
     }
 
-    const total = filtered.length;
+    const total = techFiltered.length;
     const offset = query.offset || 0;
     const size = query.size || 50;
-    return { total, items: filtered.slice(offset, offset + size) };
+    return {
+      total,
+      items: techFiltered.slice(offset, offset + size).map((q) => this.transformQuote(q)),
+    };
   }
-
-  // ===================== Strategy CRUD =====================
 
   async getStrategies(userId: number): Promise<ScreenerStrategy[]> {
     return this.strategyRepo.find({ where: { userId }, order: { updatedAt: 'DESC' } });

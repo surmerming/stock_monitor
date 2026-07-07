@@ -5,19 +5,48 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var ScannerService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScannerService = void 0;
 const common_1 = require("@nestjs/common");
-const yahoo_finance2_1 = __importDefault(require("yahoo-finance2"));
+const akshare_service_1 = require("../akshare/akshare.service");
 const cn_names_1 = require("../common/cn-names");
-const yahooFinance = new yahoo_finance2_1.default();
 const CACHE_TTL = 2 * 60 * 1000;
+const US_TOP_STOCKS = [
+    'AAPL',
+    'MSFT',
+    'NVDA',
+    'GOOGL',
+    'AMZN',
+    'META',
+    'TSLA',
+    'BRK-B',
+    'JPM',
+    'V',
+    'UNH',
+    'MA',
+    'JNJ',
+    'PG',
+    'HD',
+    'AVGO',
+    'COST',
+    'MRK',
+    'ABBV',
+    'CRM',
+    'AMD',
+    'NFLX',
+    'PEP',
+    'KO',
+    'TMO',
+    'ADBE',
+    'LIN',
+];
 let ScannerService = ScannerService_1 = class ScannerService {
-    constructor() {
+    constructor(akShareService) {
+        this.akShareService = akShareService;
         this.logger = new common_1.Logger(ScannerService_1.name);
         this.cache = new Map();
     }
@@ -34,14 +63,14 @@ let ScannerService = ScannerService_1 = class ScannerService {
     transformQuote(q) {
         return {
             symbol: q.symbol,
-            name: (0, cn_names_1.getCnName)(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
-            price: q.regularMarketPrice ?? 0,
-            change: q.regularMarketChange ?? 0,
-            changePercent: q.regularMarketChangePercent ?? 0,
-            volume: q.regularMarketVolume ?? 0,
-            marketCap: q.marketCap ?? null,
-            exchange: q.fullExchangeName || q.exchange || '',
-            avgVolume3m: q.averageDailyVolume3Month ?? null,
+            name: (0, cn_names_1.getCnName)(q.symbol, q.name),
+            price: q.current_price,
+            change: q.change,
+            changePercent: q.change_percent,
+            volume: q.volume,
+            marketCap: q.market_cap || null,
+            exchange: q.market,
+            avgVolume3m: null,
         };
     }
     async getGainers(count = 25) {
@@ -49,8 +78,12 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (cached)
             return cached;
         try {
-            const result = await yahooFinance.screener({ scrIds: 'day_gainers', count });
-            const items = result.quotes.map((q) => this.transformQuote(q));
+            const sectorResult = await this.akShareService.getSector('a_share');
+            const sectors = sectorResult?.sectors || [];
+            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+            const quotes = results.filter((r) => r.data).map((r) => r.data);
+            quotes.sort((a, b) => b.change_percent - a.change_percent);
+            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
             this.setCache('gainers', items);
             this.logger.debug(`Fetched ${items.length} gainers`);
             return items;
@@ -65,8 +98,10 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (cached)
             return cached;
         try {
-            const result = await yahooFinance.screener({ scrIds: 'day_losers', count });
-            const items = result.quotes.map((q) => this.transformQuote(q));
+            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+            const quotes = results.filter((r) => r.data).map((r) => r.data);
+            quotes.sort((a, b) => a.change_percent - b.change_percent);
+            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
             this.setCache('losers', items);
             this.logger.debug(`Fetched ${items.length} losers`);
             return items;
@@ -81,8 +116,10 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (cached)
             return cached;
         try {
-            const result = await yahooFinance.screener({ scrIds: 'most_actives', count });
-            const items = result.quotes.map((q) => this.transformQuote(q));
+            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+            const quotes = results.filter((r) => r.data).map((r) => r.data);
+            quotes.sort((a, b) => b.volume - a.volume);
+            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
             this.setCache('active', items);
             this.logger.debug(`Fetched ${items.length} most active`);
             return items;
@@ -98,19 +135,10 @@ let ScannerService = ScannerService_1 = class ScannerService {
             return cached;
         const regions = ['US', 'HK'];
         const results = [];
-        for (const region of regions) {
-            try {
-                const result = await yahooFinance.trendingSymbols(region, { count: 20 });
-                results.push({
-                    region,
-                    symbols: result.quotes.map((q) => q.symbol),
-                });
-            }
-            catch (err) {
-                this.logger.error(`Failed to fetch trending for ${region}: ${err.message}`);
-                results.push({ region, symbols: [] });
-            }
-        }
+        const usSymbols = US_TOP_STOCKS;
+        const hkSymbols = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
+        results.push({ region: 'US', symbols: usSymbols });
+        results.push({ region: 'HK', symbols: hkSymbols });
         this.setCache('trending', results);
         this.logger.debug(`Fetched trending for ${regions.join(', ')}`);
         return results;
@@ -125,35 +153,24 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (allSymbols.length === 0)
             return [];
         try {
-            const quotes = await yahooFinance.quote(allSymbols);
+            const results = await this.akShareService.getQuotesBatch(allSymbols);
+            const quotes = results.filter((r) => r.data).map((r) => r.data);
             const quoteMap = new Map();
-            const arr = Array.isArray(quotes) ? quotes : [quotes];
-            for (const q of arr) {
-                if (q?.symbol)
-                    quoteMap.set(q.symbol, q);
+            for (const q of quotes) {
+                quoteMap.set(q.symbol, q);
             }
-            const results = trending.map((t) => ({
+            const resultsWithQuotes = trending.map((t) => ({
                 region: t.region,
                 regionName: regionNames[t.region] || t.region,
                 items: t.symbols
                     .filter((s) => quoteMap.has(s))
                     .map((s) => {
                     const q = quoteMap.get(s);
-                    return {
-                        symbol: q.symbol,
-                        name: (0, cn_names_1.getCnName)(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
-                        price: q.regularMarketPrice ?? 0,
-                        change: q.regularMarketChange ?? 0,
-                        changePercent: q.regularMarketChangePercent ?? 0,
-                        volume: q.regularMarketVolume ?? 0,
-                        marketCap: q.marketCap ?? null,
-                        exchange: q.fullExchangeName || q.exchange || '',
-                        avgVolume3m: q.averageDailyVolume3Month ?? null,
-                    };
+                    return this.transformQuote(q);
                 }),
             }));
-            this.setCache('trending_quotes', results);
-            return results;
+            this.setCache('trending_quotes', resultsWithQuotes);
+            return resultsWithQuotes;
         }
         catch (err) {
             this.logger.error(`Failed to fetch trending quotes: ${err.message}`);
@@ -163,6 +180,7 @@ let ScannerService = ScannerService_1 = class ScannerService {
 };
 exports.ScannerService = ScannerService;
 exports.ScannerService = ScannerService = ScannerService_1 = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [akshare_service_1.AkShareService])
 ], ScannerService);
 //# sourceMappingURL=scanner.service.js.map

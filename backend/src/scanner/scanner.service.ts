@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
+import { AkShareService, QuoteResult } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
-
-const yahooFinance = new YahooFinance();
 
 export interface ScannerItem {
   symbol: string;
@@ -21,12 +19,44 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+const CACHE_TTL = 2 * 60 * 1000;
+
+const US_TOP_STOCKS = [
+  'AAPL',
+  'MSFT',
+  'NVDA',
+  'GOOGL',
+  'AMZN',
+  'META',
+  'TSLA',
+  'BRK-B',
+  'JPM',
+  'V',
+  'UNH',
+  'MA',
+  'JNJ',
+  'PG',
+  'HD',
+  'AVGO',
+  'COST',
+  'MRK',
+  'ABBV',
+  'CRM',
+  'AMD',
+  'NFLX',
+  'PEP',
+  'KO',
+  'TMO',
+  'ADBE',
+  'LIN',
+];
 
 @Injectable()
 export class ScannerService {
   private readonly logger = new Logger(ScannerService.name);
   private cache = new Map<string, CacheEntry<any>>();
+
+  constructor(private readonly akShareService: AkShareService) {}
 
   private getCached<T>(key: string): T | null {
     const entry = this.cache.get(key);
@@ -40,17 +70,17 @@ export class ScannerService {
     this.cache.set(key, { data, timestamp: Date.now() });
   }
 
-  private transformQuote(q: any): ScannerItem {
+  private transformQuote(q: QuoteResult): ScannerItem {
     return {
       symbol: q.symbol,
-      name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
-      price: q.regularMarketPrice ?? 0,
-      change: q.regularMarketChange ?? 0,
-      changePercent: q.regularMarketChangePercent ?? 0,
-      volume: q.regularMarketVolume ?? 0,
-      marketCap: q.marketCap ?? null,
-      exchange: q.fullExchangeName || q.exchange || '',
-      avgVolume3m: q.averageDailyVolume3Month ?? null,
+      name: getCnName(q.symbol, q.name),
+      price: q.current_price,
+      change: q.change,
+      changePercent: q.change_percent,
+      volume: q.volume,
+      marketCap: q.market_cap || null,
+      exchange: q.market,
+      avgVolume3m: null,
     };
   }
 
@@ -59,8 +89,14 @@ export class ScannerService {
     if (cached) return cached;
 
     try {
-      const result = await yahooFinance.screener({ scrIds: 'day_gainers', count });
-      const items = result.quotes.map((q) => this.transformQuote(q));
+      const sectorResult = await this.akShareService.getSector('a_share');
+      const sectors = sectorResult?.sectors || [];
+      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+
+      quotes.sort((a, b) => b.change_percent - a.change_percent);
+      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+
       this.setCache('gainers', items);
       this.logger.debug(`Fetched ${items.length} gainers`);
       return items;
@@ -75,8 +111,12 @@ export class ScannerService {
     if (cached) return cached;
 
     try {
-      const result = await yahooFinance.screener({ scrIds: 'day_losers', count });
-      const items = result.quotes.map((q) => this.transformQuote(q));
+      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+
+      quotes.sort((a, b) => a.change_percent - b.change_percent);
+      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+
       this.setCache('losers', items);
       this.logger.debug(`Fetched ${items.length} losers`);
       return items;
@@ -91,8 +131,12 @@ export class ScannerService {
     if (cached) return cached;
 
     try {
-      const result = await yahooFinance.screener({ scrIds: 'most_actives', count });
-      const items = result.quotes.map((q) => this.transformQuote(q));
+      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
+      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+
+      quotes.sort((a, b) => b.volume - a.volume);
+      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+
       this.setCache('active', items);
       this.logger.debug(`Fetched ${items.length} most active`);
       return items;
@@ -109,18 +153,11 @@ export class ScannerService {
     const regions = ['US', 'HK'];
     const results: { region: string; symbols: string[] }[] = [];
 
-    for (const region of regions) {
-      try {
-        const result = await yahooFinance.trendingSymbols(region, { count: 20 });
-        results.push({
-          region,
-          symbols: result.quotes.map((q) => q.symbol),
-        });
-      } catch (err) {
-        this.logger.error(`Failed to fetch trending for ${region}: ${err.message}`);
-        results.push({ region, symbols: [] });
-      }
-    }
+    const usSymbols = US_TOP_STOCKS;
+    const hkSymbols = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
+
+    results.push({ region: 'US', symbols: usSymbols });
+    results.push({ region: 'HK', symbols: hkSymbols });
 
     this.setCache('trending', results);
     this.logger.debug(`Fetched trending for ${regions.join(', ')}`);
@@ -143,36 +180,26 @@ export class ScannerService {
     if (allSymbols.length === 0) return [];
 
     try {
-      const quotes = await yahooFinance.quote(allSymbols);
-      const quoteMap = new Map<string, any>();
-      const arr = Array.isArray(quotes) ? quotes : [quotes];
-      for (const q of arr) {
-        if (q?.symbol) quoteMap.set(q.symbol, q);
+      const results = await this.akShareService.getQuotesBatch(allSymbols);
+      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+      const quoteMap = new Map<string, QuoteResult>();
+      for (const q of quotes) {
+        quoteMap.set(q.symbol, q);
       }
 
-      const results = trending.map((t) => ({
+      const resultsWithQuotes = trending.map((t) => ({
         region: t.region,
         regionName: regionNames[t.region] || t.region,
         items: t.symbols
           .filter((s) => quoteMap.has(s))
           .map((s) => {
             const q = quoteMap.get(s)!;
-            return {
-              symbol: q.symbol,
-              name: getCnName(q.symbol, q.shortName || q.longName || q.displayName || q.symbol),
-              price: q.regularMarketPrice ?? 0,
-              change: q.regularMarketChange ?? 0,
-              changePercent: q.regularMarketChangePercent ?? 0,
-              volume: q.regularMarketVolume ?? 0,
-              marketCap: q.marketCap ?? null,
-              exchange: q.fullExchangeName || q.exchange || '',
-              avgVolume3m: q.averageDailyVolume3Month ?? null,
-            };
+            return this.transformQuote(q);
           }),
       }));
 
-      this.setCache('trending_quotes', results);
-      return results;
+      this.setCache('trending_quotes', resultsWithQuotes);
+      return resultsWithQuotes;
     } catch (err) {
       this.logger.error(`Failed to fetch trending quotes: ${err.message}`);
       return [];

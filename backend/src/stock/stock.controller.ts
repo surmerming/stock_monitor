@@ -6,8 +6,8 @@ export class StockController {
   constructor(private readonly stockService: StockService) {}
 
   @Get()
-  async getQuotes(@Query('symbols') symbols: string) {
-    const list = symbols
+  async getQuotes(@Query('symbol') symbol?: string, @Query('symbols') symbols?: string) {
+    const list = (symbols || symbol || '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);

@@ -1,8 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import YahooFinance from 'yahoo-finance2';
+import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
-
-const yahooFinance = new YahooFinance();
 
 const US_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
   { symbol: 'XLK', name: '科技', sector: 'Technology' },
@@ -19,28 +17,28 @@ const US_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
 ];
 
 const HK_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
-  { symbol: '2800.HK', name: '盈富基金', sector: '大盘' },
-  { symbol: '3067.HK', name: '安硕恒生科技', sector: '科技' },
-  { symbol: '3033.HK', name: '南方恒生科技', sector: '科技' },
-  { symbol: '2828.HK', name: '恒生中国企业', sector: '国企' },
-  { symbol: '3188.HK', name: '华夏沪深300', sector: '内地' },
+  { symbol: 'HK2800', name: '盈富基金', sector: '大盘' },
+  { symbol: 'HK3067', name: '安硕恒生科技', sector: '科技' },
+  { symbol: 'HK3033', name: '南方恒生科技', sector: '科技' },
+  { symbol: 'HK2828', name: '恒生中国企业', sector: '国企' },
+  { symbol: 'HK3188', name: '华夏沪深300', sector: '内地' },
 ];
 
 const CN_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
-  { symbol: '512480.SS', name: '半导体ETF', sector: '半导体' },
-  { symbol: '515030.SS', name: '新能源车ETF', sector: '新能源' },
-  { symbol: '512690.SS', name: '白酒ETF', sector: '白酒' },
-  { symbol: '512010.SS', name: '医药ETF', sector: '医药' },
-  { symbol: '512880.SS', name: '证券ETF', sector: '证券' },
-  { symbol: '512800.SS', name: '银行ETF', sector: '银行' },
-  { symbol: '515790.SS', name: '光伏ETF', sector: '光伏' },
-  { symbol: '512200.SS', name: '房地产ETF', sector: '地产' },
-  { symbol: '515050.SS', name: '5GETF', sector: '5G/通信' },
-  { symbol: '512980.SS', name: '传媒ETF', sector: '传媒' },
-  { symbol: '159869.SZ', name: '游戏ETF', sector: '游戏' },
-  { symbol: '512660.SS', name: '军工ETF', sector: '军工' },
-  { symbol: '512170.SS', name: '医疗ETF', sector: '医疗' },
-  { symbol: '159825.SZ', name: '农业ETF', sector: '农业' },
+  { symbol: 'SH512480', name: '半导体ETF', sector: '半导体' },
+  { symbol: 'SH515030', name: '新能源车ETF', sector: '新能源' },
+  { symbol: 'SH512690', name: '白酒ETF', sector: '白酒' },
+  { symbol: 'SH512010', name: '医药ETF', sector: '医药' },
+  { symbol: 'SH512880', name: '证券ETF', sector: '证券' },
+  { symbol: 'SH512800', name: '银行ETF', sector: '银行' },
+  { symbol: 'SH515790', name: '光伏ETF', sector: '光伏' },
+  { symbol: 'SH512200', name: '房地产ETF', sector: '地产' },
+  { symbol: 'SH515050', name: '5GETF', sector: '5G/通信' },
+  { symbol: 'SH512980', name: '传媒ETF', sector: '传媒' },
+  { symbol: 'SZ159869', name: '游戏ETF', sector: '游戏' },
+  { symbol: 'SH512660', name: '军工ETF', sector: '军工' },
+  { symbol: 'SH512170', name: '医疗ETF', sector: '医疗' },
+  { symbol: 'SZ159825', name: '农业ETF', sector: '农业' },
 ];
 
 export interface SectorRotationItem {
@@ -80,6 +78,8 @@ export class SectorService {
   private cache = new Map<string, { data: any; timestamp: number }>();
   private readonly CACHE_TTL = 3 * 60 * 1000;
 
+  constructor(private readonly akShareService: AkShareService) {}
+
   private getETFs(market: string) {
     switch (market) {
       case '港股':
@@ -105,15 +105,17 @@ export class SectorService {
     shortName: string;
   } | null> {
     try {
-      const chartRes = await yahooFinance.chart(sym, {
-        period1: new Date(Date.now() - 100 * 24 * 3600 * 1000),
-        interval: '1d' as any,
-      });
+      const chartResult = await this.akShareService.getChart(sym, 'daily');
+      const quote = await this.akShareService.getQuote(sym);
 
-      const rawBars = (chartRes as any)?.quotes || [];
+      const rawBars = chartResult?.quotes || [];
+
+      const isAShare = sym.startsWith('SH') || sym.startsWith('SZ') || sym.startsWith('BJ');
+      const volumeDivider = isAShare ? 100 : 1;
+
       const bars: BarData[] = rawBars
-        .filter((b: any) => b.close != null && b.close > 0)
-        .map((b: any) => ({ close: b.close, volume: b.volume ?? 0 }));
+        .filter((b: ChartQuote) => b.close != null && b.close > 0)
+        .map((b: ChartQuote) => ({ close: b.close, volume: (b.volume ?? 0) / volumeDivider }));
 
       if (bars.length < 2) {
         this.logger.warn(`${sym}: insufficient bar data (${bars.length} bars)`);
@@ -123,31 +125,16 @@ export class SectorService {
       const lastBar = bars[bars.length - 1];
       const prevBar = bars[bars.length - 2];
 
-      let price = lastBar.close;
-      let prevClose = prevBar.close;
-      let volume = lastBar.volume;
+      const price = quote?.current_price || lastBar.close;
+      const prevClose = quote?.prev_close || prevBar.close;
+      const volume = quote?.volume || lastBar.volume;
       let avgVolume = 0;
-      let marketCap: number | null = null;
-      let shortName = sym;
+      const marketCap = quote?.market_cap || null;
+      const shortName = quote?.name || sym;
 
       const recentVols = bars.slice(-20).map((b) => b.volume);
       if (recentVols.length > 0) {
         avgVolume = recentVols.reduce((s, v) => s + v, 0) / recentVols.length;
-      }
-
-      try {
-        const q: any = await yahooFinance.quote(sym, {}, { validateResult: false });
-        if (q) {
-          if (q.regularMarketPrice > 0) price = q.regularMarketPrice;
-          if (q.regularMarketPreviousClose > 0) prevClose = q.regularMarketPreviousClose;
-          if (q.regularMarketVolume > 0) volume = q.regularMarketVolume;
-          if (q.averageDailyVolume3Month > 0) avgVolume = q.averageDailyVolume3Month;
-          else if (q.averageDailyVolume10Day > 0) avgVolume = q.averageDailyVolume10Day;
-          marketCap = q.marketCap ?? null;
-          shortName = getCnName(sym, q.shortName || q.longName || sym);
-        }
-      } catch (err) {
-        this.logger.debug(`${sym}: quote fallback to chart data - ${err.message}`);
       }
 
       return { price, prevClose, bars, volume, avgVolume, marketCap, shortName };
@@ -176,16 +163,14 @@ export class SectorService {
 
         const change1d = this.pctChange(price, prevClose);
 
-        const barClose = (n: number) =>
-          bars.length > n ? bars[bars.length - 1 - n].close : 0;
+        const barClose = (n: number) => (bars.length > n ? bars[bars.length - 1 - n].close : 0);
 
         const change5d = this.pctChange(price, barClose(5));
         const change1m = this.pctChange(price, barClose(21));
         const change3m = this.pctChange(price, barClose(63));
 
         const volumeRatio = avgVolume > 0 ? volume / avgVolume : 1;
-        const rsScore =
-          change1d * 0.1 + change5d * 0.2 + change1m * 0.35 + change3m * 0.35;
+        const rsScore = change1d * 0.1 + change5d * 0.2 + change1m * 0.35 + change3m * 0.35;
         const momentum = change1m - change3m / 3;
 
         return {
@@ -213,7 +198,9 @@ export class SectorService {
     items.sort((a, b) => b.rsScore - a.rsScore);
 
     this.cache.set(cacheKey, { data: items, timestamp: Date.now() });
-    this.logger.debug(`Rotation ${market}: ${items.length} items, prices: ${items.map((i) => `${i.name}=${i.price}`).join(', ')}`);
+    this.logger.debug(
+      `Rotation ${market}: ${items.length} items, prices: ${items.map((i) => `${i.name}=${i.price}`).join(', ')}`,
+    );
     return items;
   }
 
@@ -236,8 +223,7 @@ export class SectorService {
 
         const change1d = this.pctChange(price, prevClose);
 
-        const barClose = (n: number) =>
-          bars.length > n ? bars[bars.length - 1 - n].close : 0;
+        const barClose = (n: number) => (bars.length > n ? bars[bars.length - 1 - n].close : 0);
 
         const change5d = this.pctChange(price, barClose(5));
         const change1m = this.pctChange(price, barClose(21));
