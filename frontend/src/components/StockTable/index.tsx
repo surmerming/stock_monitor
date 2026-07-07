@@ -31,7 +31,6 @@ interface StockTableItem {
 
 interface StockTableProps {
   items: StockTableItem[];
-  onRemove: (sym: string) => void;
   onSymbolClick?: (sym: string) => void;
 }
 

@@ -19,7 +19,8 @@ export class TradeController {
   @Post()
   async create(
     @Request() req: any,
-    @Body() body: {
+    @Body()
+    body: {
       symbol: string;
       direction: string;
       price: number;
@@ -43,7 +44,8 @@ export class TradeController {
   async update(
     @Request() req: any,
     @Param('id') id: string,
-    @Body() body: Partial<{
+    @Body()
+    body: Partial<{
       symbol: string;
       direction: string;
       price: number;

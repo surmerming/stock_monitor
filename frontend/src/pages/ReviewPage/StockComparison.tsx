@@ -142,7 +142,7 @@ export default function StockComparison({ watchlistSymbols }: { watchlistSymbols
               <button
                 key={s}
                 className={`rv-btn rv-btn--sm ${selectedSymbols.includes(s) ? 'rv-btn--primary' : ''}`}
-                onClick={() => selectedSymbols.includes(s) ? removeSymbol(s) : addSymbol(s)}
+                onClick={() => (selectedSymbols.includes(s) ? removeSymbol(s) : addSymbol(s))}
               >
                 {s}
               </button>
@@ -152,10 +152,19 @@ export default function StockComparison({ watchlistSymbols }: { watchlistSymbols
 
         <div className="rv-compare__selected">
           {selectedSymbols.map((s, i) => (
-            <span key={s} className="rv-compare__chip" style={{ borderColor: COLORS[i % COLORS.length] }}>
-              <span className="rv-compare__chip-dot" style={{ background: COLORS[i % COLORS.length] }} />
+            <span
+              key={s}
+              className="rv-compare__chip"
+              style={{ borderColor: COLORS[i % COLORS.length] }}
+            >
+              <span
+                className="rv-compare__chip-dot"
+                style={{ background: COLORS[i % COLORS.length] }}
+              />
               {s}
-              <button className="rv-compare__chip-remove" onClick={() => removeSymbol(s)}>✕</button>
+              <button className="rv-compare__chip-remove" onClick={() => removeSymbol(s)}>
+                ✕
+              </button>
             </span>
           ))}
         </div>
@@ -187,11 +196,20 @@ export default function StockComparison({ watchlistSymbols }: { watchlistSymbols
               <div className="rv-compare__corr-grid">
                 {correlation.map((c) => (
                   <div key={`${c.a}-${c.b}`} className="rv-compare__corr-cell">
-                    <span className="rv-compare__corr-pair">{c.a} × {c.b}</span>
+                    <span className="rv-compare__corr-pair">
+                      {c.a} × {c.b}
+                    </span>
                     <span
                       className="rv-compare__corr-val"
                       style={{
-                        color: c.corr > 0.7 ? '#e74c3c' : c.corr > 0.3 ? '#f5a623' : c.corr > -0.3 ? '#8892a4' : '#2ecc71',
+                        color:
+                          c.corr > 0.7
+                            ? '#e74c3c'
+                            : c.corr > 0.3
+                              ? '#f5a623'
+                              : c.corr > -0.3
+                                ? '#8892a4'
+                                : '#2ecc71',
                       }}
                     >
                       {c.corr.toFixed(3)}
@@ -220,12 +238,22 @@ export default function StockComparison({ watchlistSymbols }: { watchlistSymbols
                   return (
                     <tr key={s.symbol} className="rv-table__row">
                       <td className="rv-table__td">
-                        <span className="rv-compare__chip-dot" style={{ background: COLORS[i % COLORS.length], display: 'inline-block', marginRight: 6 }} />
+                        <span
+                          className="rv-compare__chip-dot"
+                          style={{
+                            background: COLORS[i % COLORS.length],
+                            display: 'inline-block',
+                            marginRight: 6,
+                          }}
+                        />
                         {s.name} ({s.symbol})
                       </td>
                       <td className="rv-table__td">{lastPoint?.close.toFixed(2) ?? '—'}</td>
-                      <td className={`rv-table__td ${totalReturn >= 0 ? 'rv-table__val--up' : 'rv-table__val--down'}`}>
-                        {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                      <td
+                        className={`rv-table__td ${totalReturn >= 0 ? 'rv-table__val--up' : 'rv-table__val--down'}`}
+                      >
+                        {totalReturn >= 0 ? '+' : ''}
+                        {totalReturn.toFixed(2)}%
                       </td>
                     </tr>
                   );

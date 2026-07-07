@@ -95,7 +95,12 @@ export default function ReviewPage() {
         <h2 className="rv-page__title">每日复盘工作台</h2>
         <div className="rv-page__actions">
           <span className="rv-page__date">
-            {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
+            {new Date().toLocaleDateString('zh-CN', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              weekday: 'long',
+            })}
           </span>
           <button className="rv-page__refresh" onClick={fetchReviewData} disabled={loading}>
             {loading ? '加载中...' : '刷新数据'}
@@ -136,11 +141,7 @@ export default function ReviewPage() {
 
         {activeTab === 'stocks' && (
           <div className="rv-stocks">
-            <ReviewTable
-              items={reviewItems}
-              loading={loading}
-              onSelect={handleSelectStock}
-            />
+            <ReviewTable items={reviewItems} loading={loading} onSelect={handleSelectStock} />
             {selectedSymbol && (
               <StockReviewPanel
                 symbol={selectedSymbol}

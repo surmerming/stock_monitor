@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   createChart,
   ColorType,
@@ -53,7 +53,7 @@ function calcMA(
   return result;
 }
 
-const legendStyle: React.CSSProperties = {
+const legendStyle: CSSProperties = {
   position: 'absolute',
   top: 8,
   left: 10,
@@ -66,18 +66,18 @@ const legendStyle: React.CSSProperties = {
   pointerEvents: 'none',
 };
 
-const legendItemStyle: React.CSSProperties = {
+const legendItemStyle: CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 3,
 };
 
-const legendLabelStyle: React.CSSProperties = {
+const legendLabelStyle: CSSProperties = {
   color: CHART_COLORS.textDim,
   fontSize: 11,
 };
 
-const expandBtnStyle: React.CSSProperties = {
+const expandBtnStyle: CSSProperties = {
   position: 'absolute',
   top: 8,
   right: 10,
@@ -96,7 +96,7 @@ const expandBtnStyle: React.CSSProperties = {
   transition: 'color 0.15s, border-color 0.15s',
 };
 
-const fullscreenBarStyle: React.CSSProperties = {
+const fullscreenBarStyle: CSSProperties = {
   height: 40,
   padding: '0 16px',
   display: 'flex',
@@ -106,7 +106,7 @@ const fullscreenBarStyle: React.CSSProperties = {
   flexShrink: 0,
 };
 
-const fullscreenBtnStyle: React.CSSProperties = {
+const fullscreenBtnStyle: CSSProperties = {
   border: 'none',
   background: 'none',
   fontSize: 18,
@@ -342,7 +342,7 @@ export default function StockChart({
   const trendColor = isUp ? CHART_COLORS.up : CHART_COLORS.down;
   const sign = isUp ? '+' : '';
 
-  const wrapperStyle: React.CSSProperties = fullscreen
+  const wrapperStyle: CSSProperties = fullscreen
     ? {
         position: 'fixed',
         inset: 0,

@@ -69,7 +69,13 @@ export default function ReviewNotes() {
       if (res.ok) {
         setEditing(false);
         setEditId(null);
-        setForm({ date: new Date().toISOString().slice(0, 10), content: '', sentimentScore: 3, plan: '', tags: '' });
+        setForm({
+          date: new Date().toISOString().slice(0, 10),
+          content: '',
+          sentimentScore: 3,
+          plan: '',
+          tags: '',
+        });
         fetchNotes();
       }
     } catch {
@@ -132,7 +138,9 @@ export default function ReviewNotes() {
                   {v}
                 </button>
               ))}
-              <span className="rv-notes__sentiment-text">{SENTIMENT_LABELS[form.sentimentScore]}</span>
+              <span className="rv-notes__sentiment-text">
+                {SENTIMENT_LABELS[form.sentimentScore]}
+              </span>
             </div>
           </div>
           <textarea
@@ -159,7 +167,9 @@ export default function ReviewNotes() {
             <button className="rv-btn rv-btn--primary" onClick={handleSave}>
               {editId ? '更新' : '保存'}
             </button>
-            <button className="rv-btn" onClick={() => setEditing(false)}>取消</button>
+            <button className="rv-btn" onClick={() => setEditing(false)}>
+              取消
+            </button>
           </div>
         </div>
       )}
@@ -188,7 +198,9 @@ export default function ReviewNotes() {
               {note.tags.length > 0 && (
                 <div className="rv-notes__item-tags">
                   {note.tags.map((tag, i) => (
-                    <span key={i} className="rv-tag rv-tag--neutral">{tag}</span>
+                    <span key={i} className="rv-tag rv-tag--neutral">
+                      {tag}
+                    </span>
                   ))}
                 </div>
               )}

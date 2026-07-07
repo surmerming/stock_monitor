@@ -78,7 +78,10 @@ export class TradeService {
         } else if (t.direction === 'SELL' && buys.length > 0) {
           const buy = buys.shift()!;
           const pnl = (Number(t.price) - Number(buy.price)) * Math.min(t.quantity, buy.quantity);
-          const pnlPct = Number(buy.price) > 0 ? ((Number(t.price) - Number(buy.price)) / Number(buy.price)) * 100 : 0;
+          const pnlPct =
+            Number(buy.price) > 0
+              ? ((Number(t.price) - Number(buy.price)) / Number(buy.price)) * 100
+              : 0;
 
           totalPnl += pnl;
           pnlPercents.push(pnlPct);
@@ -92,7 +95,8 @@ export class TradeService {
     }
 
     const winRate = closedTrades > 0 ? wins / closedTrades : 0;
-    const avgPnlPercent = pnlPercents.length > 0 ? pnlPercents.reduce((s, v) => s + v, 0) / pnlPercents.length : 0;
+    const avgPnlPercent =
+      pnlPercents.length > 0 ? pnlPercents.reduce((s, v) => s + v, 0) / pnlPercents.length : 0;
 
     return {
       totalTrades: trades.length,

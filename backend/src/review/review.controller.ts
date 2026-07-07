@@ -42,11 +42,11 @@ export class ReviewController {
   }
 
   @Get('compare')
-  async getComparison(
-    @Query('symbols') symbols: string,
-    @Query('range') range?: string,
-  ) {
-    const symbolList = symbols.split(',').map((s) => s.trim()).filter(Boolean);
+  async getComparison(@Query('symbols') symbols: string, @Query('range') range?: string) {
+    const symbolList = symbols
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (symbolList.length < 2) return { error: 'At least 2 symbols required' };
     return this.reviewService.getComparison(symbolList, range || '3mo');
   }

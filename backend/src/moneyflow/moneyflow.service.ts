@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AkShareService, QuoteResult, MoneyflowResult, MoneyflowTimeline } from '../akshare/akshare.service';
+import {
+  AkShareService,
+  QuoteResult,
+  MoneyflowResult,
+  MoneyflowTimeline,
+} from '../akshare/akshare.service';
 import { StockService } from '../stock/stock.service';
 import { WatchlistService } from '../watchlist/watchlist.service';
 import { CN_NAMES, getCnName } from '../common/cn-names';
@@ -70,12 +75,56 @@ const A_SHARE_POOL = Object.keys(CN_NAMES).filter((s) => /\.(SS|SZ|BJ)$/i.test(s
 const HK_STOCK_POOL = Object.keys(CN_NAMES).filter((s) => /\.HK$/i.test(s));
 
 const US_STOCK_POOL = [
-  'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B',
-  'JPM', 'V', 'UNH', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'COST', 'MRK',
-  'ABBV', 'CRM', 'AMD', 'NFLX', 'PEP', 'KO', 'TMO', 'ADBE', 'LIN',
-  'WMT', 'ACN', 'MCD', 'CSCO', 'ABT', 'DHR', 'ORCL', 'INTC', 'DIS',
-  'VZ', 'CMCSA', 'NKE', 'PM', 'TXN', 'QCOM', 'BA', 'GE', 'CAT',
-  'IBM', 'AMAT', 'ISRG', 'NOW', 'UBER',
+  'AAPL',
+  'MSFT',
+  'NVDA',
+  'GOOGL',
+  'AMZN',
+  'META',
+  'TSLA',
+  'BRK-B',
+  'JPM',
+  'V',
+  'UNH',
+  'MA',
+  'JNJ',
+  'PG',
+  'HD',
+  'AVGO',
+  'COST',
+  'MRK',
+  'ABBV',
+  'CRM',
+  'AMD',
+  'NFLX',
+  'PEP',
+  'KO',
+  'TMO',
+  'ADBE',
+  'LIN',
+  'WMT',
+  'ACN',
+  'MCD',
+  'CSCO',
+  'ABT',
+  'DHR',
+  'ORCL',
+  'INTC',
+  'DIS',
+  'VZ',
+  'CMCSA',
+  'NKE',
+  'PM',
+  'TXN',
+  'QCOM',
+  'BA',
+  'GE',
+  'CAT',
+  'IBM',
+  'AMAT',
+  'ISRG',
+  'NOW',
+  'UBER',
 ];
 
 function isToday(dateStr?: string): boolean {
@@ -138,7 +187,7 @@ export class MoneyFlowService {
     if (m === 'all' || m === 'us') tasks.push(this.fetchUSFlowToday());
 
     const results = await Promise.all(tasks);
-    let items = results.flat();
+    const items = results.flat();
 
     try {
       const wlItems = await this.getWatchlistFlowToday(m);
@@ -197,7 +246,11 @@ export class MoneyFlowService {
     }
   }
 
-  private transformQuoteToFlowItem(q: QuoteResult, market: string, flow: MoneyflowResult | undefined): MoneyFlowItem {
+  private transformQuoteToFlowItem(
+    q: QuoteResult,
+    market: string,
+    flow: MoneyflowResult | undefined,
+  ): MoneyFlowItem {
     const turnover = q.turnover || q.current_price * q.volume;
     const volRatio = 0;
     const flowIntensity = Math.abs(q.change_percent);
@@ -223,11 +276,8 @@ export class MoneyFlowService {
     };
   }
 
-  private async fetchHistoricalOverview(
-    m: string,
-    date: string,
-  ): Promise<MoneyFlowItem[]> {
-    let pool: string[] = [];
+  private async fetchHistoricalOverview(m: string, date: string): Promise<MoneyFlowItem[]> {
+    const pool: string[] = [];
     if (m === 'all' || m === 'cn') pool.push(...A_SHARE_POOL.slice(0, 40));
     if (m === 'all' || m === 'hk') pool.push(...HK_STOCK_POOL.slice(0, 20));
     if (m === 'all' || m === 'us') pool.push(...US_STOCK_POOL.slice(0, 20));
@@ -283,14 +333,13 @@ export class MoneyFlowService {
 
     if (filtered.length === 0) return [];
 
-    const akshareSymbols = filtered.map(
-      (w) => this.stockService.normalizeSymbol(w.symbol).akshare,
-    );
+    const akshareSymbols = filtered.map((w) => this.stockService.normalizeSymbol(w.symbol).akshare);
 
     try {
       const results = await this.akShareService.getQuotesBatch(akshareSymbols);
       const quotes = results.filter((r) => r.data && r.data.volume > 0).map((r) => r.data!);
-      const marketLabel = market === 'cn' ? 'A股' : market === 'hk' ? '港股' : market === 'us' ? '美股' : '';
+      const marketLabel =
+        market === 'cn' ? 'A股' : market === 'hk' ? '港股' : market === 'us' ? '美股' : '';
       return quotes.map((q) => this.transformQuoteToFlowItem(q, marketLabel, null));
     } catch {
       return [];
@@ -319,7 +368,8 @@ export class MoneyFlowService {
 
       const summary = {
         totalInflow: flow?.large_inflow || 0 + flow?.medium_inflow || 0 + flow?.small_inflow || 0,
-        totalOutflow: flow?.large_outflow || 0 + flow?.medium_outflow || 0 + flow?.small_outflow || 0,
+        totalOutflow:
+          flow?.large_outflow || 0 + flow?.medium_outflow || 0 + flow?.small_outflow || 0,
         netFlow: flow?.net_flow || 0,
         largeInflow: flow?.large_inflow || 0,
         largeOutflow: flow?.large_outflow || 0,
@@ -334,7 +384,9 @@ export class MoneyFlowService {
 
       const moneyflowTimeline: MoneyFlowDetail['timeline'] = (timeline?.timeline || []).map(
         (t: MoneyflowTimeline, i: number, arr: MoneyflowTimeline[]) => {
-          const cumulative = arr.slice(0, i + 1).reduce((sum, item) => sum + (item.net_flow || 0), 0);
+          const cumulative = arr
+            .slice(0, i + 1)
+            .reduce((sum, item) => sum + (item.net_flow || 0), 0);
           return {
             time: t.time,
             inflow: t.inflow || 0,

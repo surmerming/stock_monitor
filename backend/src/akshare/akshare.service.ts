@@ -116,19 +116,21 @@ export class AkShareService {
     }
   }
 
-  async getQuotesBatch(symbols: string[]): Promise<{ symbol: string; data: QuoteResult | null; error: string | null }[]> {
+  async getQuotesBatch(
+    symbols: string[],
+  ): Promise<{ symbol: string; data: QuoteResult | null; error: string | null }[]> {
     try {
       const response = await axios.post(`${this.baseUrl}/quotes`, { symbols }, { timeout: 30000 });
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to get quotes batch:`, error.message);
-      return symbols.map(symbol => ({ symbol, data: null, error: error.message }));
+      return symbols.map((symbol) => ({ symbol, data: null, error: error.message }));
     }
   }
 
   async getChart(
     symbol: string,
-    period: string = 'daily',
+    period = 'daily',
     startDate?: string,
     endDate?: string,
   ): Promise<ChartResult | null> {
@@ -157,7 +159,10 @@ export class AkShareService {
     }
   }
 
-  async getMoneyflowTimeline(symbol: string, date?: string): Promise<MoneyflowTimelineResult | null> {
+  async getMoneyflowTimeline(
+    symbol: string,
+    date?: string,
+  ): Promise<MoneyflowTimelineResult | null> {
     try {
       const response = await axios.get(`${this.baseUrl}/moneyflow_timeline`, {
         params: { symbol, date },
@@ -170,7 +175,7 @@ export class AkShareService {
     }
   }
 
-  async getSector(market: string = 'a_share'): Promise<SectorResult | null> {
+  async getSector(market = 'a_share'): Promise<SectorResult | null> {
     try {
       const response = await axios.get(`${this.baseUrl}/sector`, {
         params: { market },
@@ -183,7 +188,7 @@ export class AkShareService {
     }
   }
 
-  async getGainers(market: string = 'a_share'): Promise<GainersResult | null> {
+  async getGainers(market = 'a_share'): Promise<GainersResult | null> {
     try {
       const response = await axios.get(`${this.baseUrl}/gainers`, {
         params: { market },
@@ -208,7 +213,7 @@ export class AkShareService {
     }
   }
 
-  async getFinancial(symbol: string, reportType: string = 'income'): Promise<FinancialResult | null> {
+  async getFinancial(symbol: string, reportType = 'income'): Promise<FinancialResult | null> {
     try {
       const response = await axios.get(`${this.baseUrl}/financial`, {
         params: { symbol, type: reportType },

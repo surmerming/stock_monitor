@@ -138,10 +138,7 @@ function MiniChart({ bars }: { bars: StockReviewDetail['chartBars'] }) {
 function FlowTimeline({ timeline }: { timeline: StockReviewDetail['moneyFlow'] }) {
   if (!timeline || timeline.timeline.length === 0) return null;
 
-  const maxAbs = Math.max(
-    ...timeline.timeline.map((t) => Math.abs(t.cumulativeNetFlow)),
-    1,
-  );
+  const maxAbs = Math.max(...timeline.timeline.map((t) => Math.abs(t.cumulativeNetFlow)), 1);
 
   return (
     <div className="rv-detail__flow">
@@ -159,7 +156,11 @@ function FlowTimeline({ timeline }: { timeline: StockReviewDetail['moneyFlow'] }
           const pct = (t.cumulativeNetFlow / maxAbs) * 50;
           const isPos = pct >= 0;
           return (
-            <div key={i} className="rv-detail__flow-bar" title={`${t.time} 累计: ${formatTurnover(t.cumulativeNetFlow)}`}>
+            <div
+              key={i}
+              className="rv-detail__flow-bar"
+              title={`${t.time} 累计: ${formatTurnover(t.cumulativeNetFlow)}`}
+            >
               <div className="rv-detail__flow-bar-inner">
                 {isPos ? (
                   <div
@@ -187,7 +188,9 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
       <div className="rv-detail">
         <div className="rv-detail__header">
           <span>加载 {symbol} 复盘数据中...</span>
-          <button className="rv-detail__close" onClick={onClose}>✕</button>
+          <button className="rv-detail__close" onClick={onClose}>
+            ✕
+          </button>
         </div>
         <div className="rv-skeleton" style={{ height: 400 }} />
       </div>
@@ -199,7 +202,9 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
       <div className="rv-detail">
         <div className="rv-detail__header">
           <span>{symbol} 数据不可用</span>
-          <button className="rv-detail__close" onClick={onClose}>✕</button>
+          <button className="rv-detail__close" onClick={onClose}>
+            ✕
+          </button>
         </div>
       </div>
     );
@@ -217,11 +222,15 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
           <span className={`rv-detail__price ${isUp ? 'up' : 'down'}`}>
             {q.price.toFixed(2)}
             <span className="rv-detail__change">
-              {isUp ? '+' : ''}{q.change.toFixed(2)} ({isUp ? '+' : ''}{q.changePercent.toFixed(2)}%)
+              {isUp ? '+' : ''}
+              {q.change.toFixed(2)} ({isUp ? '+' : ''}
+              {q.changePercent.toFixed(2)}%)
             </span>
           </span>
         </div>
-        <button className="rv-detail__close" onClick={onClose}>✕</button>
+        <button className="rv-detail__close" onClick={onClose}>
+          ✕
+        </button>
       </div>
 
       <div className="rv-detail__body">
@@ -260,7 +269,9 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
           </div>
           <div className="rv-detail__quote-item">
             <span className="rv-detail__quote-label">换手率</span>
-            <span className="rv-detail__quote-val">{q.turnoverRate ? `${q.turnoverRate.toFixed(2)}%` : '—'}</span>
+            <span className="rv-detail__quote-val">
+              {q.turnoverRate ? `${q.turnoverRate.toFixed(2)}%` : '—'}
+            </span>
           </div>
           <div className="rv-detail__quote-item">
             <span className="rv-detail__quote-label">市值</span>
@@ -278,35 +289,51 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
           <div className="rv-detail__tech-grid">
             <div className="rv-detail__tech-card">
               <div className="rv-detail__tech-name">均线排列</div>
-              <div className={`rv-detail__tech-val rv-detail__tech-val--${detail.maStatus.alignment}`}>
-                {detail.maStatus.alignment === 'bullish' ? '多头排列' : detail.maStatus.alignment === 'bearish' ? '空头排列' : '多空交织'}
+              <div
+                className={`rv-detail__tech-val rv-detail__tech-val--${detail.maStatus.alignment}`}
+              >
+                {detail.maStatus.alignment === 'bullish'
+                  ? '多头排列'
+                  : detail.maStatus.alignment === 'bearish'
+                    ? '空头排列'
+                    : '多空交织'}
               </div>
               <div className="rv-detail__tech-detail">
-                MA5: {detail.maStatus.ma5 ?? '—'} | MA10: {detail.maStatus.ma10 ?? '—'} | MA20: {detail.maStatus.ma20 ?? '—'}
+                MA5: {detail.maStatus.ma5 ?? '—'} | MA10: {detail.maStatus.ma10 ?? '—'} | MA20:{' '}
+                {detail.maStatus.ma20 ?? '—'}
               </div>
             </div>
             <div className="rv-detail__tech-card">
               <div className="rv-detail__tech-name">MACD</div>
-              <div className={`rv-detail__tech-val ${detail.technicals.macd.signal === '金叉' || detail.technicals.macd.signal === '多头' ? 'rv-detail__tech-val--bullish' : detail.technicals.macd.signal === '死叉' || detail.technicals.macd.signal === '空头' ? 'rv-detail__tech-val--bearish' : ''}`}>
+              <div
+                className={`rv-detail__tech-val ${detail.technicals.macd.signal === '金叉' || detail.technicals.macd.signal === '多头' ? 'rv-detail__tech-val--bullish' : detail.technicals.macd.signal === '死叉' || detail.technicals.macd.signal === '空头' ? 'rv-detail__tech-val--bearish' : ''}`}
+              >
                 {detail.technicals.macd.signal}
               </div>
               <div className="rv-detail__tech-detail">
-                DIF: {detail.technicals.macd.dif?.toFixed(2) ?? '—'} | DEA: {detail.technicals.macd.dea?.toFixed(2) ?? '—'}
+                DIF: {detail.technicals.macd.dif?.toFixed(2) ?? '—'} | DEA:{' '}
+                {detail.technicals.macd.dea?.toFixed(2) ?? '—'}
               </div>
             </div>
             <div className="rv-detail__tech-card">
               <div className="rv-detail__tech-name">KDJ</div>
-              <div className={`rv-detail__tech-val ${detail.technicals.kdj.signal === '金叉' || detail.technicals.kdj.signal === '超卖' ? 'rv-detail__tech-val--bullish' : detail.technicals.kdj.signal === '死叉' || detail.technicals.kdj.signal === '超买' ? 'rv-detail__tech-val--bearish' : ''}`}>
+              <div
+                className={`rv-detail__tech-val ${detail.technicals.kdj.signal === '金叉' || detail.technicals.kdj.signal === '超卖' ? 'rv-detail__tech-val--bullish' : detail.technicals.kdj.signal === '死叉' || detail.technicals.kdj.signal === '超买' ? 'rv-detail__tech-val--bearish' : ''}`}
+              >
                 {detail.technicals.kdj.signal}
               </div>
               <div className="rv-detail__tech-detail">
-                K: {detail.technicals.kdj.k?.toFixed(1) ?? '—'} | D: {detail.technicals.kdj.d?.toFixed(1) ?? '—'} | J: {detail.technicals.kdj.j?.toFixed(1) ?? '—'}
+                K: {detail.technicals.kdj.k?.toFixed(1) ?? '—'} | D:{' '}
+                {detail.technicals.kdj.d?.toFixed(1) ?? '—'} | J:{' '}
+                {detail.technicals.kdj.j?.toFixed(1) ?? '—'}
               </div>
             </div>
             <div className="rv-detail__tech-card">
               <div className="rv-detail__tech-name">布林带</div>
               <div className="rv-detail__tech-val">
-                {detail.technicals.boll.position != null ? `${detail.technicals.boll.position.toFixed(0)}%` : '—'}
+                {detail.technicals.boll.position != null
+                  ? `${detail.technicals.boll.position.toFixed(0)}%`
+                  : '—'}
               </div>
               <div className="rv-detail__tech-detail">
                 带宽: {detail.technicals.boll.width?.toFixed(2) ?? '—'}%

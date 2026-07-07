@@ -164,7 +164,7 @@ export class SentimentService {
 
     try {
       const marketOverview = await this.akShareService.getMarketOverview();
-      
+
       const indices: { symbol: string; name: string }[] = [
         { symbol: 'sh000001', name: '上证指数' },
         { symbol: 'sz399001', name: '深证成指' },
@@ -190,12 +190,14 @@ export class SentimentService {
       const bearishCount = validItems.filter((s) => s.trend === 'bearish').length;
       const neutralCount = validItems.filter((s) => s.trend === 'neutral').length;
 
-      const avgRsi = validItems.length > 0
-        ? validItems.reduce((sum, s) => sum + s.rsi, 0) / validItems.length
-        : 50;
-      const avgVolatility = validItems.length > 0
-        ? validItems.reduce((sum, s) => sum + s.volatility, 0) / validItems.length
-        : 0;
+      const avgRsi =
+        validItems.length > 0
+          ? validItems.reduce((sum, s) => sum + s.rsi, 0) / validItems.length
+          : 50;
+      const avgVolatility =
+        validItems.length > 0
+          ? validItems.reduce((sum, s) => sum + s.volatility, 0) / validItems.length
+          : 0;
 
       let overallTrend: 'bullish' | 'bearish' | 'neutral' = 'neutral';
       if (bullishCount > bearishCount * 1.5) overallTrend = 'bullish';

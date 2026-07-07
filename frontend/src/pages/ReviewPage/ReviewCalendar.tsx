@@ -68,7 +68,7 @@ export default function ReviewCalendar() {
 
       // 解析每日复盘文件
       if (dailyFilesRes.ok) {
-        const { files } = await dailyFilesRes.json() as { files: DailyFile[] };
+        const { files } = (await dailyFilesRes.json()) as { files: DailyFile[] };
         const dateSet = new Set<string>();
         const fileMap = new Map<string, string>();
         for (const f of files) {
@@ -149,9 +149,15 @@ export default function ReviewCalendar() {
       <h3 className="rv-section-title">复盘日历</h3>
 
       <div className="rv-calendar__nav">
-        <button className="rv-btn rv-btn--sm" onClick={prevMonth}>←</button>
-        <span className="rv-calendar__month">{year}年{month}月</span>
-        <button className="rv-btn rv-btn--sm" onClick={nextMonth}>→</button>
+        <button className="rv-btn rv-btn--sm" onClick={prevMonth}>
+          ←
+        </button>
+        <span className="rv-calendar__month">
+          {year}年{month}月
+        </span>
+        <button className="rv-btn rv-btn--sm" onClick={nextMonth}>
+          →
+        </button>
       </div>
 
       {loading ? (
@@ -159,7 +165,9 @@ export default function ReviewCalendar() {
       ) : (
         <div className="rv-calendar__grid">
           {WEEKDAYS.map((d) => (
-            <div key={d} className="rv-calendar__weekday">{d}</div>
+            <div key={d} className="rv-calendar__weekday">
+              {d}
+            </div>
           ))}
           {calendarDays.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} className="rv-calendar__empty" />;
@@ -181,14 +189,12 @@ export default function ReviewCalendar() {
               .join(' ');
 
             return (
-              <div
-                key={dateStr}
-                className={classNames}
-                onClick={() => handleSelectDate(dateStr)}
-              >
+              <div key={dateStr} className={classNames} onClick={() => handleSelectDate(dateStr)}>
                 <span className="rv-calendar__day-num">{day}</span>
                 {hasDailyReview && (
-                  <span className="rv-calendar__day-review-badge" title="有每日复盘文件">📄</span>
+                  <span className="rv-calendar__day-review-badge" title="有每日复盘文件">
+                    📄
+                  </span>
                 )}
                 {record && (
                   <div className="rv-calendar__day-indicators">
@@ -200,7 +206,10 @@ export default function ReviewCalendar() {
                       />
                     )}
                     {record.tradeCount > 0 && (
-                      <span className="rv-calendar__day-trades" title={`${record.tradeCount}笔交易`}>
+                      <span
+                        className="rv-calendar__day-trades"
+                        title={`${record.tradeCount}笔交易`}
+                      >
                         {record.tradeCount}
                       </span>
                     )}
@@ -218,9 +227,7 @@ export default function ReviewCalendar() {
           <h4 className="rv-detail__sub-title">{selectedDate} 复盘记录</h4>
           {noteDetail ? (
             <div className="rv-calendar__note">
-              <div className="rv-calendar__note-meta">
-                情绪评分: {noteDetail.sentimentScore}/5
-              </div>
+              <div className="rv-calendar__note-meta">情绪评分: {noteDetail.sentimentScore}/5</div>
               <div className="rv-calendar__note-content">{noteDetail.content}</div>
               {noteDetail.plan && (
                 <div className="rv-calendar__note-plan">
@@ -230,13 +237,17 @@ export default function ReviewCalendar() {
               {noteDetail.tags?.length > 0 && (
                 <div className="rv-calendar__note-tags">
                   {noteDetail.tags.map((tag: string, i: number) => (
-                    <span key={i} className="rv-tag rv-tag--neutral">{tag}</span>
+                    <span key={i} className="rv-tag rv-tag--neutral">
+                      {tag}
+                    </span>
                   ))}
                 </div>
               )}
             </div>
           ) : (
-            <div className="rv-empty" style={{ padding: 16 }}>该日暂无复盘记录</div>
+            <div className="rv-empty" style={{ padding: 16 }}>
+              该日暂无复盘记录
+            </div>
           )}
         </div>
       )}

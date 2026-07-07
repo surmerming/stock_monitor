@@ -4,12 +4,7 @@ import { Repository } from 'typeorm';
 import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
 import { ScreenerStrategy } from './strategy.entity';
-import {
-  OHLCV,
-  TechnicalValues,
-  TECHNICAL_FIELDS,
-  computeIndicators,
-} from './technical.util';
+import { OHLCV, TechnicalValues, TECHNICAL_FIELDS, computeIndicators } from './technical.util';
 
 export interface ScreenerFilter {
   field: string;
@@ -85,9 +80,33 @@ const LOCAL_FIELD_MAP: Record<string, (q: QuoteResult) => number | null> = {
 };
 
 const US_TOP_STOCKS = [
-  'AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'TSLA', 'BRK-B',
-  'JPM', 'V', 'UNH', 'MA', 'JNJ', 'PG', 'HD', 'AVGO', 'COST', 'MRK',
-  'ABBV', 'CRM', 'AMD', 'NFLX', 'PEP', 'KO', 'TMO', 'ADBE', 'LIN',
+  'AAPL',
+  'MSFT',
+  'NVDA',
+  'GOOGL',
+  'AMZN',
+  'META',
+  'TSLA',
+  'BRK-B',
+  'JPM',
+  'V',
+  'UNH',
+  'MA',
+  'JNJ',
+  'PG',
+  'HD',
+  'AVGO',
+  'COST',
+  'MRK',
+  'ABBV',
+  'CRM',
+  'AMD',
+  'NFLX',
+  'PEP',
+  'KO',
+  'TMO',
+  'ADBE',
+  'LIN',
 ];
 
 const HK_TOP_STOCKS = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
@@ -98,10 +117,7 @@ const CN_TOP_STOCKS = ['SH600519', 'SH000858', 'SZ000858', 'SH601318', 'SZ000001
 export class ScreenerService {
   private readonly logger = new Logger(ScreenerService.name);
   private universeCache: { data: QuoteResult[]; timestamp: number } | null = null;
-  private technicalCache = new Map<
-    string,
-    { data: TechnicalValues; timestamp: number }
-  >();
+  private technicalCache = new Map<string, { data: TechnicalValues; timestamp: number }>();
   private readonly TECH_CACHE_TTL = 5 * 60 * 1000;
   private readonly UNIVERSE_TTL = 3 * 60 * 1000;
 
@@ -112,10 +128,7 @@ export class ScreenerService {
   ) {}
 
   private async getStockUniverse(): Promise<QuoteResult[]> {
-    if (
-      this.universeCache &&
-      Date.now() - this.universeCache.timestamp < this.UNIVERSE_TTL
-    ) {
+    if (this.universeCache && Date.now() - this.universeCache.timestamp < this.UNIVERSE_TTL) {
       return this.universeCache.data;
     }
 
@@ -190,9 +203,7 @@ export class ScreenerService {
       }));
   }
 
-  private async batchComputeTechnical(
-    symbols: string[],
-  ): Promise<Map<string, TechnicalValues>> {
+  private async batchComputeTechnical(symbols: string[]): Promise<Map<string, TechnicalValues>> {
     const result = new Map<string, TechnicalValues>();
     const toFetch: string[] = [];
 
@@ -227,19 +238,13 @@ export class ScreenerService {
       }
     }
 
-    this.logger.debug(
-      `Technical indicators computed for ${result.size}/${symbols.length} symbols`,
-    );
+    this.logger.debug(`Technical indicators computed for ${result.size}/${symbols.length} symbols`);
     return result;
   }
 
   async scan(query: ScanQuery): Promise<ScanResult> {
-    const basicFilters = query.filters.filter(
-      (f) => !TECHNICAL_FIELDS.has(f.field),
-    );
-    const techFilters = query.filters.filter((f) =>
-      TECHNICAL_FIELDS.has(f.field),
-    );
+    const basicFilters = query.filters.filter((f) => !TECHNICAL_FIELDS.has(f.field));
+    const techFilters = query.filters.filter((f) => TECHNICAL_FIELDS.has(f.field));
     const hasTech = techFilters.length > 0;
     const sortIsTech = TECHNICAL_FIELDS.has(query.sortField || '');
 
@@ -260,9 +265,7 @@ export class ScreenerService {
       const sortAccessor = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
       if (sortAccessor) {
         const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
-        filtered.sort(
-          (a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir,
-        );
+        filtered.sort((a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir);
       }
       const total = filtered.length;
       const offset = query.offset || 0;
@@ -295,9 +298,7 @@ export class ScreenerService {
       const sortAccessor = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
       if (sortAccessor) {
         const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
-        techFiltered.sort(
-          (a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir,
-        );
+        techFiltered.sort((a, b) => ((sortAccessor(a) ?? 0) - (sortAccessor(b) ?? 0)) * dir);
       }
     }
 
@@ -314,10 +315,7 @@ export class ScreenerService {
     return this.strategyRepo.find({ where: { userId }, order: { updatedAt: 'DESC' } });
   }
 
-  async createStrategy(
-    userId: number,
-    data: Partial<ScreenerStrategy>,
-  ): Promise<ScreenerStrategy> {
+  async createStrategy(userId: number, data: Partial<ScreenerStrategy>): Promise<ScreenerStrategy> {
     const entity = this.strategyRepo.create({ ...data, userId });
     return this.strategyRepo.save(entity);
   }

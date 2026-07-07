@@ -50,7 +50,11 @@ let AlertService = class AlertService {
         return this.historyRepo.save(this.historyRepo.create(data));
     }
     findHistory(userId, limit = 50) {
-        return this.historyRepo.find({ where: { userId }, order: { triggeredAt: 'DESC' }, take: limit });
+        return this.historyRepo.find({
+            where: { userId },
+            order: { triggeredAt: 'DESC' },
+            take: limit,
+        });
     }
     async getUnreadCount(userId) {
         return this.historyRepo.count({ where: { userId, read: false } });

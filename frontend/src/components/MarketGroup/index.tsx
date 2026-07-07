@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import { getMarketColor } from '../../utils/format';
 import './style.less';
 
 interface MarketGroupProps {
   market: string;
   count: number;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function MarketGroup({ market, count, children }: MarketGroupProps) {

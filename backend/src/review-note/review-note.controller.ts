@@ -14,7 +14,8 @@ export class ReviewNoteController {
   @Post()
   async create(
     @Request() req: any,
-    @Body() body: {
+    @Body()
+    body: {
       date: string;
       content: string;
       sentimentScore?: number;
@@ -35,7 +36,8 @@ export class ReviewNoteController {
   async update(
     @Request() req: any,
     @Param('id') id: string,
-    @Body() body: Partial<{
+    @Body()
+    body: Partial<{
       content: string;
       sentimentScore: number;
       plan: string;

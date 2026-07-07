@@ -1,4 +1,12 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  createContext,
+  type ReactNode,
+} from 'react';
 import type { QuoteMap, MarketStatus, AlertItem } from '../types';
 import { apiFetch, getToken } from '../utils/apiFetch';
 
@@ -12,10 +20,10 @@ export interface QuoteSSEContextValue {
   markAlertsRead: () => void;
 }
 
-const QuoteSSEContext = React.createContext<QuoteSSEContextValue | null>(null);
+const QuoteSSEContext = createContext<QuoteSSEContextValue | null>(null);
 
 interface QuoteSSEProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function QuoteSSEProvider({ children }: QuoteSSEProviderProps) {
@@ -116,7 +124,7 @@ export function QuoteSSEProvider({ children }: QuoteSSEProviderProps) {
     markAlertsRead,
   };
 
-  return React.createElement(QuoteSSEContext.Provider, { value }, children);
+  return <QuoteSSEContext.Provider value={value}>{children}</QuoteSSEContext.Provider>;
 }
 
 export function useQuoteSSE(): QuoteSSEContextValue {

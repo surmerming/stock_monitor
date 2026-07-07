@@ -158,7 +158,6 @@ export default function StocksPage() {
                 <StockTable
                   key={items[0]?.sym}
                   items={items}
-                  onRemove={handleRemove}
                   onSymbolClick={(sym) => navigate(`/stock/${encodeURIComponent(sym)}`)}
                 />
               ),

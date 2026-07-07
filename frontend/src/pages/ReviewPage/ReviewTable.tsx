@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type ReactNode } from 'react';
 import type { WatchlistReviewItem } from '../../types';
 import { formatVolume, formatTurnover } from '../../utils/format';
 
@@ -79,11 +79,7 @@ export default function ReviewTable({ items, loading, onSelect, compact }: Props
   }
 
   if (items.length === 0) {
-    return (
-      <div className="rv-table rv-empty">
-        暂无自选股数据，请先在「个股」页面添加自选股
-      </div>
-    );
+    return <div className="rv-table rv-empty">暂无自选股数据，请先在「个股」页面添加自选股</div>;
   }
 
   const visibleCols = compact
@@ -121,22 +117,16 @@ export default function ReviewTable({ items, loading, onSelect, compact }: Props
             const cls = isUp ? 'rv-table__val--up' : 'rv-table__val--down';
 
             return (
-              <tr
-                key={item.symbol}
-                className="rv-table__row"
-                onClick={() => onSelect(item.symbol)}
-              >
+              <tr key={item.symbol} className="rv-table__row" onClick={() => onSelect(item.symbol)}>
                 <td className="rv-table__td rv-table__td--stock">
                   <div className="rv-table__stock-info">
                     <span className="rv-table__stock-name">{item.name}</span>
                     <span className="rv-table__stock-code">{item.symbol}</span>
                   </div>
                 </td>
-                <td className={`rv-table__td ${cls}`}>
-                  {item.price.toFixed(2)}
-                </td>
+                <td className={`rv-table__td ${cls}`}>{item.price.toFixed(2)}</td>
                 {visibleCols.map((col) => {
-                  let content: React.ReactNode;
+                  let content: ReactNode;
                   let cellCls = 'rv-table__td';
 
                   switch (col.key) {
@@ -164,7 +154,8 @@ export default function ReviewTable({ items, loading, onSelect, compact }: Props
                       break;
                     case 'netFlow': {
                       const nf = item.netFlow;
-                      cellCls += nf > 0 ? ' rv-table__val--up' : nf < 0 ? ' rv-table__val--down' : '';
+                      cellCls +=
+                        nf > 0 ? ' rv-table__val--up' : nf < 0 ? ' rv-table__val--down' : '';
                       content = formatTurnover(nf);
                       break;
                     }
@@ -188,24 +179,38 @@ export default function ReviewTable({ items, loading, onSelect, compact }: Props
                   );
                 })}
                 <td className="rv-table__td">
-                  <span className={`rv-tag ${item.maStatus.alignment === 'bullish' ? 'rv-tag--bull' : item.maStatus.alignment === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}>
-                    {item.maStatus.alignment === 'bullish' ? '多头' : item.maStatus.alignment === 'bearish' ? '空头' : '交织'}
+                  <span
+                    className={`rv-tag ${item.maStatus.alignment === 'bullish' ? 'rv-tag--bull' : item.maStatus.alignment === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
+                  >
+                    {item.maStatus.alignment === 'bullish'
+                      ? '多头'
+                      : item.maStatus.alignment === 'bearish'
+                        ? '空头'
+                        : '交织'}
                   </span>
                 </td>
                 <td className="rv-table__td">
-                  <span className={`rv-tag ${item.technicals.macd.signal === '金叉' || item.technicals.macd.signal === '多头' ? 'rv-tag--bull' : item.technicals.macd.signal === '死叉' || item.technicals.macd.signal === '空头' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}>
+                  <span
+                    className={`rv-tag ${item.technicals.macd.signal === '金叉' || item.technicals.macd.signal === '多头' ? 'rv-tag--bull' : item.technicals.macd.signal === '死叉' || item.technicals.macd.signal === '空头' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
+                  >
                     {item.technicals.macd.signal}
                   </span>
                 </td>
                 <td className="rv-table__td">
-                  <span className={`rv-tag ${item.technicals.kdj.signal === '金叉' ? 'rv-tag--bull' : item.technicals.kdj.signal === '死叉' || item.technicals.kdj.signal === '超买' ? 'rv-tag--bear' : item.technicals.kdj.signal === '超卖' ? 'rv-tag--bull' : 'rv-tag--neutral'}`}>
+                  <span
+                    className={`rv-tag ${item.technicals.kdj.signal === '金叉' ? 'rv-tag--bull' : item.technicals.kdj.signal === '死叉' || item.technicals.kdj.signal === '超买' ? 'rv-tag--bear' : item.technicals.kdj.signal === '超卖' ? 'rv-tag--bull' : 'rv-tag--neutral'}`}
+                  >
                     {item.technicals.kdj.signal}
                   </span>
                 </td>
                 {!compact && (
                   <td className="rv-table__td rv-table__td--tags">
                     {item.anomalies.slice(0, 3).map((a, i) => (
-                      <span key={i} className={`rv-tag ${getSignalClass(a.direction)}`} title={a.description}>
+                      <span
+                        key={i}
+                        className={`rv-tag ${getSignalClass(a.direction)}`}
+                        title={a.description}
+                      >
                         {a.label}
                       </span>
                     ))}

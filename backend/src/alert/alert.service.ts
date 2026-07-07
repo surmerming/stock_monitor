@@ -23,7 +23,11 @@ export class AlertService {
     return this.ruleRepo.save(this.ruleRepo.create({ ...data, userId }));
   }
 
-  async updateRule(userId: number, id: number, data: Partial<AlertRule>): Promise<AlertRule | null> {
+  async updateRule(
+    userId: number,
+    id: number,
+    data: Partial<AlertRule>,
+  ): Promise<AlertRule | null> {
     await this.ruleRepo.update({ id, userId }, data);
     return this.ruleRepo.findOneBy({ id, userId });
   }
@@ -46,7 +50,11 @@ export class AlertService {
   }
 
   findHistory(userId: number, limit = 50): Promise<AlertHistory[]> {
-    return this.historyRepo.find({ where: { userId }, order: { triggeredAt: 'DESC' }, take: limit });
+    return this.historyRepo.find({
+      where: { userId },
+      order: { triggeredAt: 'DESC' },
+      take: limit,
+    });
   }
 
   async getUnreadCount(userId: number): Promise<number> {

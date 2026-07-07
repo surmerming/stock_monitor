@@ -2,11 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 import { StockService } from '../stock/stock.service';
 import { getCnName } from '../common/cn-names';
-import {
-  OHLCV,
-  computeIndicators,
-  TECHNICAL_FIELDS,
-} from '../screener/technical.util';
+import { OHLCV, computeIndicators, TECHNICAL_FIELDS } from '../screener/technical.util';
 
 export interface BacktestFilter {
   field: string;
@@ -73,11 +69,7 @@ export class BacktestService {
     private readonly stockService: StockService,
   ) {}
 
-  private async fetchBars(
-    symbol: string,
-    startDate: string,
-    endDate: string,
-  ): Promise<DayBar[]> {
+  private async fetchBars(symbol: string, startDate: string, endDate: string): Promise<DayBar[]> {
     const { akshare: akSymbol } = this.stockService.normalizeSymbol(symbol);
     const chart = await this.akShareService.getChart(akSymbol, 'daily');
 
@@ -95,10 +87,7 @@ export class BacktestService {
       }));
   }
 
-  private matchFilter(
-    val: number | null,
-    filter: BacktestFilter,
-  ): boolean {
+  private matchFilter(val: number | null, filter: BacktestFilter): boolean {
     if (val == null) return false;
     switch (filter.operator) {
       case 'gt':
@@ -126,11 +115,7 @@ export class BacktestService {
     return computeIndicators(bars.slice(-windowSize));
   }
 
-  private checkSignal(
-    bars: DayBar[],
-    endIdx: number,
-    filters: BacktestFilter[],
-  ): boolean {
+  private checkSignal(bars: DayBar[], endIdx: number, filters: BacktestFilter[]): boolean {
     const window = bars.slice(0, endIdx + 1);
     const indicators = this.computeRollingIndicators(window, 300);
 
@@ -146,8 +131,7 @@ export class BacktestService {
       price,
       changePercent,
       volume: vol,
-      amplitude:
-        prevClose > 0 ? ((high - low) / prevClose) * 100 : null,
+      amplitude: prevClose > 0 ? ((high - low) / prevClose) * 100 : null,
       turnover: vol * price,
     };
 
@@ -218,10 +202,7 @@ export class BacktestService {
           exitReason = 'max_hold';
         } else if (i === allBars.length - 1) {
           exitReason = 'end';
-        } else if (
-          !this.checkSignal(allBars, i, filters) &&
-          daysHeld >= 1
-        ) {
+        } else if (!this.checkSignal(allBars, i, filters) && daysHeld >= 1) {
           exitReason = 'signal';
         }
 
@@ -242,10 +223,7 @@ export class BacktestService {
           position = 0;
         }
       } else {
-        if (
-          i < allBars.length - 1 &&
-          this.checkSignal(allBars, i, filters)
-        ) {
+        if (i < allBars.length - 1 && this.checkSignal(allBars, i, filters)) {
           const investAmount = cash * sizeRatio;
           const shares = Math.floor(investAmount / bar.close);
           if (shares > 0) {
@@ -261,7 +239,8 @@ export class BacktestService {
 
     const finalValue = equity.length > 0 ? equity[equity.length - 1].value : initialCapital;
     const totalReturn = ((finalValue - initialCapital) / initialCapital) * 100;
-    const benchFinal = benchmark.length > 0 ? benchmark[benchmark.length - 1].value : initialCapital;
+    const benchFinal =
+      benchmark.length > 0 ? benchmark[benchmark.length - 1].value : initialCapital;
     const benchmarkReturn = ((benchFinal - initialCapital) / initialCapital) * 100;
 
     const dayCount = equity.length;
@@ -287,14 +266,10 @@ export class BacktestService {
 
     const dailyReturns: number[] = [];
     for (let i = 1; i < equity.length; i++) {
-      dailyReturns.push(
-        (equity[i].value - equity[i - 1].value) / equity[i - 1].value,
-      );
+      dailyReturns.push((equity[i].value - equity[i - 1].value) / equity[i - 1].value);
     }
     const avgDailyReturn =
-      dailyReturns.length > 0
-        ? dailyReturns.reduce((s, r) => s + r, 0) / dailyReturns.length
-        : 0;
+      dailyReturns.length > 0 ? dailyReturns.reduce((s, r) => s + r, 0) / dailyReturns.length : 0;
     const stdDailyReturn =
       dailyReturns.length > 1
         ? Math.sqrt(
@@ -302,27 +277,14 @@ export class BacktestService {
               (dailyReturns.length - 1),
           )
         : 0;
-    const sharpeRatio =
-      stdDailyReturn > 0
-        ? (avgDailyReturn / stdDailyReturn) * Math.sqrt(252)
-        : 0;
+    const sharpeRatio = stdDailyReturn > 0 ? (avgDailyReturn / stdDailyReturn) * Math.sqrt(252) : 0;
 
     const avgHoldDays =
-      trades.length > 0
-        ? trades.reduce((s, t) => s + t.holdDays, 0) / trades.length
-        : 0;
+      trades.length > 0 ? trades.reduce((s, t) => s + t.holdDays, 0) / trades.length : 0;
     const avgPnlPercent =
-      trades.length > 0
-        ? trades.reduce((s, t) => s + t.pnlPercent, 0) / trades.length
-        : 0;
-    const maxWin =
-      trades.length > 0
-        ? Math.max(...trades.map((t) => t.pnlPercent))
-        : 0;
-    const maxLoss =
-      trades.length > 0
-        ? Math.min(...trades.map((t) => t.pnlPercent))
-        : 0;
+      trades.length > 0 ? trades.reduce((s, t) => s + t.pnlPercent, 0) / trades.length : 0;
+    const maxWin = trades.length > 0 ? Math.max(...trades.map((t) => t.pnlPercent)) : 0;
+    const maxLoss = trades.length > 0 ? Math.min(...trades.map((t) => t.pnlPercent)) : 0;
 
     return {
       symbol,

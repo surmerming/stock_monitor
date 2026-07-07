@@ -40,7 +40,6 @@ function getHeatColor(pct: number | null | undefined): string {
 interface ScanBoardProps {
   title: string;
   items: ScannerItem[];
-  type: 'gainers' | 'losers' | 'active';
 }
 
 export default function DashboardPage() {
@@ -211,9 +210,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="dashboard__row dashboard__row--boards">
-        <ScanBoard title="涨幅榜" items={scanData.gainers} type="gainers" />
-        <ScanBoard title="跌幅榜" items={scanData.losers} type="losers" />
-        <ScanBoard title="活跃榜" items={scanData.active} type="active" />
+        <ScanBoard title="涨幅榜" items={scanData.gainers} />
+        <ScanBoard title="跌幅榜" items={scanData.losers} />
+        <ScanBoard title="活跃榜" items={scanData.active} />
       </div>
 
       {lastUpdate && (

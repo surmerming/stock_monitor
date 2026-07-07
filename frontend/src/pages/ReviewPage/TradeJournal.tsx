@@ -77,7 +77,14 @@ export default function TradeJournal() {
       });
       if (res.ok) {
         setShowForm(false);
-        setForm({ symbol: '', direction: 'BUY', price: '', quantity: '', tradeTime: new Date().toISOString().slice(0, 16), notes: '' });
+        setForm({
+          symbol: '',
+          direction: 'BUY',
+          price: '',
+          quantity: '',
+          tradeTime: new Date().toISOString().slice(0, 16),
+          notes: '',
+        });
         fetchTrades();
       }
     } catch {
@@ -173,7 +180,9 @@ export default function TradeJournal() {
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
             />
-            <button className="rv-btn rv-btn--primary" onClick={handleSubmit}>保存</button>
+            <button className="rv-btn rv-btn--primary" onClick={handleSubmit}>
+              保存
+            </button>
           </div>
         </div>
       )}
@@ -202,7 +211,9 @@ export default function TradeJournal() {
               <tr key={t.id} className="rv-table__row">
                 <td className="rv-table__td">{new Date(t.tradeTime).toLocaleString('zh-CN')}</td>
                 <td className="rv-table__td">{t.symbol}</td>
-                <td className={`rv-table__td ${t.direction === 'BUY' ? 'rv-table__val--up' : 'rv-table__val--down'}`}>
+                <td
+                  className={`rv-table__td ${t.direction === 'BUY' ? 'rv-table__val--up' : 'rv-table__val--down'}`}
+                >
                   {t.direction === 'BUY' ? '买入' : '卖出'}
                 </td>
                 <td className="rv-table__td">{t.price.toFixed(2)}</td>
@@ -210,7 +221,12 @@ export default function TradeJournal() {
                 <td className="rv-table__td">{formatTurnover(t.price * t.quantity)}</td>
                 <td className="rv-table__td">{t.notes || '—'}</td>
                 <td className="rv-table__td">
-                  <button className="rv-btn rv-btn--sm rv-btn--danger" onClick={() => handleDelete(t.id)}>删除</button>
+                  <button
+                    className="rv-btn rv-btn--sm rv-btn--danger"
+                    onClick={() => handleDelete(t.id)}
+                  >
+                    删除
+                  </button>
                 </td>
               </tr>
             ))}

@@ -10,7 +10,9 @@ export function useStockPolling(symbols: string[]) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const symbolsRef = useRef(symbols);
 
-  symbolsRef.current = symbols;
+  useEffect(() => {
+    symbolsRef.current = symbols;
+  });
 
   const fetchQuotes = useCallback(async (syms: string[]) => {
     if (!syms || syms.length === 0) return;

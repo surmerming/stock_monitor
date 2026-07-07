@@ -31,7 +31,13 @@ export interface PatternResult {
   symbol: string;
   patterns: PatternSignal[];
   supports: SupportResistance[];
-  trendLines: { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[];
+  trendLines: {
+    startDate: string;
+    startPrice: number;
+    endDate: string;
+    endPrice: number;
+    type: 'up' | 'down';
+  }[];
 }
 
 @Injectable()
@@ -85,9 +91,7 @@ export class PatternService {
     const supports = this.findSupportResistance(bars);
     const trendLines = this.findTrendLines(bars);
 
-    patterns.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    patterns.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const result: PatternResult = { symbol, patterns, supports, trendLines };
     this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
@@ -247,9 +251,7 @@ export class PatternService {
 
         if (diff < 0.03) {
           const midHigh = Math.max(
-            ...bars
-              .slice(-(win - minIdx1), -(win - minIdx2))
-              .map((b) => b.high),
+            ...bars.slice(-(win - minIdx1), -(win - minIdx2)).map((b) => b.high),
           );
           const lastClose = bars[n - 1].close;
           if (lastClose > midHigh) {
@@ -281,9 +283,7 @@ export class PatternService {
 
         if (diff < 0.03) {
           const midLow = Math.min(
-            ...bars
-              .slice(-(win - maxIdx1), -(win - maxIdx2))
-              .map((b) => b.low),
+            ...bars.slice(-(win - maxIdx1), -(win - maxIdx2)).map((b) => b.low),
           );
           const lastClose = bars[n - 1].close;
           if (lastClose < midLow) {
@@ -334,14 +334,9 @@ export class PatternService {
     const prev = bars[n - 2];
 
     const high20 = Math.max(...bars.slice(-21, -1).map((b) => b.high));
-    const avgVol20 =
-      bars.slice(-21, -1).reduce((s, b) => s + b.volume, 0) / 20;
+    const avgVol20 = bars.slice(-21, -1).reduce((s, b) => s + b.volume, 0) / 20;
 
-    if (
-      last.close > high20 &&
-      prev.close <= high20 &&
-      last.volume > avgVol20 * 1.5
-    ) {
+    if (last.close > high20 && prev.close <= high20 && last.volume > avgVol20 * 1.5) {
       signals.push({
         type: 'volume_breakout',
         label: '放量突破',
@@ -354,11 +349,7 @@ export class PatternService {
     }
 
     const low20 = Math.min(...bars.slice(-21, -1).map((b) => b.low));
-    if (
-      last.close < low20 &&
-      prev.close >= low20 &&
-      last.volume > avgVol20 * 1.5
-    ) {
+    if (last.close < low20 && prev.close >= low20 && last.volume > avgVol20 * 1.5) {
       signals.push({
         type: 'volume_breakdown',
         label: '放量破位',
@@ -392,12 +383,7 @@ export class PatternService {
       const ma5Prev = this.sma(closes.slice(0, -1), 5);
       const ma20Prev = this.sma(closes.slice(0, -1), 20);
 
-      if (
-        ma5 != null &&
-        ma20 != null &&
-        ma5Prev != null &&
-        ma20Prev != null
-      ) {
+      if (ma5 != null && ma20 != null && ma5Prev != null && ma20Prev != null) {
         if (ma5 > ma20 && ma5Prev <= ma20Prev) {
           signals.push({
             type: 'ma_golden_cross',
@@ -493,9 +479,13 @@ export class PatternService {
     return levels.slice(0, 10);
   }
 
-  private findTrendLines(
-    bars: Bar[],
-  ): { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[] {
+  private findTrendLines(bars: Bar[]): {
+    startDate: string;
+    startPrice: number;
+    endDate: string;
+    endPrice: number;
+    type: 'up' | 'down';
+  }[] {
     const n = bars.length;
     if (n < 10) return [];
 
@@ -597,7 +587,10 @@ export class PatternService {
   private linearSlope(data: number[]): number {
     const n = data.length;
     if (n < 2) return 0;
-    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    let sumX = 0,
+      sumY = 0,
+      sumXY = 0,
+      sumX2 = 0;
     for (let i = 0; i < n; i++) {
       sumX += i;
       sumY += data[i];

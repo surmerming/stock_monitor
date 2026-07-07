@@ -61,11 +61,7 @@ function stdDev(data: number[], period: number): number | null {
   return Math.sqrt(variance);
 }
 
-function calcSAR(
-  highs: number[],
-  lows: number[],
-  closes: number[],
-): number | null {
+function calcSAR(highs: number[], lows: number[], closes: number[]): number | null {
   const n = highs.length;
   if (n < 5) return null;
 
@@ -195,10 +191,8 @@ function calcMACD(
   let goldenCross = 0;
   let deathCross = 0;
   for (let i = Math.max(1, difArr.length - 3); i < difArr.length; i++) {
-    if (difArr[i] > deaArr[i] && difArr[i - 1] <= deaArr[i - 1])
-      goldenCross = 1;
-    if (difArr[i] < deaArr[i] && difArr[i - 1] >= deaArr[i - 1])
-      deathCross = 1;
+    if (difArr[i] > deaArr[i] && difArr[i - 1] <= deaArr[i - 1]) goldenCross = 1;
+    if (difArr[i] < deaArr[i] && difArr[i - 1] >= deaArr[i - 1]) deathCross = 1;
   }
 
   return { dif, dea, hist, goldenCross, deathCross };
@@ -233,12 +227,7 @@ function calcARBR(
   return { ar, br };
 }
 
-function calcCR(
-  highs: number[],
-  lows: number[],
-  closes: number[],
-  period = 26,
-): number | null {
+function calcCR(highs: number[], lows: number[], closes: number[], period = 26): number | null {
   const len = closes.length;
   if (len < period + 1) return null;
 
@@ -279,10 +268,8 @@ export function computeIndicators(bars: OHLCV[]): TechnicalValues {
   const ema26Arr = emaSeries(closes, 26);
   const ema12 = ema12Arr.length > 0 ? ema12Arr[ema12Arr.length - 1] : null;
   const ema26 = ema26Arr.length > 0 ? ema26Arr[ema26Arr.length - 1] : null;
-  result.ema12Bias =
-    ema12 != null ? ((price - ema12) / ema12) * 100 : null;
-  result.ema26Bias =
-    ema26 != null ? ((price - ema26) / ema26) * 100 : null;
+  result.ema12Bias = ema12 != null ? ((price - ema12) / ema12) * 100 : null;
+  result.ema26Bias = ema26 != null ? ((price - ema26) / ema26) * 100 : null;
 
   // BOLL (20, 2)
   const bollMa = sma(closes, 20);
@@ -305,10 +292,8 @@ export function computeIndicators(bars: OHLCV[]): TechnicalValues {
   const volMa5 = sma(volumes, 5);
   const volMa10 = sma(volumes, 10);
   const currentVol = volumes[volumes.length - 1];
-  result.volMa5Ratio =
-    volMa5 != null && volMa5 > 0 ? currentVol / volMa5 : null;
-  result.volMa10Ratio =
-    volMa10 != null && volMa10 > 0 ? currentVol / volMa10 : null;
+  result.volMa5Ratio = volMa5 != null && volMa5 > 0 ? currentVol / volMa5 : null;
+  result.volMa10Ratio = volMa10 != null && volMa10 > 0 ? currentVol / volMa10 : null;
 
   // KDJ (9, 3, 3)
   const kdj = calcKDJ(highs, lows, closes);

@@ -66,11 +66,15 @@ export default function MarketOverview({ data, loading }: Props) {
             {sentiment.indices.map((idx) => {
               const isUp = idx.changePercent >= 0;
               return (
-                <div key={idx.symbol} className={`rv-market__index rv-market__index--${isUp ? 'up' : 'down'}`}>
+                <div
+                  key={idx.symbol}
+                  className={`rv-market__index rv-market__index--${isUp ? 'up' : 'down'}`}
+                >
                   <span className="rv-market__index-name">{idx.name}</span>
                   <span className="rv-market__index-price">{idx.price.toFixed(2)}</span>
                   <span className="rv-market__index-change">
-                    {isUp ? '+' : ''}{idx.changePercent.toFixed(2)}%
+                    {isUp ? '+' : ''}
+                    {idx.changePercent.toFixed(2)}%
                   </span>
                 </div>
               );
@@ -105,8 +109,12 @@ export default function MarketOverview({ data, loading }: Props) {
           <h4 className="rv-market__card-title">成交量分析</h4>
           <div className="rv-market__volume">
             <div className="rv-market__volume-main">
-              <span className="rv-market__volume-val">{formatVolume(sentiment.volume.totalVolume)}</span>
-              <span className={`rv-market__volume-level rv-market__volume-level--${sentiment.volume.volumeLevel}`}>
+              <span className="rv-market__volume-val">
+                {formatVolume(sentiment.volume.totalVolume)}
+              </span>
+              <span
+                className={`rv-market__volume-level rv-market__volume-level--${sentiment.volume.volumeLevel}`}
+              >
                 量比 {sentiment.volume.volumeRatio.toFixed(2)}
               </span>
             </div>
@@ -122,8 +130,11 @@ export default function MarketOverview({ data, loading }: Props) {
             <h4 className="rv-market__card-title">VIX 恐慌指数</h4>
             <div className={`rv-market__vix rv-market__vix--${sentiment.vix.level}`}>
               <span className="rv-market__vix-val">{sentiment.vix.current.toFixed(2)}</span>
-              <span className={`rv-market__vix-change ${sentiment.vix.change >= 0 ? 'up' : 'down'}`}>
-                {sentiment.vix.change >= 0 ? '+' : ''}{sentiment.vix.changePercent.toFixed(2)}%
+              <span
+                className={`rv-market__vix-change ${sentiment.vix.change >= 0 ? 'up' : 'down'}`}
+              >
+                {sentiment.vix.change >= 0 ? '+' : ''}
+                {sentiment.vix.changePercent.toFixed(2)}%
               </span>
             </div>
           </div>

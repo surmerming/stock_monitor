@@ -19,7 +19,12 @@ export class WatchlistService {
     return this.repo.find({ order: { createdAt: 'ASC' } });
   }
 
-  async add(userId: number, symbol: string, name?: string, market?: string): Promise<WatchlistItem> {
+  async add(
+    userId: number,
+    symbol: string,
+    name?: string,
+    market?: string,
+  ): Promise<WatchlistItem> {
     const upper = symbol.toUpperCase();
     const existing = await this.repo.findOneBy({ userId, symbol: upper });
     if (existing) {

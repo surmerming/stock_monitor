@@ -1,10 +1,5 @@
 import { useEffect, useRef } from 'react';
-import {
-  createChart,
-  ColorType,
-  LineSeries,
-  HistogramSeries,
-} from 'lightweight-charts';
+import { createChart, ColorType, LineSeries, HistogramSeries } from 'lightweight-charts';
 import type { VolumePricePoint } from '../../types';
 
 interface Props {
@@ -119,9 +114,7 @@ export default function VolumePriceChart({ data }: Props) {
           <span style={{ color: '#f5a623' }}>━</span> OBV能量潮
         </span>
         {divergences.length > 0 && (
-          <span className="rv-detail__volprice-legend-item">
-            背离点: {divergences.length}处
-          </span>
+          <span className="rv-detail__volprice-legend-item">背离点: {divergences.length}处</span>
         )}
       </div>
       <div ref={containerRef} className="rv-detail__chart" />

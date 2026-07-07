@@ -100,15 +100,34 @@ export interface StockReviewDetail {
   technicals: TechnicalSignals;
   patterns: PatternSignal[];
   supports: SupportResistance[];
-  trendLines: { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[];
+  trendLines: {
+    startDate: string;
+    startPrice: number;
+    endDate: string;
+    endPrice: number;
+    type: 'up' | 'down';
+  }[];
   anomalies: AnomalyTag[];
   score: ReviewScore;
   moneyFlow: {
     netFlow: number;
     largeNetFlow: number;
-    timeline: Array<{ time: string; inflow: number; outflow: number; netFlow: number; cumulativeNetFlow: number }>;
+    timeline: Array<{
+      time: string;
+      inflow: number;
+      outflow: number;
+      netFlow: number;
+      cumulativeNetFlow: number;
+    }>;
   } | null;
-  chartBars: Array<{ date: string; open: number; high: number; low: number; close: number; volume: number }>;
+  chartBars: Array<{
+    date: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+  }>;
   volumePrice: VolumePricePoint[];
 }
 
@@ -184,7 +203,9 @@ export class ReviewService {
       for (let j = i + 1; j < series.length; j++) {
         const aData = series[i].data;
         const bData = series[j].data;
-        const dateMap = new Map<string, number>(bData.map((d: any) => [d.date, d.relativeStrength]));
+        const dateMap = new Map<string, number>(
+          bData.map((d: any) => [d.date, d.relativeStrength]),
+        );
         const pairs: [number, number][] = [];
         for (const a of aData) {
           const bVal = dateMap.get(a.date);
@@ -201,7 +222,11 @@ export class ReviewService {
   private pearsonCorrelation(pairs: [number, number][]): number {
     const n = pairs.length;
     if (n < 5) return 0;
-    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0, sumY2 = 0;
+    let sumX = 0,
+      sumY = 0,
+      sumXY = 0,
+      sumX2 = 0,
+      sumY2 = 0;
     for (const [x, y] of pairs) {
       sumX += x;
       sumY += y;
@@ -480,7 +505,14 @@ export class ReviewService {
   }
 
   private computeVolumePriceAnalysis(
-    chartBars: Array<{ date: string; open: number; high: number; low: number; close: number; volume: number }>,
+    chartBars: Array<{
+      date: string;
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+      volume: number;
+    }>,
   ): VolumePricePoint[] {
     if (chartBars.length < 10) return [];
 
@@ -636,7 +668,7 @@ export class ReviewService {
     }
 
     if (last.low > prev.high) {
-      const gapPct = prev.close > 0 ? ((last.low - prev.high) / prev.close * 100) : 0;
+      const gapPct = prev.close > 0 ? ((last.low - prev.high) / prev.close) * 100 : 0;
       tags.push({
         type: 'gap_up',
         label: '向上跳空',
@@ -645,7 +677,7 @@ export class ReviewService {
       });
     }
     if (last.high < prev.low) {
-      const gapPct = prev.close > 0 ? ((prev.low - last.high) / prev.close * 100) : 0;
+      const gapPct = prev.close > 0 ? ((prev.low - last.high) / prev.close) * 100 : 0;
       tags.push({
         type: 'gap_down',
         label: '向下跳空',
@@ -796,7 +828,7 @@ export class ReviewService {
     patternScore = Math.max(0, Math.min(100, patternScore));
 
     const total = Math.round(
-      trend * 0.25 + volume * 0.20 + technical * 0.20 + moneyFlowScore * 0.20 + patternScore * 0.15,
+      trend * 0.25 + volume * 0.2 + technical * 0.2 + moneyFlowScore * 0.2 + patternScore * 0.15,
     );
 
     const parts: string[] = [];
@@ -804,7 +836,8 @@ export class ReviewService {
     else if (trend <= 30) parts.push('均线空头排列');
     if (indicators.macdGoldenCross) parts.push('MACD金叉');
     if (indicators.macdDeathCross) parts.push('MACD死叉');
-    if (volRatio != null && volRatio > 1.5 && ma5Bias != null && ma5Bias > 0) parts.push('放量上攻');
+    if (volRatio != null && volRatio > 1.5 && ma5Bias != null && ma5Bias > 0)
+      parts.push('放量上攻');
     if (moneyFlowScore >= 70) parts.push('资金净流入');
     else if (moneyFlowScore <= 30) parts.push('资金净流出');
 
