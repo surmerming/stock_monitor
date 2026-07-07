@@ -32,6 +32,7 @@
     "class-validator": "^0.15.1",
     "cross-fetch": "^4.1.0",
     "https-proxy-agent": "^9.1.0",
+    "iconv-lite": "^0.7.3",
     "mysql2": "^3.18.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -40,7 +41,6 @@
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.28",
     "undici": "^8.5.0"
-    
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
