@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 import { StockService } from '../stock/stock.service';
 import { getCnName } from '../common/cn-names';
@@ -84,7 +84,8 @@ export class BacktestService {
         low: q.low ?? q.close,
         close: q.close,
         volume: q.volume ?? 0,
-      }));
+      }))
+      .filter((bar) => bar.date >= startDate && bar.date <= endDate);
   }
 
   private matchFilter(val: number | null, filter: BacktestFilter): boolean {
@@ -153,11 +154,11 @@ export class BacktestService {
 
     const allBars = await this.fetchBars(symbol, startDate, endDate);
     if (allBars.length === 0) {
-      throw new Error(`No data for ${symbol}`);
+      throw new BadRequestException(`未找到 ${symbol} 在所选时间范围内的历史行情`);
     }
 
     const startIdx = allBars.findIndex((b) => b.date >= startDate);
-    if (startIdx < 0) throw new Error('Start date out of range');
+    if (startIdx < 0) throw new BadRequestException('起始日期不在可用历史行情范围内');
 
     let symbolName = symbol;
     try {

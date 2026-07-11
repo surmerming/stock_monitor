@@ -201,7 +201,7 @@ function StockRow({ sym, data, onSymbolClick }: StockRowProps) {
       <td className="stock-table__td stock-table__td--mono">{formatRatio(data.volume_ratio)}</td>
       <td className="stock-table__td stock-table__td--mono">{formatMarketCap(data.market_cap)}</td>
       <td className="stock-table__td stock-table__td--mono">
-        {data.pe_ratio ? data.pe_ratio.toFixed(2) : '—'}
+        {data.pe_ratio != null && Number.isFinite(data.pe_ratio) ? data.pe_ratio.toFixed(2) : '—'}
       </td>
     </tr>
   );

@@ -53,8 +53,6 @@ export const MARKET_INDICES: MarketIndexDef[] = [
   { symbol: '^IRX', name: '美3月国债', category: '利率债券' },
 
   // ─── 外汇宏观 ───
-  { symbol: 'DX-Y.NYB', name: '美元指数', category: '外汇宏观' },
   { symbol: 'CNY=X', name: '美元/人民币', category: '外汇宏观' },
   { symbol: '^VIX', name: 'VIX恐慌指数', category: '外汇宏观' },
-  { symbol: 'BTC-USD', name: '比特币', category: '外汇宏观' },
 ];

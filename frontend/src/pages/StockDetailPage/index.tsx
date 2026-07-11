@@ -370,17 +370,22 @@ function FundamentalPanel({ detail, liveQuote, loading }: FundamentalPanelProps)
     { label: '成交量', value: formatVolume(liveQuote?.volume ?? p?.regularMarketVolume) },
     { label: '市值', value: formatMarketCap(liveQuote?.market_cap ?? p?.marketCap) },
     { label: 'PE (TTM)', value: fmt(sd?.trailingPE) },
-    { label: 'PE (远期)', value: fmt(sd?.forwardPE) },
+    { label: 'PE (动态)', value: fmt(liveQuote?.pe_ratio_dynamic) },
+    { label: 'PE (静态)', value: fmt(liveQuote?.pe_ratio_static) },
     { label: 'PB', value: fmt(sd?.priceToBook) },
     {
       label: '股息率',
-      value: sd?.dividendYield != null ? (sd.dividendYield * 100).toFixed(2) + '%' : '—',
+      value:
+        liveQuote?.dividend_yield != null
+          ? (liveQuote.dividend_yield * 100).toFixed(2) + '%'
+          : sd?.dividendYield != null
+            ? (sd.dividendYield * 100).toFixed(2) + '%'
+            : '—',
     },
     { label: '52周最高', value: fmt(sd?.fiftyTwoWeekHigh) },
     { label: '52周最低', value: fmt(sd?.fiftyTwoWeekLow) },
-    { label: '50日均线', value: fmt(sd?.fiftyDayAverage) },
-    { label: '200日均线', value: fmt(sd?.twoHundredDayAverage) },
-    { label: 'Beta', value: fmt(sd?.beta) },
+    { label: '60日均线', value: fmt(liveQuote?.sixty_day_avg) },
+    { label: '250日均线', value: fmt(sd?.twoHundredDayAverage) },
     { label: '毛利率', value: pctFmt(fd?.grossMargins) },
     { label: '营业利润率', value: pctFmt(fd?.operatingMargins) },
     { label: '净利率', value: pctFmt(fd?.profitMargins) },

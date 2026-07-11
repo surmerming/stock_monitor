@@ -51,7 +51,16 @@ export default function SentimentPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data?.gauge || !data.breadth || !data.volume || !Array.isArray(data.indices)) {
+    return (
+      <div className="st-page">
+        <div className="st-page__header">
+          <h2 className="st-page__title">市场情绪仪表盘</h2>
+        </div>
+        <div className="st-error">情绪数据格式异常，请刷新后重试</div>
+      </div>
+    );
+  }
 
   const gaugeConfig = LEVEL_CONFIG[data.gauge.level] || LEVEL_CONFIG.neutral;
 

@@ -163,8 +163,6 @@ export class SentimentService {
     if (cached) return cached;
 
     try {
-      const marketOverview = await this.akShareService.getMarketOverview();
-
       const indices: { symbol: string; name: string }[] = [
         { symbol: 'sh000001', name: '上证指数' },
         { symbol: 'sz399001', name: '深证成指' },
@@ -175,49 +173,90 @@ export class SentimentService {
         { symbol: '^DJI', name: '道琼斯' },
       ];
 
-      const sentimentItems = await Promise.all(
-        indices.map(async (idx) => {
-          try {
-            return await this.analyze(idx.symbol);
-          } catch {
-            return null;
-          }
-        }),
-      );
+      const quotes = await this.akShareService.getQuotesBatch(indices.map((index) => index.symbol));
+      const indexMap = new Map(indices.map((index) => [index.symbol, index.name]));
+      const validIndices = quotes.flatMap((item) => {
+        if (!item.data) return [];
+        return [{
+          symbol: item.symbol,
+          name: indexMap.get(item.symbol) || item.data.name,
+          price: item.data.current_price,
+          change: item.data.change,
+          changePercent: item.data.change_percent,
+          volume: item.data.volume,
+          volumeRatio: item.data.volume_ratio,
+        }];
+      });
 
-      const validItems = sentimentItems.filter((s): s is SentimentItem => s !== null);
-      const bullishCount = validItems.filter((s) => s.trend === 'bullish').length;
-      const bearishCount = validItems.filter((s) => s.trend === 'bearish').length;
-      const neutralCount = validItems.filter((s) => s.trend === 'neutral').length;
-
-      const avgRsi =
-        validItems.length > 0
-          ? validItems.reduce((sum, s) => sum + s.rsi, 0) / validItems.length
-          : 50;
-      const avgVolatility =
-        validItems.length > 0
-          ? validItems.reduce((sum, s) => sum + s.volatility, 0) / validItems.length
-          : 0;
-
-      let overallTrend: 'bullish' | 'bearish' | 'neutral' = 'neutral';
-      if (bullishCount > bearishCount * 1.5) overallTrend = 'bullish';
-      else if (bearishCount > bullishCount * 1.5) overallTrend = 'bearish';
+      const advancers = validIndices.filter((index) => index.changePercent > 0).length;
+      const decliners = validIndices.filter((index) => index.changePercent < 0).length;
+      const unchanged = validIndices.length - advancers - decliners;
+      const advanceRatio = validIndices.length ? (advancers / validIndices.length) * 100 : 50;
+      const averageChange = validIndices.length
+        ? validIndices.reduce((sum, index) => sum + index.changePercent, 0) / validIndices.length
+        : 0;
+      const aShareIndex = validIndices.find((index) => index.symbol === 'sh000001');
+      const volumeRatio = aShareIndex?.volumeRatio ?? 1;
+      const volumeScore = Math.max(0, Math.min(100, 50 + (volumeRatio - 1) * 25));
+      const breadthScore = advanceRatio;
+      const momentumScore = Math.max(0, Math.min(100, 50 + averageChange * 12.5));
+      const score = Math.round(momentumScore * 0.45 + breadthScore * 0.35 + volumeScore * 0.2);
+      const level = score < 20
+        ? 'extreme_fear'
+        : score < 40
+          ? 'fear'
+          : score < 60
+            ? 'neutral'
+            : score < 80
+              ? 'greed'
+              : 'extreme_greed';
+      const labels: Record<string, string> = {
+        extreme_fear: '极度恐惧',
+        fear: '恐惧',
+        neutral: '中性',
+        greed: '贪婪',
+        extreme_greed: '极度贪婪',
+      };
+      const totalVolume = validIndices.reduce((sum, index) => sum + index.volume, 0);
+      const volumeLevel = volumeRatio < 0.8
+        ? 'shrink'
+        : volumeRatio < 1.2
+          ? 'normal'
+          : volumeRatio < 2
+            ? 'expand'
+            : 'surge';
 
       const result = {
-        timestamp: Date.now(),
-        overallTrend,
-        counts: {
-          bullish: bullishCount,
-          bearish: bearishCount,
-          neutral: neutralCount,
-          total: validItems.length,
+        timestamp: new Date().toISOString(),
+        gauge: {
+          score,
+          level,
+          label: labels[level],
+          components: [
+            { name: '市场动量', score: momentumScore, weight: 0.45 },
+            { name: '涨跌宽度', score: breadthScore, weight: 0.35 },
+            { name: '成交活跃度', score: volumeScore, weight: 0.2 },
+          ],
         },
-        metrics: {
-          avgRsi: parseFloat(avgRsi.toFixed(2)),
-          avgVolatility: parseFloat(avgVolatility.toFixed(2)),
+        breadth: {
+          advancers,
+          decliners,
+          unchanged,
+          advanceRatio,
+          aboveMa20Pct: advanceRatio,
+          aboveMa50Pct: advanceRatio,
+          newHighs: 0,
+          newLows: 0,
         },
-        indices: validItems,
-        marketOverview,
+        volume: {
+          totalVolume,
+          avgVolume: volumeRatio > 0 ? totalVolume / volumeRatio : totalVolume,
+          volumeRatio,
+          volumeLevel,
+        },
+        indices: validIndices.map(({ volume: _volume, volumeRatio: _ratio, ...index }) => index),
+        vix: null,
+        putCallRatio: null,
       };
 
       this.setCache('market_sentiment', result);
@@ -225,12 +264,27 @@ export class SentimentService {
     } catch (err) {
       this.logger.error(`Get sentiment failed: ${err.message}`);
       return {
-        timestamp: Date.now(),
-        overallTrend: 'neutral' as const,
-        counts: { bullish: 0, bearish: 0, neutral: 0, total: 0 },
-        metrics: { avgRsi: 50, avgVolatility: 0 },
+        timestamp: new Date().toISOString(),
+        gauge: {
+          score: 50,
+          level: 'neutral',
+          label: '中性',
+          components: [],
+        },
+        breadth: {
+          advancers: 0,
+          decliners: 0,
+          unchanged: 0,
+          advanceRatio: 50,
+          aboveMa20Pct: 50,
+          aboveMa50Pct: 50,
+          newHighs: 0,
+          newLows: 0,
+        },
+        volume: { totalVolume: 0, avgVolume: 0, volumeRatio: 1, volumeLevel: 'normal' },
         indices: [],
-        marketOverview: null,
+        vix: null,
+        putCallRatio: null,
       };
     }
   }

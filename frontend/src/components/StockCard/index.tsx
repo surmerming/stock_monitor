@@ -156,7 +156,7 @@ export default function StockCard({ data, symbol, onRemove, onClick }: StockCard
         <div className="stock-card__field">
           <span className="stock-card__label">市盈率</span>
           <span className="stock-card__value">
-            {data.pe_ratio ? data.pe_ratio.toFixed(2) : '—'}
+            {data.pe_ratio != null && Number.isFinite(data.pe_ratio) ? data.pe_ratio.toFixed(2) : '—'}
           </span>
         </div>
         {data.week_52_high && (

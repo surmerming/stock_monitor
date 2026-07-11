@@ -13,8 +13,23 @@ export interface QuoteResult {
   volume: number;
   turnover: number;
   turnover_rate?: number;
+  volume_ratio?: number;
   market_cap?: number;
   pe_ratio?: number;
+  pe_ratio_dynamic?: number;
+  pe_ratio_static?: number;
+  pb_ratio?: number;
+  dividend_yield?: number;
+  week_52_high?: number;
+  week_52_low?: number;
+  sixty_day_avg?: number;
+  two_hundred_fifty_day_avg?: number;
+  roe?: number;
+  gross_margin?: number;
+  net_margin?: number;
+  operating_margin?: number;
+  revenue_growth?: number;
+  earnings_growth?: number;
   change: number;
   change_percent: number;
   market: string;
@@ -106,7 +121,7 @@ interface CacheEntry {
 }
 
 interface NormalizedSymbol {
-  market: 'a_share' | 'hk' | 'us';
+  market: 'a_share' | 'hk' | 'us' | 'futures' | 'forex' | 'index' | 'crypto';
   code: string;
   prefix: string;
 }
@@ -120,19 +135,13 @@ export class AkShareService {
   private readonly MARKET_DATA_CACHE: Map<string, CacheEntry> = new Map();
 
   private safeFloat(val: any, defaultVal = 0.0): number {
-    try {
-      return parseFloat(val);
-    } catch {
-      return defaultVal;
-    }
+    const parsed = parseFloat(val);
+    return Number.isFinite(parsed) ? parsed : defaultVal;
   }
 
   private safeInt(val: any, defaultVal = 0): number {
-    try {
-      return Math.round(parseFloat(val));
-    } catch {
-      return defaultVal;
-    }
+    const parsed = parseFloat(val);
+    return Number.isFinite(parsed) ? Math.round(parsed) : defaultVal;
   }
 
   private normalizeSymbol(symbol: string): NormalizedSymbol {
@@ -148,10 +157,25 @@ export class AkShareService {
     }
     if (s.startsWith('HK')) {
       let code = s.slice(2);
-      if (code.length < 5) {
+      if (/^\d+$/.test(code) && code.length < 5) {
         code = code.padStart(5, '0');
       }
       return { market: 'hk', code, prefix: 'hk' };
+    }
+    if (s.startsWith('US')) {
+      return { market: 'us', code: s.slice(2), prefix: 'us' };
+    }
+    if (s.startsWith('HF_')) {
+      return { market: 'futures', code: s.slice(3), prefix: 'hf' };
+    }
+    if (s.startsWith('FX_')) {
+      return { market: 'forex', code: s.slice(3), prefix: 'fx' };
+    }
+    if (s.startsWith('INDEX_')) {
+      return { market: 'index', code: s.slice(6), prefix: 'idx' };
+    }
+    if (s.startsWith('CRYPTO_')) {
+      return { market: 'crypto', code: s.slice(8), prefix: 'crypto' };
     }
     if (s.endsWith('.SS')) {
       return { market: 'a_share', code: s.slice(0, -3), prefix: 'sh' };
@@ -164,13 +188,18 @@ export class AkShareService {
     }
     if (s.endsWith('.HK')) {
       let code = s.slice(0, -3);
-      if (code.length < 5) {
+      if (/^\d+$/.test(code) && code.length < 5) {
         code = code.padStart(5, '0');
       }
       return { market: 'hk', code, prefix: 'hk' };
     }
-    if (s.length === 6) {
-      return { market: 'a_share', code: s, prefix: 'sh' };
+    if (/^\d{6}$/.test(s)) {
+      const prefix = s.startsWith('6')
+        ? 'sh'
+        : s.startsWith('4') || s.startsWith('8')
+          ? 'bj'
+          : 'sz';
+      return { market: 'a_share', code: s, prefix };
     }
     if (s.length === 5 && /^\d+$/.test(s)) {
       return { market: 'hk', code: s, prefix: 'hk' };
@@ -181,7 +210,10 @@ export class AkShareService {
     return { market: 'us', code: s, prefix: 'us' };
   }
 
-  private parseGtimgData(line: string): QuoteResult | null {
+  private parseGtimgData(
+    line: string,
+    market: NormalizedSymbol['market'] = 'a_share',
+  ): QuoteResult | null {
     if (!line || !line.includes('=')) {
       return null;
     }
@@ -192,13 +224,9 @@ export class AkShareService {
         return null;
       }
 
-      let turnover = 0.0;
-      if (data[35] && data[35].includes('/')) {
-        const parts35 = data[35].split('/');
-        if (parts35.length >= 3) {
-          turnover = this.safeFloat(parts35[2]);
-        }
-      }
+      // 腾讯接口的 35 是冗余的“价格/成交量/成交额”复合字段；37 才是
+      // 标准成交额字段，单位为万元。使用 37 可以避免复合字段格式变化及单位错配。
+      const turnover = this.safeFloat(data[37]) * 10_000;
 
       const result: QuoteResult = {
         symbol: data[2],
@@ -216,16 +244,97 @@ export class AkShareService {
         currency: '',
       };
 
-      if (data[45]) {
-        result.market_cap = this.safeFloat(data[45]) * 100000000;
+      if (data[38]) {
+        result.turnover_rate = this.safeFloat(data[38]);
+      }
+      if (data[39]) {
+        result.pe_ratio = this.safeFloat(data[39]);
+      }
+      if (data[52]) {
+        result.pe_ratio_dynamic = this.safeFloat(data[52]);
+      }
+      if (data[53]) {
+        result.pe_ratio_static = this.safeFloat(data[53]);
+      }
+      if (data[44]) {
+        result.market_cap = this.safeFloat(data[44]) * 100000000;
       }
       if (data[46]) {
-        result.pe_ratio = this.safeFloat(data[46]);
+        result.pb_ratio = this.safeFloat(data[46]);
+      }
+      if (data[49]) {
+        result.volume_ratio = this.safeFloat(data[49]);
+      }
+      if (data[64]) {
+        result.dividend_yield = this.safeFloat(data[64]) / 100;
+      }
+      if (data[67]) {
+        result.week_52_high = this.safeFloat(data[67]);
+      }
+      if (data[68]) {
+        result.week_52_low = this.safeFloat(data[68]);
+      }
+      if (data[51]) {
+        result.sixty_day_avg = this.safeFloat(data[51]);
+      }
+      return result;
+    } catch (e: any) {
+      this.logger.error(`Parse gtimg data failed: ${e}`);
+      return null;
+    }
+  }
+
+  private async fetchFinancialDataFromSina(symbol: string): Promise<Partial<QuoteResult> | null> {
+    try {
+      const url = `https://quotes.sina.cn/cn/api/openapi.php/CompanyFinanceService.getFinanceReport2022?paperCode=${symbol}&source=gjzb&type=0&page=1&num=10`;
+      const response = await axios.get(url, {
+        timeout: 10000,
+        headers: {
+          Referer: 'https://finance.sina.com.cn/',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        },
+      });
+
+      const data = response.data;
+      if (!data?.result?.data?.report_list) {
+        return null;
+      }
+
+      const reportList = data.result.data.report_list;
+      const latestDate = Object.keys(reportList)[0];
+      if (!latestDate) {
+        return null;
+      }
+
+      const latestReport = reportList[latestDate];
+      const financialItems = latestReport.data;
+
+      const result: Partial<QuoteResult> = {};
+
+      for (const item of financialItems) {
+        const title = item.item_title;
+        const value = parseFloat(item.item_value);
+
+        if (isNaN(value)) continue;
+
+        if (title.includes('净资产收益率') && !title.includes('摊薄') && !title.includes('平均')) {
+          result.roe = value / 100;
+        } else if (title === '毛利率') {
+          result.gross_margin = value / 100;
+        } else if (title === '销售净利率') {
+          result.net_margin = value / 100;
+        } else if (title === '营业利润率') {
+          result.operating_margin = value / 100;
+        } else if (title.includes('营业总收入增长率')) {
+          result.revenue_growth = value / 100;
+        } else if (title.includes('归属母公司净利润增长率')) {
+          result.earnings_growth = value / 100;
+        }
       }
 
       return result;
     } catch (e: any) {
-      this.logger.error(`Parse gtimg data failed: ${e}`);
+      this.logger.debug(`Fetch financial data from Sina failed: ${e.message}`);
       return null;
     }
   }
@@ -239,11 +348,88 @@ export class AkShareService {
     try {
       const url = `http://qt.gtimg.cn/q=${prefix}${symbol}`;
       const text = await this.fetchFromGtimg(url);
-      const data = this.parseGtimgData(text);
+      const market = prefix === 'hk' ? 'hk' : prefix === 'us' ? 'us' : 'a_share';
+      const data = this.parseGtimgData(text, market);
       return data;
     } catch (e: any) {
       this.logger.error(`Fetch from gtimg failed: ${e}`);
       return null;
+    }
+  }
+
+  /**
+   * 腾讯单股快照不包含量比。A 股量比由东方财富单股快照的 f50 提供；失败时保留
+   * undefined，让调用方显示缺省值，绝不以换手率或其它字段代替。
+   */
+  private async enrichAshareVolumeRatio(
+    quote: QuoteResult,
+    code: string,
+    prefix: string,
+  ): Promise<void> {
+    try {
+      const market = prefix === 'sh' ? 1 : prefix === 'sz' ? 0 : 0;
+      const response = await axios.get(
+        `https://push2.eastmoney.com/api/qt/stock/get?secid=${market}.${code}&fields=f50`,
+        { timeout: 5000 },
+      );
+      const ratio = this.safeFloat(response.data?.data?.f50, Number.NaN);
+      if (Number.isFinite(ratio) && ratio >= 0) {
+        quote.volume_ratio = ratio;
+      }
+    } catch (e: any) {
+      this.logger.debug(`Volume ratio unavailable for ${prefix}${code}: ${e.message}`);
+    }
+  }
+
+  /** 港美股量比使用当前累计成交量与前 5 个完整交易日平均成交量的比值。 */
+  private async fetchRecentAverageVolume(
+    symbol: string,
+    market: 'hk' | 'us',
+  ): Promise<number | null> {
+    try {
+      const endpoint = market === 'hk' ? 'hkfqkline' : 'usfqkline';
+      const variable = 'kline_dayqfq';
+      const url = `https://web.ifzq.gtimg.cn/appstock/app/${endpoint}/get?_var=${variable}&param=${symbol},day,,,6,qfq`;
+      const response = await axios.get(url, { timeout: 5000 });
+      const payload =
+        typeof response.data === 'string'
+          ? JSON.parse(response.data.replace(new RegExp(`^${variable}=`), ''))
+          : response.data;
+      const days: unknown[] = payload?.data?.[symbol]?.day ?? [];
+      const historical = days
+        .slice(0, -1)
+        .map((day: any) => this.safeFloat(day?.[5], Number.NaN))
+        .filter((volume: number) => Number.isFinite(volume) && volume > 0)
+        .slice(-5);
+      if (!historical.length) return null;
+      return (
+        historical.reduce((sum: number, volume: number) => sum + volume, 0) / historical.length
+      );
+    } catch (e: any) {
+      this.logger.debug(`Historical volume unavailable for ${symbol}: ${e.message}`);
+      return null;
+    }
+  }
+
+  private async enrichOverseasMetrics(
+    quote: QuoteResult,
+    symbol: string,
+    market: 'hk' | 'us',
+  ): Promise<void> {
+    // 不使用腾讯 A 股字段位置的“换手率”，而是由成交量和总股本计算。
+    const estimatedShares =
+      quote.market_cap && quote.current_price > 0 ? quote.market_cap / quote.current_price : 0;
+    if (estimatedShares > 0 && quote.volume >= 0) {
+      quote.turnover_rate = (quote.volume / estimatedShares) * 100;
+    }
+
+    if (!quote.turnover && quote.current_price > 0 && quote.volume > 0) {
+      quote.turnover = quote.current_price * quote.volume;
+    }
+
+    const avgVolume = await this.fetchRecentAverageVolume(symbol, market);
+    if (avgVolume && quote.volume >= 0) {
+      quote.volume_ratio = quote.volume / avgVolume;
     }
   }
 
@@ -254,8 +440,18 @@ export class AkShareService {
       const lines = text.trim().split('\n');
       const results: QuoteResult[] = [];
       for (const line of lines) {
-        const data = this.parseGtimgData(line);
+        const match = line.match(/v_(\w+)=/);
+        const sourceSymbol = match?.[1] ?? '';
+        const market = sourceSymbol.startsWith('hk')
+          ? 'hk'
+          : sourceSymbol.startsWith('us')
+            ? 'us'
+            : 'a_share';
+        const data = this.parseGtimgData(line, market);
         if (data) {
+          if (match) {
+            data.symbol = match[1];
+          }
           results.push(data);
         }
       }
@@ -350,6 +546,48 @@ export class AkShareService {
     return null;
   }
 
+  private async fetchChartFromTencent(
+    symbol: string,
+    market: 'a_share' | 'hk' | 'us',
+    period: string,
+  ): Promise<ChartQuote[] | null> {
+    const endpoint = market === 'hk' ? 'hkfqkline' : market === 'us' ? 'usfqkline' : 'fqkline';
+    const variable = `kline_${period}qfq`;
+    const klinePeriod = period === 'weekly' ? 'week' : period === 'monthly' ? 'month' : 'day';
+    const url = `https://web.ifzq.gtimg.cn/appstock/app/${endpoint}/get?_var=${variable}&param=${symbol},${klinePeriod},,,320,qfq`;
+
+    try {
+      const response = await axios.get(url, { timeout: 15000 });
+      const payload =
+        typeof response.data === 'string'
+          ? JSON.parse(response.data.replace(new RegExp(`^${variable}=`), '').replace(/;$/, ''))
+          : response.data;
+      const days: unknown[] = payload?.data?.[symbol]?.[klinePeriod] ?? [];
+      if (!Array.isArray(days) || !days.length) return null;
+
+      return days
+        .map((day: any) => ({
+          date: String(day?.[0] ?? ''),
+          open: this.safeFloat(day?.[1], Number.NaN),
+          close: this.safeFloat(day?.[2], Number.NaN),
+          high: this.safeFloat(day?.[3], Number.NaN),
+          low: this.safeFloat(day?.[4], Number.NaN),
+          volume: this.safeInt(day?.[5], 0),
+        }))
+        .filter(
+          (day: ChartQuote) =>
+            day.date &&
+            Number.isFinite(day.open) &&
+            Number.isFinite(day.close) &&
+            Number.isFinite(day.high) &&
+            Number.isFinite(day.low),
+        );
+    } catch (e: any) {
+      this.logger.debug(`Tencent chart failed for ${symbol}: ${e.message}`);
+      return null;
+    }
+  }
+
   private getCache(key: string): any {
     const entry = this.CACHE.get(key);
     if (entry && Date.now() - entry.timestamp < this.CACHE_TTL * 1000) {
@@ -398,12 +636,70 @@ export class AkShareService {
 
     try {
       const normalized = this.normalizeSymbol(symbol);
-      const data = await this.fetchQuoteFromGtimg(normalized.code, normalized.prefix);
+      let data: QuoteResult | null = null;
+
+      switch (normalized.market) {
+        case 'a_share':
+        case 'hk':
+        case 'us':
+          data = await this.fetchQuoteFromGtimg(normalized.code, normalized.prefix);
+          if (data && normalized.market === 'a_share') {
+            await this.enrichAshareVolumeRatio(data, normalized.code, normalized.prefix);
+            const financialData = await this.fetchFinancialDataFromSina(
+              `${normalized.prefix}${normalized.code}`.toLowerCase(),
+            );
+            if (financialData) {
+              Object.assign(data, financialData);
+              this.logger.debug(
+                `Enriched ${symbol} with financial data: ${JSON.stringify(financialData)}`,
+              );
+            } else {
+              this.logger.debug(`No financial data from Sina for ${symbol}`);
+            }
+          } else if (data && (normalized.market === 'hk' || normalized.market === 'us')) {
+            await this.enrichOverseasMetrics(
+              data,
+              `${normalized.prefix}${normalized.code}`,
+              normalized.market,
+            );
+          }
+          break;
+        case 'futures':
+        case 'forex':
+        case 'index':
+        case 'crypto':
+          data = await this.fetchQuoteFromSina(normalized.code, normalized.prefix);
+          if (!data) {
+            data = await this.fetchFromAlternativeSource(
+              symbol,
+              normalized.code,
+              normalized.market,
+            );
+          }
+          break;
+      }
+
       if (data) {
-        data.market =
-          normalized.market === 'a_share' ? 'A股' : normalized.market === 'hk' ? '港股' : '美股';
-        data.currency =
-          normalized.market === 'a_share' ? 'CNY' : normalized.market === 'hk' ? 'HKD' : 'USD';
+        const marketMap: Record<string, string> = {
+          a_share: 'A股',
+          hk: '港股',
+          us: '美股',
+          futures: '期货',
+          forex: '外汇',
+          index: '指数',
+          crypto: '加密货币',
+        };
+        const currencyMap: Record<string, string> = {
+          a_share: 'CNY',
+          hk: 'HKD',
+          us: 'USD',
+          futures: 'USD',
+          forex: 'USD',
+          index: 'USD',
+          crypto: 'USD',
+        };
+        data.market = marketMap[normalized.market] || '其他';
+        data.currency = currencyMap[normalized.market] || 'USD';
         data.symbol = symbol;
         this.setCache(cacheKey, data);
         return data;
@@ -415,22 +711,336 @@ export class AkShareService {
     }
   }
 
+  private async fetchFromAlternativeSource(
+    symbol: string,
+    code: string,
+    market: string,
+  ): Promise<QuoteResult | null> {
+    try {
+      const nameMap: Record<string, string> = {
+        USDX: '美元指数',
+        BTC: '比特币',
+      };
+
+      if (code === 'USDX' && market === 'forex') {
+        const url = 'https://www.investing.com/api/financialdata/8835';
+        const response = await axios.get(url, {
+          timeout: 10000,
+          headers: {
+            Referer: 'https://www.investing.com/',
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        });
+        const data = response.data;
+        if (data && data.last) {
+          return {
+            symbol,
+            name: nameMap[code] || code,
+            current_price: this.safeFloat(data.last),
+            prev_close: this.safeFloat(data.prevClose),
+            open_price: this.safeFloat(data.open),
+            day_high: this.safeFloat(data.high),
+            day_low: this.safeFloat(data.low),
+            volume: 0,
+            turnover: 0,
+            change: this.safeFloat(data.change),
+            change_percent: this.safeFloat(data.changePercent),
+            market: '外汇',
+            currency: 'USD',
+          };
+        }
+      }
+
+      if (code === 'BTC' && market === 'crypto') {
+        const url = 'https://api.coingecko.com/api/v3/coins/bitcoin';
+        const response = await axios.get(url, { timeout: 10000 });
+        const data = response.data;
+        if (data && data.market_data) {
+          const currentPrice = data.market_data.current_price.usd;
+          const prevClose = data.market_data.previous_close.usd || currentPrice;
+          const change = currentPrice - prevClose;
+          return {
+            symbol,
+            name: nameMap[code] || code,
+            current_price: this.safeFloat(currentPrice),
+            prev_close: this.safeFloat(prevClose),
+            open_price: this.safeFloat(data.market_data.current_price.usd),
+            day_high: this.safeFloat(data.market_data.high_24h.usd),
+            day_low: this.safeFloat(data.market_data.low_24h.usd),
+            volume: this.safeFloat(data.market_data.total_volume.usd),
+            turnover: 0,
+            change: this.safeFloat(change),
+            change_percent: prevClose !== 0 ? (change / prevClose) * 100 : 0,
+            market: '加密货币',
+            currency: 'USD',
+          };
+        }
+      }
+    } catch (e: any) {
+      this.logger.error(`Alternative source failed for ${symbol}: ${e.message}`);
+    }
+    return null;
+  }
+
+  private async fetchQuoteFromSina(code: string, prefix: string): Promise<QuoteResult | null> {
+    try {
+      let sinaSymbol = '';
+      let url = '';
+
+      let dataType = 'default';
+
+      if (prefix === 'idx') {
+        switch (code) {
+          case 'VIX':
+            sinaSymbol = 'VX';
+            url = `https://hq.sinajs.cn/list=hf_${sinaSymbol}`;
+            dataType = 'futures';
+            break;
+          case 'TNX':
+            sinaSymbol = 'us10yt';
+            url = `https://hq.sinajs.cn/list=globalbd_${sinaSymbol}`;
+            dataType = 'bond';
+            break;
+          case 'TYX':
+            sinaSymbol = 'us30yt';
+            url = `https://hq.sinajs.cn/list=globalbd_${sinaSymbol}`;
+            dataType = 'bond';
+            break;
+          case 'FVX':
+            sinaSymbol = 'us5yt';
+            url = `https://hq.sinajs.cn/list=globalbd_${sinaSymbol}`;
+            dataType = 'bond';
+            break;
+          case 'IRX':
+            sinaSymbol = 'us3mt';
+            url = `https://hq.sinajs.cn/list=globalbd_${sinaSymbol}`;
+            dataType = 'bond';
+            break;
+          case 'SPX':
+            sinaSymbol = 'sp500';
+            url = `https://hq.sinajs.cn/list=int_${sinaSymbol}`;
+            dataType = 'index';
+            break;
+          case 'DJI':
+            sinaSymbol = 'dji';
+            url = `https://hq.sinajs.cn/list=int_${sinaSymbol}`;
+            dataType = 'index';
+            break;
+          case 'IXIC':
+            sinaSymbol = 'nasdaq';
+            url = `https://hq.sinajs.cn/list=int_${sinaSymbol}`;
+            dataType = 'index';
+            break;
+          default:
+            sinaSymbol = code.toLowerCase();
+            url = `https://hq.sinajs.cn/list=int_${sinaSymbol}`;
+            dataType = 'index';
+        }
+      } else if (prefix === 'hf') {
+        if (code === 'SI') {
+          sinaSymbol = 'si';
+          url = `https://hq.sinajs.cn/list=gb_${sinaSymbol}`;
+          dataType = 'futures';
+        } else {
+          sinaSymbol = code;
+          url = `https://hq.sinajs.cn/list=hf_${sinaSymbol}`;
+          dataType = 'futures';
+        }
+      } else if (prefix === 'fx') {
+        if (code === 'CNY') {
+          sinaSymbol = 'susdcny';
+          url = `https://hq.sinajs.cn/list=fx_${sinaSymbol}`;
+          dataType = 'forex';
+        } else {
+          sinaSymbol = 'usdx';
+          url = `https://hq.sinajs.cn/list=fx_${sinaSymbol}`;
+          dataType = 'forex';
+        }
+      } else if (prefix === 'crypto') {
+        sinaSymbol = 'btcusdt';
+        url = `https://hq.sinajs.cn/list=btc_${sinaSymbol}`;
+        dataType = 'crypto';
+      }
+
+      if (url) {
+        const response = await axios.get(url, {
+          timeout: 10000,
+          responseType: 'arraybuffer',
+          headers: {
+            Referer: 'https://finance.sina.com.cn/',
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+        });
+        const text = iconv.decode(response.data, 'gbk');
+        return this.parseSinaData(text, code, dataType);
+      }
+    } catch (e: any) {
+      this.logger.error(`Fetch from Sina failed: ${e}`);
+    }
+    return null;
+  }
+
+  private parseSinaData(data: string, code: string, dataType: string): QuoteResult | null {
+    try {
+      const match = data.match(/="([^"]+)"/);
+      if (!match) return null;
+
+      const fields = match[1].split(',');
+      if (fields.length < 4) return null;
+
+      const nameMap: Record<string, string> = {
+        VIX: 'VIX恐慌指数',
+        TNX: '美10年国债',
+        TYX: '美30年国债',
+        FVX: '美5年国债',
+        IRX: '美3月国债',
+        GC: '黄金',
+        SI: '白银',
+        CL: '原油',
+        HG: '铜',
+        NG: '天然气',
+        USDX: '美元指数',
+        CNY: '美元/人民币',
+        BTC: '比特币',
+        SPX: '标普500',
+        DJI: '道琼斯',
+        IXIC: '纳斯达克',
+      };
+
+      let currentPrice = 0;
+      let prevClose = 0;
+      let change = 0;
+      let changePercentVal = 0;
+      let openPrice = 0;
+      let dayHigh = 0;
+      let dayLow = 0;
+
+      switch (dataType) {
+        case 'index':
+          currentPrice = this.safeFloat(fields[1]);
+          change = this.safeFloat(fields[2]);
+          changePercentVal = this.safeFloat(fields[3]);
+          prevClose = currentPrice - change;
+          openPrice = currentPrice;
+          dayHigh = currentPrice;
+          dayLow = currentPrice;
+          break;
+        case 'futures':
+          if (code === 'SI') {
+            currentPrice = this.safeFloat(fields[1]);
+            prevClose = this.safeFloat(fields[26]) || currentPrice;
+            openPrice = this.safeFloat(fields[5]) || currentPrice;
+            dayHigh = this.safeFloat(fields[6]) || currentPrice;
+            dayLow = this.safeFloat(fields[7]) || currentPrice;
+            change = this.safeFloat(fields[4]);
+            changePercentVal = this.safeFloat(fields[2]);
+          } else {
+            currentPrice = this.safeFloat(fields[0]);
+            prevClose = this.safeFloat(fields[2]) || currentPrice;
+            openPrice = this.safeFloat(fields[3]) || currentPrice;
+            dayHigh = this.safeFloat(fields[4]) || currentPrice;
+            dayLow = this.safeFloat(fields[5]) || currentPrice;
+            change = currentPrice - prevClose;
+            changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+            if (code === 'HG') {
+              currentPrice = currentPrice / 100;
+              prevClose = prevClose / 100;
+              openPrice = openPrice / 100;
+              dayHigh = dayHigh / 100;
+              dayLow = dayLow / 100;
+              change = change / 100;
+            }
+          }
+          break;
+        case 'bond':
+          currentPrice = this.safeFloat(fields[1]);
+          prevClose = this.safeFloat(fields[2]) || currentPrice;
+          openPrice = this.safeFloat(fields[3]) || currentPrice;
+          dayHigh = this.safeFloat(fields[4]) || currentPrice;
+          dayLow = this.safeFloat(fields[5]) || currentPrice;
+          change = currentPrice - prevClose;
+          changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+          break;
+        case 'forex':
+          if (code === 'CNY') {
+            currentPrice = this.safeFloat(fields[8]) || this.safeFloat(fields[3]);
+            prevClose = this.safeFloat(fields[5]) || currentPrice;
+            openPrice = this.safeFloat(fields[5]) || currentPrice;
+            dayHigh = this.safeFloat(fields[6]) || currentPrice;
+            dayLow = this.safeFloat(fields[7]) || currentPrice;
+            change = currentPrice - prevClose;
+            changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+          } else {
+            currentPrice = this.safeFloat(fields[0]);
+            prevClose = this.safeFloat(fields[2]) || currentPrice;
+            openPrice = this.safeFloat(fields[3]) || currentPrice;
+            dayHigh = this.safeFloat(fields[4]) || currentPrice;
+            dayLow = this.safeFloat(fields[5]) || currentPrice;
+            change = currentPrice - prevClose;
+            changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+          }
+          break;
+        case 'crypto':
+          currentPrice = this.safeFloat(fields[0]);
+          prevClose = this.safeFloat(fields[2]) || currentPrice;
+          openPrice = this.safeFloat(fields[3]) || currentPrice;
+          dayHigh = this.safeFloat(fields[4]) || currentPrice;
+          dayLow = this.safeFloat(fields[5]) || currentPrice;
+          change = currentPrice - prevClose;
+          changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+          break;
+        default:
+          currentPrice = this.safeFloat(fields[3]);
+          prevClose = this.safeFloat(fields[2]) || currentPrice;
+          openPrice = this.safeFloat(fields[1]) || currentPrice;
+          dayHigh = this.safeFloat(fields[4]) || currentPrice;
+          dayLow = this.safeFloat(fields[5]) || currentPrice;
+          change = currentPrice - prevClose;
+          changePercentVal = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+      }
+
+      return {
+        symbol: code,
+        name: nameMap[code] || code,
+        current_price: currentPrice,
+        prev_close: prevClose,
+        open_price: openPrice,
+        day_high: dayHigh,
+        day_low: dayLow,
+        volume: this.safeInt(fields[8]),
+        turnover: this.safeFloat(fields[9]),
+        change,
+        change_percent: changePercentVal,
+        market: '',
+        currency: 'USD',
+      };
+    } catch (e: any) {
+      this.logger.error(`Parse Sina data failed: ${e}`);
+      return null;
+    }
+  }
+
   async getQuotesBatch(
     symbols: string[],
   ): Promise<{ symbol: string; data: QuoteResult | null; error: string | null }[]> {
-    const grouped: {
-      a_share: { symbol: string; code: string; prefix: string }[];
-      hk: { symbol: string; code: string; prefix: string }[];
-      us: { symbol: string; code: string; prefix: string }[];
-    } = {
+    const grouped: Record<string, { symbol: string; code: string; prefix: string }[]> = {
       a_share: [],
       hk: [],
       us: [],
+      futures: [],
+      forex: [],
+      index: [],
+      crypto: [],
     };
 
     for (const symbol of symbols) {
       try {
         const normalized = this.normalizeSymbol(symbol);
+        if (!grouped[normalized.market]) {
+          grouped[normalized.market] = [];
+        }
         grouped[normalized.market].push({
           symbol,
           code: normalized.code,
@@ -442,171 +1052,214 @@ export class AkShareService {
     const results: Record<string, QuoteResult> = {};
     const errors: Record<string, string> = {};
 
+    const marketMap: Record<string, string> = {
+      a_share: 'A股',
+      hk: '港股',
+      us: '美股',
+      futures: '期货',
+      forex: '外汇',
+      index: '指数',
+      crypto: '加密货币',
+    };
+
+    const currencyMap: Record<string, string> = {
+      a_share: 'CNY',
+      hk: 'HKD',
+      us: 'USD',
+      futures: 'USD',
+      forex: 'USD',
+      index: 'USD',
+      crypto: 'USD',
+    };
+
     for (const [market, items] of Object.entries(grouped)) {
       if (!items.length) continue;
 
       try {
-        let df = this.getMarketData(market);
-        if (!df) {
-          if (market === 'a_share') {
-            df = await this.fetchMarketDataFromGtimg([
-              'sh000001',
-              'sh000002',
-              'sh600000',
-              'sh600519',
-              'sh601318',
-              'sh600036',
-              'sh600030',
-              'sh601398',
-              'sh601988',
-              'sh600048',
-              'sz000001',
-              'sz000002',
-              'sz000858',
-              'sz002594',
-              'sz300750',
-              'sz300059',
-            ]);
-          } else if (market === 'hk') {
-            df = await this.fetchMarketDataFromGtimg([
-              'hk00001',
-              'hk00002',
-              'hk00003',
-              'hk00005',
-              'hk00006',
-              'hk00016',
-              'hk00017',
-              'hk00088',
-              'hk00101',
-              'hk00175',
-              'hk00267',
-              'hk00285',
-              'hk00669',
-              'hk00700',
-              'hk00772',
-              'hk00857',
-              'hk00883',
-              'hk00939',
-              'hk01066',
-              'hk01109',
-              'hk01177',
-              'hk01211',
-              'hk01299',
-              'hk01318',
-              'hk01398',
-              'hk01810',
-              'hk01928',
-              'hk01997',
-              'hk02007',
-              'hk02018',
-              'hk02282',
-              'hk02318',
-              'hk02382',
-              'hk02628',
-              'hk02800',
-              'hk02828',
-              'hk02888',
-              'hk03328',
-              'hk03808',
-              'hk03888',
-              'hk06098',
-              'hk06618',
-              'hk06881',
-              'hk06885',
-              'hk09988',
-              'hk10246',
-              'hk10992',
-              'hk12999',
-              'hk18100',
-              'hk300750',
-            ]);
-          } else if (market === 'us') {
-            df = await this.fetchMarketDataFromGtimg([
-              'usAAPL',
-              'usMSFT',
-              'usGOOGL',
-              'usAMZN',
-              'usMETA',
-              'usNVDA',
-              'usTSLA',
-              'usBABA',
-              'usJD',
-              'usPDD',
-              'usNIO',
-              'usXPEV',
-              'usLI',
-              'usBYDDY',
-              'usNVAX',
-              'usBIDU',
-              'usNTES',
-              'usMCD',
-              'usJPM',
-              'usV',
-              'usMA',
-              'usJNJ',
-              'usWMT',
-              'usKO',
-              'usPEP',
-              'usDIS',
-              'usNKE',
-              'usADBE',
-              'usCRM',
-              'usORCL',
-              'usSAP',
-              'usCSCO',
-              'usINTC',
-              'usAMD',
-              'usQCOM',
-              'usMU',
-              'usAVGO',
-              'usTXN',
-              'usNVST',
-              'usLRCX',
-            ]);
+        if (market === 'a_share' || market === 'hk' || market === 'us') {
+          let df = this.getMarketData(market);
+          if (!df) {
+            if (market === 'a_share') {
+              df = await this.fetchMarketDataFromGtimg([
+                'sh000001',
+                'sh000002',
+                'sh600000',
+                'sh600519',
+                'sh601318',
+                'sh600036',
+                'sh600030',
+                'sh601398',
+                'sh601988',
+                'sh600048',
+                'sz000001',
+                'sz000002',
+                'sz000858',
+                'sz002594',
+                'sz300750',
+                'sz300059',
+              ]);
+            } else if (market === 'hk') {
+              df = await this.fetchMarketDataFromGtimg([
+                'hkHSI',
+                'hkHSCEI',
+                'hkHSCCI',
+                'hkHSU',
+                'hkHSTECH',
+                'hk00001',
+                'hk00002',
+                'hk00003',
+                'hk00005',
+                'hk00006',
+                'hk00016',
+                'hk00017',
+                'hk00088',
+                'hk00101',
+                'hk00175',
+                'hk00267',
+                'hk00285',
+                'hk00669',
+                'hk00700',
+                'hk00772',
+                'hk00857',
+                'hk00883',
+                'hk00939',
+                'hk01066',
+                'hk01109',
+                'hk01177',
+                'hk01211',
+                'hk01299',
+                'hk01318',
+                'hk01398',
+                'hk01810',
+                'hk01928',
+                'hk01997',
+                'hk02007',
+                'hk02018',
+                'hk02282',
+                'hk02318',
+                'hk02382',
+                'hk02628',
+                'hk02800',
+                'hk02828',
+                'hk02888',
+                'hk03328',
+                'hk03808',
+                'hk03888',
+                'hk06098',
+                'hk06618',
+                'hk06881',
+                'hk06885',
+                'hk09988',
+                'hk10246',
+                'hk10992',
+                'hk12999',
+                'hk18100',
+                'hk300750',
+              ]);
+            } else if (market === 'us') {
+              df = await this.fetchMarketDataFromGtimg([
+                'usSPX',
+                'usDJI',
+                'usIXIC',
+                'usNDX',
+                'usAAPL',
+                'usMSFT',
+                'usGOOGL',
+                'usAMZN',
+                'usMETA',
+                'usNVDA',
+                'usTSLA',
+                'usBABA',
+                'usJD',
+                'usPDD',
+                'usNIO',
+                'usXPEV',
+                'usLI',
+                'usBYDDY',
+                'usNVAX',
+                'usBIDU',
+                'usNTES',
+                'usMCD',
+                'usJPM',
+                'usV',
+                'usMA',
+                'usJNJ',
+                'usWMT',
+                'usKO',
+                'usPEP',
+                'usDIS',
+                'usNKE',
+                'usADBE',
+                'usCRM',
+                'usORCL',
+                'usSAP',
+                'usCSCO',
+                'usINTC',
+                'usAMD',
+                'usQCOM',
+                'usMU',
+                'usAVGO',
+                'usTXN',
+                'usNVST',
+                'usLRCX',
+              ]);
+            }
           }
-        }
 
-        if (df && df.length > 0) {
-          this.setMarketData(market, df);
-          const dfMap = new Map(df.map((d: QuoteResult) => [d.symbol, d]));
+          if (df && df.length > 0) {
+            this.setMarketData(market, df);
+            const dfMap = new Map(df.map((d: QuoteResult) => [d.symbol, d]));
 
-          for (const item of items) {
-            const cachedData = dfMap.get(item.code) as QuoteResult;
-            if (cachedData) {
-              const data: QuoteResult = {
-                ...cachedData,
-                market: market === 'a_share' ? 'A股' : market === 'hk' ? '港股' : '美股',
-                currency: market === 'a_share' ? 'CNY' : market === 'hk' ? 'HKD' : 'USD',
-                symbol: item.symbol,
-              };
-              this.setCache(`quote_${item.symbol}`, data);
-              results[item.symbol] = data;
-            } else {
+            for (const item of items) {
+              const fullSymbol = `${item.prefix}${item.code}`;
+              const cachedData = dfMap.get(fullSymbol) as QuoteResult;
+              if (cachedData) {
+                const data: QuoteResult = {
+                  ...cachedData,
+                  market: marketMap[market],
+                  currency: currencyMap[market],
+                  symbol: item.symbol,
+                };
+                this.setCache(`quote_${item.symbol}`, data);
+                results[item.symbol] = data;
+              } else {
+                const singleData = await this.fetchQuoteFromGtimg(item.code, item.prefix);
+                if (singleData) {
+                  singleData.market = marketMap[market];
+                  singleData.currency = currencyMap[market];
+                  singleData.symbol = item.symbol;
+                  this.setCache(`quote_${item.symbol}`, singleData);
+                  results[item.symbol] = singleData;
+                } else {
+                  errors[item.symbol] = 'Not found';
+                }
+              }
+            }
+          } else {
+            for (const item of items) {
               const singleData = await this.fetchQuoteFromGtimg(item.code, item.prefix);
               if (singleData) {
-                singleData.market =
-                  market === 'a_share' ? 'A股' : market === 'hk' ? '港股' : '美股';
-                singleData.currency =
-                  market === 'a_share' ? 'CNY' : market === 'hk' ? 'HKD' : 'USD';
+                singleData.market = marketMap[market];
+                singleData.currency = currencyMap[market];
                 singleData.symbol = item.symbol;
                 this.setCache(`quote_${item.symbol}`, singleData);
                 results[item.symbol] = singleData;
               } else {
-                errors[item.symbol] = 'Not found';
+                errors[item.symbol] = 'Market data unavailable';
               }
             }
           }
         } else {
           for (const item of items) {
-            const singleData = await this.fetchQuoteFromGtimg(item.code, item.prefix);
+            const singleData = await this.fetchQuoteFromSina(item.code, item.prefix);
             if (singleData) {
-              singleData.market = market === 'a_share' ? 'A股' : market === 'hk' ? '港股' : '美股';
-              singleData.currency = market === 'a_share' ? 'CNY' : market === 'hk' ? 'HKD' : 'USD';
+              singleData.market = marketMap[market];
+              singleData.currency = currencyMap[market];
               singleData.symbol = item.symbol;
               this.setCache(`quote_${item.symbol}`, singleData);
               results[item.symbol] = singleData;
             } else {
-              errors[item.symbol] = 'Market data unavailable';
+              errors[item.symbol] = 'Not found';
             }
           }
         }
@@ -616,6 +1269,34 @@ export class AkShareService {
         }
       }
     }
+
+    await Promise.all(
+      symbols.map(async (symbol) => {
+        const normalized = this.normalizeSymbol(symbol);
+        const quote = results[symbol];
+        if (quote && normalized.market === 'a_share') {
+          await this.enrichAshareVolumeRatio(quote, normalized.code, normalized.prefix);
+          this.logger.debug(`Fetching financial data for ${symbol}`);
+          const financialData = await this.fetchFinancialDataFromSina(
+            `${normalized.prefix}${normalized.code}`.toLowerCase(),
+          );
+          if (financialData) {
+            Object.assign(quote, financialData);
+            this.logger.debug(
+              `Enriched ${symbol} with financial data: roe=${financialData.roe}, gross=${financialData.gross_margin}, net=${financialData.net_margin}`,
+            );
+          } else {
+            this.logger.debug(`No financial data for ${symbol}`);
+          }
+        } else if (quote && (normalized.market === 'hk' || normalized.market === 'us')) {
+          await this.enrichOverseasMetrics(
+            quote,
+            `${normalized.prefix}${normalized.code}`,
+            normalized.market,
+          );
+        }
+      }),
+    );
 
     return symbols.map((symbol) => ({
       symbol,
@@ -651,6 +1332,19 @@ export class AkShareService {
         if (sinaQuotes) {
           return { symbol, quotes: sinaQuotes };
         }
+      }
+
+      if (
+        normalized.market === 'a_share' ||
+        normalized.market === 'hk' ||
+        normalized.market === 'us'
+      ) {
+        const quotes = await this.fetchChartFromTencent(
+          `${normalized.prefix}${normalized.code}`,
+          normalized.market,
+          period,
+        );
+        if (quotes?.length) return { symbol, quotes };
       }
 
       return { symbol, quotes: [] };

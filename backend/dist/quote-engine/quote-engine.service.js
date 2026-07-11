@@ -163,10 +163,8 @@ QuoteEngineService.MARKET_INDICES = [
     '^TYX',
     '^FVX',
     '^IRX',
-    'DX-Y.NYB',
     'CNY=X',
     '^VIX',
-    'BTC-USD',
 ];
 QuoteEngineService.INDUSTRY_ETFS = [
     'XLK',

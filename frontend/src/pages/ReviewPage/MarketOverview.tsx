@@ -29,7 +29,12 @@ export default function MarketOverview({ data, loading }: Props) {
   if (loading && !data) {
     return <div className="rv-market rv-skeleton">加载市场数据中...</div>;
   }
-  if (!data?.sentiment) {
+  if (
+    !data?.sentiment?.gauge ||
+    !data.sentiment.breadth ||
+    !data.sentiment.volume ||
+    !Array.isArray(data.sentiment.indices)
+  ) {
     return <div className="rv-market rv-empty">暂无市场数据</div>;
   }
 

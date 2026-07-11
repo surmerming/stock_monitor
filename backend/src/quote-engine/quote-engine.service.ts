@@ -54,10 +54,8 @@ export class QuoteEngineService implements OnModuleInit, OnModuleDestroy {
     '^FVX',
     '^IRX',
     // 外汇宏观
-    'DX-Y.NYB',
     'CNY=X',
     '^VIX',
-    'BTC-USD',
   ];
 
   private static readonly INDUSTRY_ETFS = [

@@ -13,6 +13,7 @@ exports.QuoteEngineController = void 0;
 const common_1 = require("@nestjs/common");
 const rxjs_1 = require("rxjs");
 const quote_engine_service_1 = require("./quote-engine.service");
+const public_decorator_1 = require("../auth/public.decorator");
 let QuoteEngineController = class QuoteEngineController {
     constructor(quoteEngineService) {
         this.quoteEngineService = quoteEngineService;
@@ -30,12 +31,14 @@ let QuoteEngineController = class QuoteEngineController {
 };
 exports.QuoteEngineController = QuoteEngineController;
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Sse)('stream'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", rxjs_1.Observable)
 ], QuoteEngineController.prototype, "stream", null);
 __decorate([
+    (0, public_decorator_1.Public)(),
     (0, common_1.Get)('snapshot'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
