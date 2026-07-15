@@ -179,6 +179,14 @@ export class MoneyFlowService {
     return items;
   }
 
+  private normalizeSymbolKey(symbol: string): string {
+    const s = symbol.toUpperCase().trim();
+    if (s.startsWith('HK')) return s;
+    const match = s.match(/^(\d+)\.(HK|SS|SZ)$/);
+    if (match) return `${match[2]}${match[1]}`;
+    return s;
+  }
+
   private async fetchTodayOverview(m: string): Promise<MoneyFlowItem[]> {
     const tasks: Promise<MoneyFlowItem[]>[] = [];
 
@@ -191,15 +199,25 @@ export class MoneyFlowService {
 
     try {
       const wlItems = await this.getWatchlistFlowToday(m);
-      const existing = new Set(items.map((i) => i.symbol));
+      const existing = new Set(items.map((i) => this.normalizeSymbolKey(i.symbol)));
       for (const wi of wlItems) {
-        if (!existing.has(wi.symbol)) items.push(wi);
+        if (!existing.has(this.normalizeSymbolKey(wi.symbol))) items.push(wi);
       }
     } catch (err) {
       this.logger.warn(`Watchlist flow merge failed: ${err.message}`);
     }
 
-    return items;
+    const seen = new Set<string>();
+    const deduped: MoneyFlowItem[] = [];
+    for (const item of items) {
+      const key = this.normalizeSymbolKey(item.symbol);
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(item);
+      }
+    }
+
+    return deduped;
   }
 
   private async fetchCNFlowToday(): Promise<MoneyFlowItem[]> {
@@ -287,7 +305,15 @@ export class MoneyFlowService {
 
     quotes.sort((a, b) => b.volume - a.volume);
 
-    return quotes.map((q) => {
+    const seen = new Set<string>();
+    const uniqueQuotes = quotes.filter((q) => {
+      const key = this.normalizeSymbolKey(q.symbol);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return uniqueQuotes.map((q) => {
       let market: string;
       if (/^(SH|sh|SZ|sz|BJ|bj)\d{6}$/.test(q.symbol)) market = 'A股';
       else if (/^(HK|hk)\d{4,5}$/.test(q.symbol)) market = '港股';

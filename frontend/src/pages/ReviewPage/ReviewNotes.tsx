@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { apiFetch } from '../../utils/apiFetch';
 
 interface ReviewNote {
@@ -116,60 +118,70 @@ export default function ReviewNotes() {
         </button>
       </div>
 
-      {/* Editor */}
+      {/* Editor Modal */}
       {editing && (
-        <div className="rv-notes__editor">
-          <div className="rv-notes__editor-row">
-            <input
-              className="rv-input"
-              type="date"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-            />
-            <div className="rv-notes__sentiment">
-              <span className="rv-notes__sentiment-label">市场情绪:</span>
-              {[1, 2, 3, 4, 5].map((v) => (
-                <button
-                  key={v}
-                  className={`rv-notes__sentiment-btn ${form.sentimentScore === v ? 'rv-notes__sentiment-btn--active' : ''}`}
-                  onClick={() => setForm({ ...form, sentimentScore: v })}
-                  title={SENTIMENT_LABELS[v]}
-                >
-                  {v}
-                </button>
-              ))}
-              <span className="rv-notes__sentiment-text">
-                {SENTIMENT_LABELS[form.sentimentScore]}
-              </span>
+        <div className="rv-modal" onClick={() => setEditing(false)}>
+          <div className="rv-modal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal__header">
+              <h4 className="rv-modal__title">{editId ? '编辑复盘笔记' : '新建复盘笔记'}</h4>
+              <button className="rv-modal__close" onClick={() => setEditing(false)}>
+                ×
+              </button>
             </div>
-          </div>
-          <textarea
-            className="rv-textarea"
-            placeholder="今日复盘总结..."
-            rows={6}
-            value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-          />
-          <textarea
-            className="rv-textarea"
-            placeholder="明日计划：关注股票、目标价位、操作策略..."
-            rows={3}
-            value={form.plan}
-            onChange={(e) => setForm({ ...form, plan: e.target.value })}
-          />
-          <div className="rv-notes__editor-row">
-            <input
-              className="rv-input rv-input--wide"
-              placeholder="标签 (用逗号分隔，如: AAPL, 突破, 金叉)"
-              value={form.tags}
-              onChange={(e) => setForm({ ...form, tags: e.target.value })}
-            />
-            <button className="rv-btn rv-btn--primary" onClick={handleSave}>
-              {editId ? '更新' : '保存'}
-            </button>
-            <button className="rv-btn" onClick={() => setEditing(false)}>
-              取消
-            </button>
+            <div className="rv-notes__editor">
+              <div className="rv-notes__editor-row">
+                <input
+                  className="rv-input"
+                  type="date"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                />
+                <div className="rv-notes__sentiment">
+                  <span className="rv-notes__sentiment-label">市场情绪:</span>
+                  {[1, 2, 3, 4, 5].map((v) => (
+                    <button
+                      key={v}
+                      className={`rv-notes__sentiment-btn ${form.sentimentScore === v ? 'rv-notes__sentiment-btn--active' : ''}`}
+                      onClick={() => setForm({ ...form, sentimentScore: v })}
+                      title={SENTIMENT_LABELS[v]}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                  <span className="rv-notes__sentiment-text">
+                    {SENTIMENT_LABELS[form.sentimentScore]}
+                  </span>
+                </div>
+              </div>
+              <textarea
+                className="rv-textarea"
+                placeholder="今日复盘总结..."
+                rows={6}
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+              />
+              <textarea
+                className="rv-textarea"
+                placeholder="明日计划：关注股票、目标价位、操作策略..."
+                rows={3}
+                value={form.plan}
+                onChange={(e) => setForm({ ...form, plan: e.target.value })}
+              />
+              <div className="rv-notes__editor-row">
+                <input
+                  className="rv-input rv-input--wide"
+                  placeholder="标签 (用逗号分隔，如: AAPL, 突破, 金叉)"
+                  value={form.tags}
+                  onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                />
+                <button className="rv-btn rv-btn--primary" onClick={handleSave}>
+                  {editId ? '更新' : '保存'}
+                </button>
+                <button className="rv-btn" onClick={() => setEditing(false)}>
+                  取消
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -189,7 +201,9 @@ export default function ReviewNotes() {
                   情绪: {SENTIMENT_LABELS[note.sentimentScore] || '中性'}
                 </span>
               </div>
-              <div className="rv-notes__item-content">{note.content}</div>
+              <div className="rv-notes__item-content rv-markdown">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{note.content}</ReactMarkdown>
+              </div>
               {note.plan && (
                 <div className="rv-notes__item-plan">
                   <strong>明日计划:</strong> {note.plan}

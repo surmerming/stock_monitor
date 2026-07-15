@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../utils/apiFetch';
-import { formatTurnover } from '../../utils/format';
+import { formatTurnover, formatPrice } from '../../utils/format';
 
 interface Trade {
   id: number;
@@ -134,55 +134,73 @@ export default function TradeJournal() {
         </div>
       )}
 
-      {/* Add Trade Form */}
+      {/* Add Trade Modal */}
       {showForm && (
-        <div className="rv-journal__form">
-          <div className="rv-journal__form-row">
-            <input
-              className="rv-input"
-              placeholder="股票代码"
-              value={form.symbol}
-              onChange={(e) => setForm({ ...form, symbol: e.target.value })}
-            />
-            <select
-              className="rv-select"
-              value={form.direction}
-              onChange={(e) => setForm({ ...form, direction: e.target.value as 'BUY' | 'SELL' })}
-            >
-              <option value="BUY">买入</option>
-              <option value="SELL">卖出</option>
-            </select>
-            <input
-              className="rv-input"
-              type="number"
-              placeholder="价格"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-            />
-            <input
-              className="rv-input"
-              type="number"
-              placeholder="数量"
-              value={form.quantity}
-              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-            />
-          </div>
-          <div className="rv-journal__form-row">
-            <input
-              className="rv-input"
-              type="datetime-local"
-              value={form.tradeTime}
-              onChange={(e) => setForm({ ...form, tradeTime: e.target.value })}
-            />
-            <input
-              className="rv-input rv-input--wide"
-              placeholder="备注"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
-            <button className="rv-btn rv-btn--primary" onClick={handleSubmit}>
-              保存
-            </button>
+        <div className="rv-modal" onClick={() => setShowForm(false)}>
+          <div className="rv-modal__content" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal__header">
+              <h4 className="rv-modal__title">新建交易记录</h4>
+              <button className="rv-modal__close" onClick={() => setShowForm(false)}>
+                ×
+              </button>
+            </div>
+            <div className="rv-journal__form">
+              <div className="rv-journal__form-row">
+                <input
+                  className="rv-input"
+                  placeholder="股票代码"
+                  value={form.symbol}
+                  onChange={(e) => setForm({ ...form, symbol: e.target.value })}
+                />
+                <select
+                  className="rv-select"
+                  value={form.direction}
+                  onChange={(e) =>
+                    setForm({ ...form, direction: e.target.value as 'BUY' | 'SELL' })
+                  }
+                >
+                  <option value="BUY">买入</option>
+                  <option value="SELL">卖出</option>
+                </select>
+                <input
+                  className="rv-input"
+                  type="number"
+                  placeholder="价格"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                />
+                <input
+                  className="rv-input"
+                  type="number"
+                  placeholder="数量"
+                  value={form.quantity}
+                  onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                />
+              </div>
+              <div className="rv-journal__form-row">
+                <input
+                  className="rv-input"
+                  type="datetime-local"
+                  value={form.tradeTime}
+                  onChange={(e) => setForm({ ...form, tradeTime: e.target.value })}
+                />
+              </div>
+              <textarea
+                className="rv-textarea"
+                rows={3}
+                placeholder="备注（支持多行文本）"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              />
+              <div className="rv-journal__form-row">
+                <button className="rv-btn rv-btn--primary" onClick={handleSubmit}>
+                  保存
+                </button>
+                <button className="rv-btn" onClick={() => setShowForm(false)}>
+                  取消
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -193,45 +211,47 @@ export default function TradeJournal() {
       ) : trades.length === 0 ? (
         <div className="rv-empty">暂无交易记录，点击上方按钮添加</div>
       ) : (
-        <table className="rv-table__el">
-          <thead>
-            <tr>
-              <th className="rv-table__th">时间</th>
-              <th className="rv-table__th">股票</th>
-              <th className="rv-table__th">方向</th>
-              <th className="rv-table__th">价格</th>
-              <th className="rv-table__th">数量</th>
-              <th className="rv-table__th">金额</th>
-              <th className="rv-table__th">备注</th>
-              <th className="rv-table__th">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trades.map((t) => (
-              <tr key={t.id} className="rv-table__row">
-                <td className="rv-table__td">{new Date(t.tradeTime).toLocaleString('zh-CN')}</td>
-                <td className="rv-table__td">{t.symbol}</td>
-                <td
-                  className={`rv-table__td ${t.direction === 'BUY' ? 'rv-table__val--up' : 'rv-table__val--down'}`}
-                >
-                  {t.direction === 'BUY' ? '买入' : '卖出'}
-                </td>
-                <td className="rv-table__td">{t.price.toFixed(2)}</td>
-                <td className="rv-table__td">{t.quantity}</td>
-                <td className="rv-table__td">{formatTurnover(t.price * t.quantity)}</td>
-                <td className="rv-table__td">{t.notes || '—'}</td>
-                <td className="rv-table__td">
-                  <button
-                    className="rv-btn rv-btn--sm rv-btn--danger"
-                    onClick={() => handleDelete(t.id)}
-                  >
-                    删除
-                  </button>
-                </td>
+        <div className="rv-journal__table-wrapper">
+          <table className="rv-table__el">
+            <thead>
+              <tr>
+                <th className="rv-table__th">时间</th>
+                <th className="rv-table__th">股票</th>
+                <th className="rv-table__th">方向</th>
+                <th className="rv-table__th">价格</th>
+                <th className="rv-table__th">数量</th>
+                <th className="rv-table__th">金额</th>
+                <th className="rv-table__th">备注</th>
+                <th className="rv-table__th">操作</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {trades.map((t) => (
+                <tr key={t.id} className="rv-table__row">
+                  <td className="rv-table__td">{new Date(t.tradeTime).toLocaleString('zh-CN')}</td>
+                  <td className="rv-table__td">{t.symbol}</td>
+                  <td
+                    className={`rv-table__td ${t.direction === 'BUY' ? 'rv-table__val--up' : 'rv-table__val--down'}`}
+                  >
+                    {t.direction === 'BUY' ? '买入' : '卖出'}
+                  </td>
+                  <td className="rv-table__td">{formatPrice(t.price)}</td>
+                  <td className="rv-table__td">{t.quantity}</td>
+                  <td className="rv-table__td">{formatTurnover(Number(t.price) * t.quantity)}</td>
+                  <td className="rv-table__td rv-table__td--notes">{t.notes || '—'}</td>
+                  <td className="rv-table__td">
+                    <button
+                      className="rv-btn rv-btn--sm rv-btn--danger"
+                      onClick={() => handleDelete(t.id)}
+                    >
+                      删除
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

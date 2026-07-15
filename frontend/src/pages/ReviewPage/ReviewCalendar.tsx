@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { apiFetch } from '../../utils/apiFetch';
 
 interface DayRecord {
@@ -6,6 +8,8 @@ interface DayRecord {
   sentimentScore: number;
   hasNote: boolean;
   tradeCount: number;
+  content?: string;
+  plan?: string;
 }
 
 interface DailyFile {
@@ -24,6 +28,8 @@ export default function ReviewCalendar() {
   const [noteDetail, setNoteDetail] = useState<any>(null);
   const [dailyFileDates, setDailyFileDates] = useState<Set<string>>(new Set());
   const [dailyFileMap, setDailyFileMap] = useState<Map<string, string>>(new Map());
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+  const [hoveredNote, setHoveredNote] = useState<any>(null);
 
   const fetchMonthData = useCallback(async () => {
     setLoading(true);
@@ -50,6 +56,8 @@ export default function ReviewCalendar() {
           sentimentScore: note.sentimentScore,
           hasNote: true,
           tradeCount: tradeByDate.get(note.date) || 0,
+          content: note.content,
+          plan: note.plan,
         });
       }
 
@@ -188,8 +196,26 @@ export default function ReviewCalendar() {
               .filter(Boolean)
               .join(' ');
 
+            const handleMouseEnter = () => {
+              if (record?.hasNote && record.content) {
+                setHoveredDate(dateStr);
+                setHoveredNote(record);
+              }
+            };
+
+            const handleMouseLeave = () => {
+              setHoveredDate(null);
+              setHoveredNote(null);
+            };
+
             return (
-              <div key={dateStr} className={classNames} onClick={() => handleSelectDate(dateStr)}>
+              <div
+                key={dateStr}
+                className={classNames}
+                onClick={() => handleSelectDate(dateStr)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
                 <span className="rv-calendar__day-num">{day}</span>
                 {hasDailyReview && (
                   <span className="rv-calendar__day-review-badge" title="有每日复盘文件">
@@ -212,6 +238,31 @@ export default function ReviewCalendar() {
                       >
                         {record.tradeCount}
                       </span>
+                    )}
+                  </div>
+                )}
+                {hoveredDate === dateStr && hoveredNote && (
+                  <div className="rv-calendar__tooltip">
+                    <div className="rv-calendar__tooltip-header">
+                      <span className="rv-calendar__tooltip-date">{dateStr}</span>
+                      <span
+                        className="rv-calendar__tooltip-sentiment"
+                        style={{
+                          background: SENTIMENT_COLORS[hoveredNote.sentimentScore] || '#8892a4',
+                        }}
+                      >
+                        {hoveredNote.sentimentScore}/5
+                      </span>
+                    </div>
+                    <div className="rv-calendar__tooltip-content rv-markdown">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {hoveredNote.content}
+                      </ReactMarkdown>
+                    </div>
+                    {hoveredNote.plan && (
+                      <div className="rv-calendar__tooltip-plan">
+                        <strong>计划:</strong> {hoveredNote.plan}
+                      </div>
                     )}
                   </div>
                 )}

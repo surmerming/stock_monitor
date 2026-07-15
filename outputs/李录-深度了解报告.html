@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>李录 — 深度了解报告</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent: #7c3aed;
+    --accent-light: #ede9fe;
+    --accent-dark: #5b21b6;
+    --border: #e5e7eb;
+    --card-bg: #f9fafb;
+    --card-hover: #f3f4f6;
+    --success-bg: #f0fdf4;
+    --success-text: #166534;
+    --success-border: #bbf7d0;
+    --warning-bg: #fef3c7;
+    --warning-text: #92400e;
+    --warning-border: #fde68a;
+    --danger-bg: #fef2f2;
+    --danger-text: #991b1b;
+    --danger-border: #fecaca;
+    --info-bg: #eff6ff;
+    --info-text: #1e40af;
+    --gold-bg: #fffbeb;
+    --gold-text: #92400e;
+    --gold-border: #fcd34d;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.75;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  .report-header { text-align: center; padding: 48px 0 32px; border-bottom: 2px solid var(--border); margin-bottom: 40px; }
+  .report-header .badge { display: inline-block; background: var(--accent-light); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+  .report-header h1 { font-size: 34px; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .report-header .subtitle { color: var(--text-secondary); font-size: 15px; max-width: 600px; margin: 0 auto; }
+  .report-header .meta { margin-top: 16px; font-size: 13px; color: var(--text-secondary); }
+  h2 { font-size: 22px; margin: 44px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  h2 .step-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+  h3 { font-size: 17px; margin: 24px 0 10px; color: var(--accent); }
+  h4 { font-size: 15px; margin: 16px 0 6px; }
+  .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px 24px; margin: 12px 0; box-shadow: var(--shadow); }
+  .card h4 { margin-top: 0; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .tag { display: inline-block; padding: 3px 12px; border-radius: 14px; font-size: 13px; font-weight: 500; }
+  .tag.green { background: var(--success-bg); color: var(--success-text); }
+  .tag.yellow { background: var(--warning-bg); color: var(--warning-text); }
+  .tag.red { background: var(--danger-bg); color: var(--danger-text); }
+  .tag.blue { background: var(--info-bg); color: var(--info-text); }
+  .tag.purple { background: var(--accent-light); color: var(--accent); }
+  .tag.gold { background: var(--gold-bg); color: var(--gold-text); }
+  .tag.gray { background: #f3f4f6; color: #6b7280; }
+  .insight-block { border-left: 3px solid var(--accent); padding: 12px 16px; margin: 16px 0; background: var(--accent-light); border-radius: 0 var(--radius) var(--radius) 0; font-size: 14px; }
+  .insight-block strong { color: var(--accent-dark); }
+  .quotes-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0; }
+  .quote-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); border-left: 4px solid var(--accent); position: relative; }
+  .quote-card .quote-mark { position: absolute; top: 8px; right: 16px; font-size: 48px; color: var(--accent-light); font-family: Georgia, serif; line-height: 1; }
+  .quote-card .quote-text { font-size: 16px; font-weight: 500; line-height: 1.7; margin-bottom: 8px; color: var(--text); }
+  .quote-card .quote-source { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+  .quote-card .quote-source .source-label { font-weight: 600; color: var(--accent); }
+  .quote-card .quote-context { font-size: 13px; color: var(--text-secondary); margin-top: 6px; font-style: italic; }
+  .quote-card .quote-theme { display: inline-block; margin-top: 8px; }
+  .resource-section { margin: 20px 0; }
+  .resource-section h3 { display: flex; align-items: center; gap: 8px; }
+  .resource-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+  .resource-item { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: start; background: var(--card-bg); border-radius: var(--radius-sm); padding: 14px 16px; box-shadow: var(--shadow); transition: background 0.15s; }
+  .resource-item:hover { background: var(--card-hover); }
+  .resource-item .rank { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .resource-item .rank.top3 { background: var(--accent); color: #fff; }
+  .resource-item .info { min-width: 0; }
+  .resource-item .info .title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .resource-item .info .title a { color: var(--accent); text-decoration: none; }
+  .resource-item .info .title a:hover { text-decoration: underline; }
+  .resource-item .info .desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .resource-item .info .meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .resource-item .heat { text-align: right; flex-shrink: 0; }
+  .resource-item .heat .heat-value { font-size: 14px; font-weight: 700; color: var(--accent); }
+  .resource-item .heat .heat-label { font-size: 11px; color: var(--text-secondary); }
+  .heat-bar { width: 60px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin-top: 4px; margin-left: auto; }
+  .heat-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), #a78bfa); }
+  .comparison-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow); }
+  .comparison-table th, .comparison-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .comparison-table th { font-weight: 600; background: var(--card-bg); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table .highlight { background: var(--accent-light); }
+  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+  .metric-card { background: var(--card-bg); border-radius: var(--radius-sm); padding: 16px; text-align: center; box-shadow: var(--shadow); }
+  .metric-card .metric-value { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1.2; }
+  .metric-card .metric-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .metric-card .metric-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .timeline { position: relative; padding-left: 24px; margin: 16px 0; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 18px; padding-left: 20px; }
+  .timeline-item::before { content: ''; position: absolute; left: -18px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .timeline-item.milestone::before { background: var(--success-text); width: 12px; height: 12px; left: -19px; }
+  .timeline-item .date { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+  .timeline-item .event { font-size: 14px; }
+  .perspective-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .perspective-cell { border-radius: var(--radius-sm); padding: 16px 20px; box-shadow: var(--shadow); }
+  .perspective-cell h4 { margin: 0 0 8px; font-size: 14px; }
+  .perspective-cell ul { margin: 0; padding-left: 18px; font-size: 13px; }
+  .perspective-cell li { margin-bottom: 4px; }
+  .perspective-cell.positive { background: var(--success-bg); border: 1px solid var(--success-border); }
+  .perspective-cell.positive h4 { color: var(--success-text); }
+  .perspective-cell.negative { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+  .perspective-cell.negative h4 { color: var(--danger-text); }
+  .learning-path { margin: 20px 0; }
+  .path-stage { background: var(--card-bg); border-radius: var(--radius); padding: 20px 24px; margin: 12px 0; box-shadow: var(--shadow); border-left: 4px solid var(--accent); }
+  .path-stage.stage-1 { border-left-color: #10b981; }
+  .path-stage.stage-2 { border-left-color: var(--accent); }
+  .path-stage.stage-3 { border-left-color: #f59e0b; }
+  .path-stage .stage-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .path-stage .stage-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 700; color: #fff; }
+  .path-stage.stage-1 .stage-num { background: #10b981; }
+  .path-stage.stage-2 .stage-num { background: var(--accent); }
+  .path-stage.stage-3 .stage-num { background: #f59e0b; }
+  .path-stage .stage-title { font-size: 16px; font-weight: 600; }
+  .path-stage .stage-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+  .path-stage .priority-list { list-style: none; padding: 0; margin: 0; }
+  .path-stage .priority-list li { display: grid; grid-template-columns: 36px 1fr auto; gap: 8px; align-items: start; padding: 8px 12px; margin: 6px 0; background: #fff; border-radius: var(--radius-sm); font-size: 13px; }
+  .path-stage .priority-list .p-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-align: center; }
+  .path-stage .priority-list .p-tag.p0 { background: var(--danger-bg); color: var(--danger-text); }
+  .path-stage .priority-list .p-tag.p1 { background: var(--warning-bg); color: var(--warning-text); }
+  .path-stage .priority-list .p-tag.p2 { background: var(--info-bg); color: var(--info-text); }
+  .path-stage .priority-list .item-info { min-width: 0; }
+  .path-stage .priority-list .item-info .item-title { font-weight: 600; }
+  .path-stage .priority-list .item-info .item-reason { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+  .path-stage .priority-list .item-time { font-size: 12px; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
+  .quick-ref { background: linear-gradient(135deg, var(--accent-dark), var(--accent)); color: #fff; border-radius: var(--radius); padding: 24px; margin: 20px 0; }
+  .quick-ref h3 { color: #fff; margin-top: 0; font-size: 18px; }
+  .quick-ref .ref-item { margin: 12px 0; padding: 12px 16px; background: rgba(255,255,255,0.1); border-radius: var(--radius-sm); }
+  .quick-ref .ref-item .ref-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+  .quick-ref .ref-item .ref-content { font-size: 14px; margin-top: 4px; }
+  .theme-group { margin: 16px 0; }
+  .theme-group h4 { font-size: 14px; color: var(--accent); border-bottom: 2px solid var(--accent-light); padding-bottom: 4px; margin-bottom: 8px; }
+  .theme-group .theme-item { padding: 8px 14px; margin: 6px 0; background: var(--card-bg); border-radius: var(--radius-sm); font-size: 13px; box-shadow: var(--shadow); }
+  .theme-item .item-title { font-weight: 600; }
+  .theme-item .item-meta { font-size: 12px; color: var(--text-secondary); }
+  .theme-item .item-summary { margin-top: 4px; }
+  .footer-note { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.8; }
+  @media print {
+    body { max-width: 100%; padding: 20px; }
+    .quick-ref { background: #f3f0ff !important; color: #1a1a2e !important; border: 1px solid var(--accent); }
+    .quick-ref h3, .quick-ref .ref-item .ref-label, .quick-ref .ref-item .ref-content { color: #1a1a2e !important; }
+    .resource-item:hover { background: var(--card-bg); }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f172a; --text: #e2e8f0; --text-secondary: #94a3b8; --accent-light: #2e1065; --accent-dark: #a78bfa; --border: #1e293b; --card-bg: #1e293b; --card-hover: #334155; --success-bg: #064e3b; --success-text: #6ee7b7; --success-border: #065f46; --warning-bg: #78350f; --warning-text: #fcd34d; --warning-border: #92400e; --danger-bg: #7f1d1d; --danger-text: #fca5a5; --danger-border: #991b1b; --info-bg: #1e3a5f; --info-text: #93c5fd; --gold-bg: #422006; --gold-text: #fcd34d; --gold-border: #78350f; --shadow: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4); }
+    .tag.gray { background: #374151; color: #d1d5db; }
+    .heat-bar { background: #374151; }
+    .quote-card .quote-mark { color: var(--accent-light); }
+    .path-stage .priority-list li { background: #0f172a; }
+    .perspective-cell.positive { background: #064e3b; border-color: #065f46; }
+    .perspective-cell.negative { background: #7f1d1d; border-color: #991b1b; }
+    .quick-ref { background: linear-gradient(135deg, #2e1065, #5b21b6); }
+  }
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <div class="badge">人物深度了解报告</div>
+  <h1>李录</h1>
+  <p class="subtitle">第三代价值投资旗手，芒格唯一托付家族资产的外人，用"文明复利"框架打通东西方投资哲学的华人投资思想家</p>
+  <p class="meta">报告日期：2026-07-13 | 分析框架：5模块人物深度了解 | <span class="tag green" style="font-size:11px">✅事实</span> <span class="tag yellow" style="font-size:11px">💡推断</span> <span class="tag red" style="font-size:11px">❓待验证</span></p>
+</div>
+
+<!-- ===== 快速参考 ===== -->
+<div class="quick-ref">
+  <h3>🔑 快速了解李录</h3>
+  <div class="ref-item">
+    <div class="ref-label">一句话定义</div>
+    <div class="ref-content">价值投资的第三代传承者和全球化推广者——从格雷厄姆（安全边际）→巴菲特（能力圈）→芒格（多元思维）→李录（全球视角+文明复利框架），他将价值投资从"选股方法"升级为"世界观"。</div>
+  </div>
+  <div class="ref-item">
+    <div class="ref-label">最值得记住的一点</div>
+    <div class="ref-content">他是唯一一个被芒格托付家族资产的外人。芒格原话："我这一辈子只把芒格家族的钱交给了一个外人管理，他就是李录。"</div>
+  </div>
+  <div class="ref-item">
+    <div class="ref-label">标志性案例</div>
+    <div class="ref-content">比亚迪（BYD）：2002年买入，持有超过22年，2008年推荐巴菲特入股，股价下跌50%六到七次、甚至一度跌80%仍坚定持有，最终为伯克希尔带来超过12亿美元回报。</div>
+  </div>
+</div>
+
+<!-- ===== 1️⃣ 人物画像与核心思想 ===== -->
+<h2><span class="step-num">1</span> 人物画像与核心思想</h2>
+
+<div class="metric-row">
+  <div class="metric-card">
+    <div class="metric-value">1966</div>
+    <div class="metric-label">出生年份</div>
+    <div class="metric-sub">河北唐山</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">1997</div>
+    <div class="metric-label">创立喜马拉雅资本</div>
+    <div class="metric-sub">近30年历史</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">~20%+</div>
+    <div class="metric-label">长期年化回报💡</div>
+    <div class="metric-sub">行业估算</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">$3.2B</div>
+    <div class="metric-label">13F美股持仓(2026Q1)✅</div>
+    <div class="metric-sub">14只股票</div>
+  </div>
+</div>
+
+<div class="card">
+  <h4>🏷️ 关键身份标签</h4>
+  <div class="tag-list">
+    <span class="tag purple">价值投资第三代代表人物</span>
+    <span class="tag gold">查理·芒格家族资产管理人</span>
+    <span class="tag blue">喜马拉雅资本创始人</span>
+    <span class="tag green">美国艺术与科学院院士</span>
+    <span class="tag purple">哥大+加州理工校董</span>
+    <span class="tag gray">比亚迪早期投资者</span>
+    <span class="tag yellow">《文明、现代化、价值投资与中国》作者</span>
+  </div>
+</div>
+
+<h3>📜 人生关键节点</h3>
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="date">1966年</div>
+    <div class="event">出生于河北省唐山市</div>
+  </div>
+  <div class="timeline-item">
+    <div class="date">1985年</div>
+    <div class="event">考入南京大学物理系</div>
+  </div>
+  <div class="timeline-item">
+    <div class="date">1990年</div>
+    <div class="event">赴美留学，入读哥伦比亚大学</div>
+  </div>
+  <div class="timeline-item milestone">
+    <div class="date">1996年</div>
+    <div class="event">✅ 哥伦比亚大学历史上第一位同时获得经济学、法律、工商管理三个学位的学生</div>
+  </div>
+  <div class="timeline-item milestone">
+    <div class="date">1997年</div>
+    <div class="event">✅ 创立喜马拉雅资本（Himalaya Capital），起步仅一部手机和一台笔记本电脑</div>
+  </div>
+  <div class="timeline-item milestone">
+    <div class="date">2003年</div>
+    <div class="event">✅ 感恩节聚会上结识查理·芒格，两人深谈四五个小时，后成为正式合伙人</div>
+  </div>
+  <div class="timeline-item milestone">
+    <div class="date">2008年</div>
+    <div class="event">✅ 向巴菲特推荐比亚迪，伯克希尔以18亿港元购入10%股份，最终回报超12亿美元</div>
+  </div>
+  <div class="timeline-item">
+    <div class="date">2015年</div>
+    <div class="event">首次在北大光华管理学院开设价值投资课程并发表演讲《价值投资在中国的展望》</div>
+  </div>
+  <div class="timeline-item">
+    <div class="date">2019年</div>
+    <div class="event">第二次北大演讲《价值投资的知行合一》</div>
+  </div>
+  <div class="timeline-item milestone">
+    <div class="date">2020年</div>
+    <div class="event">✅ 出版《文明、现代化、价值投资与中国》，加印24次，售出近30万册；当选美国艺术与科学院院士</div>
+  </div>
+  <div class="timeline-item">
+    <div class="date">2024年</div>
+    <div class="event">第三次北大演讲《全球价值投资与时代》，提出完整六条价值投资框架</div>
+  </div>
+</div>
+
+<h3>🧠 思想体系：价值投资的六条核心原则（2024年最新完整版）</h3>
+
+<div class="insight-block">
+  <strong>核心洞见：</strong>李录将价值投资从格雷厄姆的"烟蒂股法"、巴菲特的"优质企业法"、芒格的"多元思维法"，推进到全球化视角下的"文明复利框架"。他不仅是传承者，更是创新者——第六条"财富是经济体中的购买力占比"是他自己的原创贡献。
+</div>
+
+<div class="card">
+  <h4>① 股票是公司的所有权 <span class="tag green">格雷厄姆提出</span></h4>
+  <p>股票不仅是可交易的纸，它是公司所有权的法定证明。在经济持续增长的过程中，股权能保障你的购买力。投资的本质是保持和增长购买力。</p>
+</div>
+
+<div class="card">
+  <h4>② 市场先生是服务而非指导 <span class="tag green">格雷厄姆提出</span></h4>
+  <p>市场像情绪化的合伙人：极度悲观时低价卖给你，极度亢奋时高价买走。你利用它的疯狂，而非被它左右。价格是市场给的，价值是你判断的。</p>
+</div>
+
+<div class="card">
+  <h4>③ 投资要有安全边际 <span class="tag green">格雷厄姆提出</span></h4>
+  <p>未来很难预测，便宜是硬道理。如果以足够低的价格买入，留出充足的安全边际，投资就会更安心，也更能坚持长期持有。</p>
+</div>
+
+<div class="card">
+  <h4>④ 建立自己的能力圈 <span class="tag blue">巴菲特+芒格贡献</span></h4>
+  <p>明确知道自己哪些懂、哪些不懂，知道能力圈的边界在哪里，只投资能力圈范围内、那些自己能理解的优质公司，并长期持有。能力圈不是固步自封，而是在极度严谨前提下持续扩张。</p>
+</div>
+
+<div class="card">
+  <h4>⑤ 去有鱼的地方钓鱼 <span class="tag blue">芒格贡献</span></h4>
+  <p>投资就像钓鱼，要去有鱼的地方钓鱼。要知道哪个湖里有鱼，哪里竞争不充分，而你又非常了解，在那里建立自己的能力圈。这条原则直接驱动了李录"全球化价值投资"的实践。</p>
+</div>
+
+<div class="card">
+  <h4>⑥ 财富是经济体中的购买力占比 <span class="tag purple" style="background:var(--gold-bg);color:var(--gold-text)">李录原创贡献</span></h4>
+  <p>李录对价值投资理论的原创贡献。财富的本质是经济体中购买力的占比。价值投资的目标是在最具活力的经济体中，持有最具活力的公司股份，从而保持和增长财富。如果你处于一个持续增长的经济体中，持有现金意味着你的财富随着经济的增长而缩水。</p>
+</div>
+
+<h3>🔬 李录对价值投资的五大深化</h3>
+
+<table class="comparison-table">
+  <tr>
+    <th>维度</th>
+    <th>传统价值投资</th>
+    <th>李录的深化</th>
+  </tr>
+  <tr>
+    <td>底层逻辑</td>
+    <td>选股方法</td>
+    <td class="highlight">财富观 + 世界观：投资是参与文明复利</td>
+  </tr>
+  <tr>
+    <td>护城河评估</td>
+    <td>一维经济壁垒</td>
+    <td class="highlight">三维护城河：经济 + 社会 + 政治</td>
+  </tr>
+  <tr>
+    <td>能力圈</td>
+    <td>静态边界</td>
+    <td class="highlight">动态进化：早期消费/金融 → 中期科技/互联网 → 后期新能源/先进制造</td>
+  </tr>
+  <tr>
+    <td>估值方法</td>
+    <td>短期PE/PB</td>
+    <td class="highlight">终局思维：10-20年现金流折现，不看短期周期波动</td>
+  </tr>
+  <tr>
+    <td>投资范围</td>
+    <td>美国市场为主</td>
+    <td class="highlight">全球化：中国、印度等新兴市场是最大机会所在</td>
+  </tr>
+</table>
+
+<h3>💡 思想传承脉络</h3>
+<div class="insight-block">
+  <strong>格雷厄姆 → 巴菲特 → 芒格 → 李录：</strong>虽然李录早期也深受格雷厄姆"烟蒂股"影响（大学时靠投资赚到第一桶金），但2003年遇到芒格后完成彻底转型。芒格告诉他："你遇到的问题就是华尔街的全部问题。如果想消除烦恼，就要走出与华尔街不同的道路。"此后，李录将公司结构完全改造成早期巴菲特合伙人模式，去除典型对冲基金的所有弊端。这条传承线清晰地标定了李录在价值投资谱系中的位置——他是连接格雷厄姆-巴菲特-芒格传统与21世纪全球化投资实践的桥梁人物。
+</div>
+
+<!-- ===== 经典语录 ===== -->
+<h2><span class="step-num">★</span> 经典语录</h2>
+
+<div class="quotes-grid">
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">价值投资听起来简单，却是一条大道——大道上没人，交通不堵；旁门左道上车水马龙。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>2015年北京大学光华管理学院演讲《价值投资在中国的展望》</div>
+    <div class="quote-context">在解释为什么95%的市场参与者不采用价值投资时，用"大道"隐喻价值投资的孤独与正确</div>
+    <div class="quote-theme"><span class="tag purple">投资哲学</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">在我投资生涯的二十六七年里，每过几年都会遇到一次"百年不遇"的大危机。作为一个投资人，不经历过几次净值跌50%，生涯都不完整。而且大崩溃往往会创造出一些投资的机会。最终你会发现一生中赚的最多的钱都是从这里面出现的。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">阐述危机与机会的辩证关系，呼应巴菲特"别人恐惧时贪婪"的原则</div>
+    <div class="quote-theme"><span class="tag green">危机观</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">我向你们保证，你穷极一生可能也只会得到5个或10个洞见，要通过很多年的学习才可能产生一个。如果在一个富有洞见的领域不去下重注，我不能原谅自己犯这样的错误。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">解释其集中投资哲学的底层逻辑——真正有价值的洞见极为稀缺</div>
+    <div class="quote-theme"><span class="tag blue">集中投资</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">对知识诚实包含四个方面：清楚你知道什么，清楚你不知道什么，清楚你不需要知道什么，意识到总有你不知道自己不知道的情况。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">定义"知识诚实"（Intellectual Honesty）的四层结构，是能力圈原则的认知基础</div>
+    <div class="quote-theme"><span class="tag purple">认知哲学</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">理性是投资人需要终身修炼的一个特质，优先于对一个公司基本面的研究。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>2022年播客对话分享，《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">强调性格和理性在投资成功中的核心地位，呼应芒格"理性是一种道德责任"</div>
+    <div class="quote-theme"><span class="tag yellow">投资心态</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">如果你买得便宜，你就已经赢在起跑线上了。买了之后就尽量长期持有，不要做傻事，因为好生意会自己照顾好自己，你的财富会随着生意的发展而增长。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">阐述买入价格的重要性与长期持有的底层逻辑</div>
+    <div class="quote-theme"><span class="tag green">安全边际</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">价值投资者要把自己培养成一个学术型的研究人员、侦探，甚至记者，要有探究万物运行原理的永不满足的好奇心。因为你认知越深，越有可能成为更好的投资者。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">定义价值投资者应该具备的学习和研究态度</div>
+    <div class="quote-theme"><span class="tag blue">研究方法</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">如果你做不成一个好的研究员，就永远不可能成为一个好的投资人。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">强调研究能力是投资能力的必要条件</div>
+    <div class="quote-theme"><span class="tag purple">投资基本功</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">百分之九十的成功要归功于从不缺席。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">类似伍迪·艾伦名言，强调持续在场的重要性</div>
+    <div class="quote-theme"><span class="tag yellow">长期主义</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">市场的存在是对人性的考验和惩罚。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">市场机制的本质：专门发现并利用人性的弱点</div>
+    <div class="quote-theme"><span class="tag red">市场本质</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">在我们持有比亚迪的约22年过程中，它的股价下跌超过50%至少六到七次，甚至跌过80%一次，但我们没有感到非常压力，因为我们知道它每年都在创造新的价值。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>2024年芒格纪念演讲</div>
+    <div class="quote-context">以比亚迪为例，说明区分"价格波动"和"价值创造"是长期持有的关键</div>
+    <div class="quote-theme"><span class="tag green">持股心态</span></div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">最好的学习方法，是跟你尊敬的人一起工作、阅读和交谈。</div>
+    <div class="quote-source"><span class="source-label">出处：</span>《文明、现代化、价值投资与中国》</div>
+    <div class="quote-context">学习方法的核心理念，与其从书本学，不如追随正确的人</div>
+    <div class="quote-theme"><span class="tag blue">学习方法</span></div>
+  </div>
+
+</div>
+
+<!-- ===== 2️⃣ 热度资料排名 ===== -->
+<h2><span class="step-num">2</span> 热度资料排名</h2>
+
+<div class="resource-section">
+  <h3>🎬 视频类（演讲 / 访谈）</h3>
+  <div class="resource-list">
+
+    <div class="resource-item">
+      <div class="rank top3">1</div>
+      <div class="info">
+        <div class="title"><a href="https://b23.tv/XvSUBL8" target="_blank">《价值投资在中国的展望》北大演讲</a></div>
+        <div class="desc">李录首次在北大光华价值投资课上的演讲，系统阐述价值投资的四大基石及其在中国市场的适用性。经典"大道"比喻出自此演讲。</div>
+        <div class="meta">2015.10.23 · 北京大学光华管理学院 · 课程演讲</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥🔥</div>
+        <div class="heat-label">B站高播放</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:95%"></div></div>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <div class="rank top3">2</div>
+      <div class="info">
+        <div class="title"><a href="#" target="_blank">《价值投资的知行合一》北大演讲</a></div>
+        <div class="desc">五年后再次在北大的演讲，聚焦"知行合一"——知道价值投资原理不难，难在执行。深入探讨人性弱点与投资纪律。</div>
+        <div class="meta">2019.11.29 · 北京大学光华管理学院 · 课程演讲</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥🔥</div>
+        <div class="heat-label">B站高播放</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:92%"></div></div>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <div class="rank top3">3</div>
+      <div class="info">
+        <div class="title"><a href="#" target="_blank">《全球价值投资与时代》北大演讲（完整版）</a></div>
+        <div class="desc">十年来第三次在该课程发表重磅演讲，首次完整提出价值投资六条框架（含原创第六条），是最新的系统性思想分享。</div>
+        <div class="meta">2024.12.07 · 北京大学光华管理学院 · 主旨演讲</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥🔥</div>
+        <div class="heat-label">最新/最全面</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:98%"></div></div>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <div class="rank">4</div>
+      <div class="info">
+        <div class="title"><a href="#" target="_blank">《洞见价值，穿越周期：李录与比亚迪的23年》</a></div>
+        <div class="desc">比亚迪官方发布的李录深度访谈视频，复盘比亚迪从电池厂到新能源龙头的全过程，展示真实的价值投资决策逻辑。</div>
+        <div class="meta">2026.04 · 比亚迪官方 · 深度访谈</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥</div>
+        <div class="heat-label">最新访谈</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:88%"></div></div>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <div class="rank">5</div>
+      <div class="info">
+        <div class="title">哥伦比亚大学商学院演讲（2006/2010）</div>
+        <div class="desc">早期英文演讲，分享误听巴菲特讲座的启蒙故事、价值投资者三大特质、BYD早期投资逻辑。被投资者社区广泛传阅。</div>
+        <div class="meta">2006 & 2010 · 哥伦比亚大学商学院 · 课堂演讲</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥</div>
+        <div class="heat-label">经典早期资料</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:78%"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="resource-section">
+  <h3>📚 书籍类</h3>
+  <div class="resource-list">
+
+    <div class="resource-item">
+      <div class="rank top3">1</div>
+      <div class="info">
+        <div class="title">《文明、现代化、价值投资与中国》</div>
+        <div class="desc">李录唯一亲笔著作。上篇以跨学科宏观视角梳理人类文明三阶段演进（1.0采集→2.0农业→3.0科技），提出"现代化=科技×自由市场的复利正循环"；下篇收录北大三次演讲全文，系统阐述价值投资理论。</div>
+        <div class="meta">2020年4月出版 · 2025年增订版 · 已加印24次，售出近30万册 · 豆瓣评分约8.5</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥🔥</div>
+        <div class="heat-label">必读</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <div class="rank">2</div>
+      <div class="info">
+        <div class="title">《穷查理宝典》（李录促成中文版出版）</div>
+        <div class="desc">虽然不是李录亲笔，但他是该书中文版的关键推动者——积极促成翻译并在中国出版，版税全部捐赠用于教育和价值投资教育。</div>
+        <div class="meta">中文版 · 李录促成翻译 · 版税捐赠</div>
+      </div>
+      <div class="heat">
+        <div class="heat-value">🔥🔥🔥🔥</div>
+        <div class="heat-label">重要关联作品</div>
+        <div class="heat-bar"><div class="heat-bar-fill" style="width:80%"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== 3️⃣ 个人发表观点 ===== -->
+<h2><span class="step-num">3</span> 个人发表观点</h2>
+
+<div class="theme-group">
+  <h4>🏛️ 宏观历史观：文明三阶段论</h4>
+  <div class="theme-item">
+    <div class="item-title">核心论断：现代化 = 现代科技 × 自由市场经济</div>
+    <div class="item-meta">来源：《文明、现代化、价值投资与中国》上篇</div>
+    <div class="item-summary">李录将人类文明分为三个阶段：1.0采集狩猎文明（增长停滞）、2.0农业文明（马尔萨斯陷阱，零和博弈）、3.0科技文明（科技+自由市场=可持续复利增长）。他认为1776年蒸汽机+《国富论》标志着3.0文明的起点，复利是文明最伟大的发明。中国已经不可逆转地进入3.0文明，正处在从2.5向3.0过渡的阶段。</div>
+  </div>
+  <div class="theme-item">
+    <div class="item-title">全球化铁律：最大市场终将成为唯一市场</div>
+    <div class="item-meta">来源：《文明、现代化、价值投资与中国》</div>
+    <div class="item-summary">在相互竞争的不同市场之间，最大的市场最终会成为唯一的市场。闭关锁国必落后，融入全球是最优解。这一观点为其全球化投资策略提供了理论基础。</div>
+  </div>
+</div>
+
+<div class="theme-group">
+  <h4>📊 投资方法论</h4>
+  <div class="theme-item">
+    <div class="item-title">终局思维 + 长期现金流折现</div>
+    <div class="item-meta">来源：多次演讲和著作</div>
+    <div class="item-summary">不看1-2年PE，看10-20年后企业的"终局价值"。不纠结短期周期波动，看商业模式能否穿越多轮经济周期。李录买的不是当下的便宜，而是未来的确定性。</div>
+  </div>
+  <div class="theme-item">
+    <div class="item-title">三维护城河评估模型</div>
+    <div class="item-meta">来源：投资实践总结</div>
+    <div class="item-summary">经济护城河（成本优势、品牌溢价、网络效应）+ 社会护城河（企业对社会的正向价值，如环保、就业）+ 政治护城河（政策合规性、政府关系），尤其适用于评估中国市场的企业。</div>
+  </div>
+  <div class="theme-item">
+    <div class="item-title">卖出三原则</div>
+    <div class="item-meta">来源：《文明、现代化、价值投资与中国》</div>
+    <div class="item-summary">①犯错误→立即卖出；②有更好的标的→比较风险收益比后换仓；③价格极端高估→即使公司增长也无法证明当前价格时卖出。</div>
+  </div>
+</div>
+
+<div class="theme-group">
+  <h4>🧘 投资心态与人生哲学</h4>
+  <div class="theme-item">
+    <div class="item-title">价值投资是"正道"</div>
+    <div class="item-meta">来源：2015年北大演讲</div>
+    <div class="item-summary">价值投资不是"炒股技巧"，而是一种哲学、道德与商业逻辑的统一。它是正和博弈（分享企业价值创造），区别于95%以上的零和投机。你赚的钱是"应得的"。</div>
+  </div>
+  <div class="theme-item">
+    <div class="item-title">两条道德底线</div>
+    <div class="item-meta">来源：2024年北大演讲</div>
+    <div class="item-summary">①追求真知：把对智慧和真理的追求当作道德责任，避免"屁股决定脑袋"。②受托人责任：把客户的钱当父母的钱打理，把客户利益放在自己之前。</div>
+  </div>
+  <div class="theme-item">
+    <div class="item-title">投资成功的三要素</div>
+    <div class="item-meta">来源：多次访谈综合</div>
+    <div class="item-summary">性格（最重要）+ 认知 + 运气。投资是认知的变现，人生是性格的结果。极度耐心、极度自律、极度独立、极度长期主义——这是真正价值投资者必须具备的品质。</div>
+  </div>
+</div>
+
+<!-- ===== 4️⃣ 外界评价与讨论 ===== -->
+<h2><span class="step-num">4</span> 外界评价与讨论</h2>
+
+<div class="perspective-grid">
+  <div class="perspective-cell positive">
+    <h4>👍 赞誉</h4>
+    <ul>
+      <li><strong>查理·芒格：</strong>"我这一辈子只把芒格家族的钱交给了一个外人管理，他就是李录。"</li>
+      <li><strong>查理·芒格：</strong>"李录是中国的沃伦·巴菲特。"（2019年每日期刊年会）</li>
+      <li><strong>查理·芒格：</strong>"李录是我一生中三个最成功的投资之一。"</li>
+      <li><strong>投资界共识：</strong>被公认为价值投资第三代代表人物，传承格雷厄姆-巴菲特-芒格谱系</li>
+      <li><strong>学术认可：</strong>2020年当选美国艺术与科学院院士，获阿斯彭研究所亨利·克朗领袖奖（2023）</li>
+    </ul>
+  </div>
+  <div class="perspective-cell negative">
+    <h4>⚠️ 争议与质疑</h4>
+    <ul>
+      <li><strong>业绩透明度：</strong>喜马拉雅资本为非公开基金，"年化30%"的说法缺乏公开审计报告和完整净值曲线</li>
+      <li><strong>两阶段论：</strong>1997-2003年早期为对冲基金策略（做多/做空/日内交易/商品），与后来宣传的价值投资者形象有差异</li>
+      <li><strong>集中度风险：</strong>极度集中持仓（前5持仓占85%+）虽带来高回报，但回撤风险较高，最大回撤约35%需近两年恢复</li>
+      <li><strong>Alpha来源：</strong>有分析指出13F可追踪部分的3年Alpha仅约+2.6%，远超30%的回报可能更多来自非公开持仓或杠杆（但李录声称不适用杠杆）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="insight-block">
+  <strong>💡 综合评价：</strong>李录是否是优秀投资人？几乎没有人质疑。但他是否真的实现了"长期30%年化"？目前没有公开证据能够证实——这更多是一个被媒体反复引用后形成的"共识叙事"，而非可验证的事实。投资者在尊敬其思想的同时，需要将"投资哲学的学习价值"和"业绩神话的真实性"区分看待。李录自己也多次强调运气在成功中的重要性，这或许是最诚实的回应。
+</div>
+
+<h3>📊 投资履历关键数据</h3>
+
+<table class="comparison-table">
+  <tr><th>指标</th><th>数据</th><th>置信度</th></tr>
+  <tr><td>美股13F持仓规模(2026Q1)</td><td>$3.20B（14只股票）</td><td>✅ SEC公开</td></tr>
+  <tr><td>美股组合1年回报</td><td>+30.89%</td><td>✅ public tracking</td></tr>
+  <tr><td>美股组合历史年化(5年)</td><td>+54.75%（clone策略）</td><td>💡 基于13F重建</td></tr>
+  <tr><td>长期年化回报</td><td>约20-30%（行业估算）</td><td>❓ 无公开审计</td></tr>
+  <tr><td>重仓集中度</td><td>前5大持仓占83%+</td><td>✅ 13F可验证</td></tr>
+  <tr><td>季度换手率</td><td>常为零（连续多季无操作）</td><td>✅ 13F可验证</td></tr>
+  <tr><td>最大回撤</td><td>约35%（需近两年恢复）</td><td>💡 行业估算</td></tr>
+</table>
+
+<h3>🔄 与段永平的对照</h3>
+<div class="card">
+  <p>在华人投资界，李录和段永平常被并列比较：</p>
+  <table class="comparison-table" style="margin-top:12px">
+    <tr><th>维度</th><th>李录</th><th>段永平</th></tr>
+    <tr><td>定位</td><td>学院派宗师，体系化传承</td><td>实战派股神，企业家跨界</td></tr>
+    <tr><td>持仓风格</td><td>6-14只，高度集中，低换手</td><td>更集中，"看准就押命"</td></tr>
+    <tr><td>理论贡献</td><td>六条框架+文明复利体系</td><td>"买股票就是买公司"通俗化</td></tr>
+    <tr><td>资金来源</td><td>极少数家族客户，不开放募资</td><td>个人资金为主</td></tr>
+    <tr><td>公开透明度</td><td>仅13F部分可见</td><td>更高（公开持仓+社交分享）</td></tr>
+  </table>
+  <p style="margin-top:8px;font-size:13px;color:var(--text-secondary)">两人不是高下之分，而是两种"大道"的不同实践。李录更像是芒格传统的延续——学术化、体系化、全球化；段永平则是中国本土企业家视角的价值投资实践。</p>
+</div>
+
+<!-- ===== 5️⃣ 学习路径推荐 ===== -->
+<h2><span class="step-num">5</span> 学习路径推荐</h2>
+
+<div class="learning-path">
+
+  <div class="path-stage stage-1">
+    <div class="stage-header">
+      <span class="stage-num">1</span>
+      <span class="stage-title">快速入门（1-2天）—— 建立基本认知</span>
+    </div>
+    <div class="stage-desc">目标：理解李录是谁、他的核心思想框架是什么、为什么重要。</div>
+    <ul class="priority-list">
+      <li>
+        <span class="p-tag p0">P0</span>
+        <span class="item-info">
+          <span class="item-title">2024年北大演讲《全球价值投资与时代》完整视频</span>
+          <span class="item-reason">最新最全面的思想总结，六条核心框架首次完整呈现</span>
+        </span>
+        <span class="item-time">约1.5小时</span>
+      </li>
+      <li>
+        <span class="p-tag p0">P0</span>
+        <span class="item-info">
+          <span class="item-title">《文明、现代化、价值投资与中国》下篇（三次演讲文字稿）</span>
+          <span class="item-reason">亲笔文字，系统化程度最高的入门材料</span>
+        </span>
+        <span class="item-time">约2小时阅读</span>
+      </li>
+      <li>
+        <span class="p-tag p1">P1</span>
+        <span class="item-info">
+          <span class="item-title">比亚迪23年访谈《洞见价值，穿越周期》</span>
+          <span class="item-reason">通过一个真实案例理解"长期持有"的真正含义</span>
+        </span>
+        <span class="item-time">约40分钟</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="path-stage stage-2">
+    <div class="stage-header">
+      <span class="stage-num">2</span>
+      <span class="stage-title">深入理解（1-2周）—— 掌握思想体系全貌</span>
+    </div>
+    <div class="stage-desc">目标：系统理解李录的文明三阶段论、价值投资六条框架、三维护城河模型和终局思维。</div>
+    <ul class="priority-list">
+      <li>
+        <span class="p-tag p0">P0</span>
+        <span class="item-info">
+          <span class="item-title">《文明、现代化、价值投资与中国》全书精读</span>
+          <span class="item-reason">唯一亲笔著作，上篇讲文明演进（世界观基础），下篇讲投资实践</span>
+        </span>
+        <span class="item-time">约8-10小时</span>
+      </li>
+      <li>
+        <span class="p-tag p0">P0</span>
+        <span class="item-info">
+          <span class="item-title">2015年+2019年北大演讲视频（完整版）</span>
+          <span class="item-reason">与2024年演讲形成三部曲，观察思想演进脉络</span>
+        </span>
+        <span class="item-time">约3小时</span>
+      </li>
+      <li>
+        <span class="p-tag p1">P1</span>
+        <span class="item-info">
+          <span class="item-title">2006/2010年哥大演讲笔记（英文）</span>
+          <span class="item-reason">了解李录早期思想状态和启蒙故事，理解思想成熟度变化</span>
+        </span>
+        <span class="item-time">约1小时阅读</span>
+      </li>
+      <li>
+        <span class="p-tag p2">P2</span>
+        <span class="item-info">
+          <span class="item-title">《穷查理宝典》（配合阅读）</span>
+          <span class="item-reason">理解芒格思想是理解李录的必要前提——李录的思想框架深深扎根于芒格</span>
+        </span>
+        <span class="item-time">约10小时</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="path-stage stage-3">
+    <div class="stage-header">
+      <span class="stage-num">3</span>
+      <span class="stage-title">研究级探索（持续深入）—— 批判性理解</span>
+    </div>
+    <div class="stage-desc">目标：形成独立判断——理解李录的可学之处和不可复制之处，区分事实与神话。</div>
+    <ul class="priority-list">
+      <li>
+        <span class="p-tag p0">P0</span>
+        <span class="item-info">
+          <span class="item-title">追踪13F持仓变化（SEC EDGAR / 13Foresight / 13FHub）</span>
+          <span class="item-reason">通过公开数据验证其"低换手、高集中度"的投资风格是否真实</span>
+        </span>
+        <span class="item-time">每季度30分钟</span>
+      </li>
+      <li>
+        <span class="p-tag p1">P1</span>
+        <span class="item-info">
+          <span class="item-title">阅读批判性分析：雪球《李录的30%》等文章</span>
+          <span class="item-reason">了解"30%年化"叙事的来源和疑点，建立独立判断</span>
+        </span>
+        <span class="item-time">约2小时</span>
+      </li>
+      <li>
+        <span class="p-tag p1">P1</span>
+        <span class="item-info">
+          <span class="item-title">芒格2019/2023年每日期刊年会关于李录的完整评论</span>
+          <span class="item-reason">从观察者视角理解芒格为何如此信任李录</span>
+        </span>
+        <span class="item-time">约1小时</span>
+      </li>
+      <li>
+        <span class="p-tag p2">P2</span>
+        <span class="item-info">
+          <span class="item-title">对比研究：格雷厄姆《聪明的投资者》→ 巴菲特股东信 → 芒格《穷查理宝典》 → 李录</span>
+          <span class="item-reason">理解价值投资思想四代传承的连续性与突破点</span>
+        </span>
+        <span class="item-time">持续</span>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="quick-ref">
+  <h3>⏱️ 快速参考：不同时间投入的选择</h3>
+  <div class="ref-item">
+    <div class="ref-label">如果只有30分钟</div>
+    <div class="ref-content">看2024年北大演讲视频的前30分钟（核心六条框架），或阅读本书下篇中对应章节文字稿</div>
+  </div>
+  <div class="ref-item">
+    <div class="ref-label">如果只有1天</div>
+    <div class="ref-content">① 观看2024年北大演讲完整视频（1.5h）→ ② 阅读三次演讲文字稿（2h）→ ③ 观看比亚迪23年访谈（40min）</div>
+  </div>
+  <div class="ref-item">
+    <div class="ref-label">如果想系统学习</div>
+    <div class="ref-content">按"阶段一→阶段二→阶段三"路径推进，全程约3-4周，重点放在一手资料阅读和持仓实证追踪上</div>
+  </div>
+</div>
+
+<div class="footer-note">
+  本报告基于公开信息整理，信息分为 ✅事实确认（一手来源）、💡合理推断（多来源综合）、❓待验证（信息不足或存在争议）三个层次。<br>
+  核心信息来源：李录《文明、现代化、价值投资与中国》、三次北大演讲、SEC 13F filings、芒格公开评论、雪球/长桥等投资社区分析文章。<br>
+  了解一个人不是背诵简历，而是理解他的思想体系、决策逻辑和精神遗产。每一步都要问：<strong>他为什么这么想？这对我意味着什么？</strong>
+</div>
+
+</body>
+</html>

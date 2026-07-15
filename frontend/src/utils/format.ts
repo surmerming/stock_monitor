@@ -14,8 +14,9 @@ export function formatMarketCap(cap: number | null | undefined): string {
   return cap.toLocaleString();
 }
 
-export function formatPrice(val: number | null | undefined): string {
-  return val != null ? val.toFixed(2) : '—';
+export function formatPrice(val: number | string | null | undefined): string {
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  return num != null && !isNaN(num) ? num.toFixed(2) : '—';
 }
 
 export function formatTurnover(val: number | null | undefined): string {
