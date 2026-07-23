@@ -20,6 +20,9 @@ export class Trade {
   @Column({ length: 20 })
   symbol: string;
 
+  @Column({ length: 50, nullable: true })
+  stockName: string;
+
   @Column({ length: 10 })
   direction: string;
 

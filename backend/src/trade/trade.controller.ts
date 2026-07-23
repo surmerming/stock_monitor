@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
 import { TradeService } from './trade.service';
 
 @Controller('trades')
@@ -6,14 +6,32 @@ export class TradeController {
   constructor(private readonly tradeService: TradeService) {}
 
   @Get()
-  async findAll(@Request() req: any) {
-    const items = await this.tradeService.findAll(req.user.userId);
+  async findAll(
+    @Request() req: any,
+    @Query('keyword') keyword?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    const items = await this.tradeService.findAll(req.user.userId, {
+      keyword,
+      startDate,
+      endDate,
+    });
     return { items };
   }
 
   @Get('stats')
-  async getStats(@Request() req: any) {
-    return this.tradeService.getStats(req.user.userId);
+  async getStats(
+    @Request() req: any,
+    @Query('keyword') keyword?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.tradeService.getStats(req.user.userId, {
+      keyword,
+      startDate,
+      endDate,
+    });
   }
 
   @Post()
@@ -22,6 +40,7 @@ export class TradeController {
     @Body()
     body: {
       symbol: string;
+      stockName: string;
       direction: string;
       price: number;
       quantity: number;
@@ -31,6 +50,7 @@ export class TradeController {
   ) {
     const trade = await this.tradeService.create(req.user.userId, {
       symbol: body.symbol.toUpperCase(),
+      stockName: body.stockName,
       direction: body.direction,
       price: body.price,
       quantity: body.quantity,
@@ -47,6 +67,7 @@ export class TradeController {
     @Body()
     body: Partial<{
       symbol: string;
+      stockName: string;
       direction: string;
       price: number;
       quantity: number;

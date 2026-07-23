@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Between, MoreThanOrEqual, LessThan, Repository } from 'typeorm';
 import { Trade } from './trade.entity';
 
 export interface TradeStats {
@@ -12,6 +12,12 @@ export interface TradeStats {
   maxLoss: number;
 }
 
+export interface TradeFilter {
+  keyword?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
 @Injectable()
 export class TradeService {
   constructor(
@@ -19,11 +25,36 @@ export class TradeService {
     private readonly repo: Repository<Trade>,
   ) {}
 
-  async findAll(userId: number): Promise<Trade[]> {
-    return this.repo.find({
-      where: { userId },
-      order: { tradeTime: 'DESC' },
-    });
+  async findAll(userId: number, filter?: TradeFilter): Promise<Trade[]> {
+    let query = this.repo.createQueryBuilder('trade').where('trade.userId = :userId', { userId });
+
+    if (filter?.keyword) {
+      const keyword = `%${filter.keyword.toUpperCase()}%`;
+      const keywordLower = `%${filter.keyword}%`;
+      query = query.andWhere('(trade.symbol LIKE :keyword OR trade.stockName LIKE :keywordLower)', {
+        keyword,
+        keywordLower,
+      });
+    }
+
+    if (filter?.startDate && filter?.endDate) {
+      const endDate = new Date(filter.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.andWhere('trade.tradeTime BETWEEN :startDate AND :endDate', {
+        startDate: new Date(filter.startDate),
+        endDate,
+      });
+    } else if (filter?.startDate) {
+      query = query.andWhere('trade.tradeTime >= :startDate', {
+        startDate: new Date(filter.startDate),
+      });
+    } else if (filter?.endDate) {
+      const endDate = new Date(filter.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.andWhere('trade.tradeTime < :endDate', { endDate });
+    }
+
+    return query.orderBy('trade.tradeTime', 'DESC').getMany();
   }
 
   async create(userId: number, data: Partial<Trade>): Promise<Trade> {
@@ -46,11 +77,36 @@ export class TradeService {
     return (result.affected ?? 0) > 0;
   }
 
-  async getStats(userId: number): Promise<TradeStats> {
-    const trades = await this.repo.find({
-      where: { userId },
-      order: { tradeTime: 'ASC' },
-    });
+  async getStats(userId: number, filter?: TradeFilter): Promise<TradeStats> {
+    let query = this.repo.createQueryBuilder('trade').where('trade.userId = :userId', { userId });
+
+    if (filter?.keyword) {
+      const keyword = `%${filter.keyword.toUpperCase()}%`;
+      const keywordLower = `%${filter.keyword}%`;
+      query = query.andWhere(
+        '(trade.symbol LIKE :keyword OR trade.stockName LIKE :keywordLower)',
+        { keyword, keywordLower },
+      );
+    }
+
+    if (filter?.startDate && filter?.endDate) {
+      const endDate = new Date(filter.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.andWhere('trade.tradeTime BETWEEN :startDate AND :endDate', {
+        startDate: new Date(filter.startDate),
+        endDate,
+      });
+    } else if (filter?.startDate) {
+      query = query.andWhere('trade.tradeTime >= :startDate', {
+        startDate: new Date(filter.startDate),
+      });
+    } else if (filter?.endDate) {
+      const endDate = new Date(filter.endDate);
+      endDate.setDate(endDate.getDate() + 1);
+      query = query.andWhere('trade.tradeTime < :endDate', { endDate });
+    }
+
+    const trades = await query.orderBy('trade.tradeTime', 'ASC').getMany();
 
     if (trades.length === 0) {
       return { totalTrades: 0, winRate: 0, avgPnlPercent: 0, totalPnl: 0, maxWin: 0, maxLoss: 0 };
