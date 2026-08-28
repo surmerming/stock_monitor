@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../../utils/apiFetch';
-import { formatTurnover, formatPrice } from '../../utils/format';
+import { formatTurnover, formatPrice, formatDateTime } from '../../utils/format';
 
 function formatLocalDateTime(date: Date): string {
   const year = date.getFullYear();
@@ -351,7 +351,7 @@ export default function TradeJournal() {
             <tbody>
               {trades.map((t) => (
                 <tr key={t.id} className="rv-table__row">
-                  <td className="rv-table__td">{new Date(t.tradeTime).toLocaleString('zh-CN')}</td>
+                  <td className="rv-table__td">{formatDateTime(t.tradeTime)}</td>
                   <td className="rv-table__td">
                     <div className="rv-table__stock-info">
                       <span className="rv-table__stock-name">{t.stockName || t.symbol}</span>

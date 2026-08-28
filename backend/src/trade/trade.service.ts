@@ -83,10 +83,10 @@ export class TradeService {
     if (filter?.keyword) {
       const keyword = `%${filter.keyword.toUpperCase()}%`;
       const keywordLower = `%${filter.keyword}%`;
-      query = query.andWhere(
-        '(trade.symbol LIKE :keyword OR trade.stockName LIKE :keywordLower)',
-        { keyword, keywordLower },
-      );
+      query = query.andWhere('(trade.symbol LIKE :keyword OR trade.stockName LIKE :keywordLower)', {
+        keyword,
+        keywordLower,
+      });
     }
 
     if (filter?.startDate && filter?.endDate) {
@@ -127,25 +127,34 @@ export class TradeService {
     const pnlPercents: number[] = [];
 
     for (const [, symbolTrades] of grouped) {
-      const buys: Trade[] = [];
+      // 按实际持仓数量做 FIFO 匹配，支持一笔卖出跨多笔买入
+      const buys: { price: number; remaining: number }[] = [];
       for (const t of symbolTrades) {
         if (t.direction === 'BUY') {
-          buys.push(t);
-        } else if (t.direction === 'SELL' && buys.length > 0) {
-          const buy = buys.shift()!;
-          const pnl = (Number(t.price) - Number(buy.price)) * Math.min(t.quantity, buy.quantity);
-          const pnlPct =
-            Number(buy.price) > 0
-              ? ((Number(t.price) - Number(buy.price)) / Number(buy.price)) * 100
-              : 0;
+          buys.push({ price: Number(t.price), remaining: Number(t.quantity) });
+        } else if (t.direction === 'SELL') {
+          let sellQty = Number(t.quantity);
+          const sellPrice = Number(t.price);
+          while (sellQty > 0 && buys.length > 0) {
+            const buy = buys[0];
+            const matched = Math.min(sellQty, buy.remaining);
+            const pnl = (sellPrice - buy.price) * matched;
+            const pnlPct = buy.price > 0 ? ((sellPrice - buy.price) / buy.price) * 100 : 0;
 
-          totalPnl += pnl;
-          pnlPercents.push(pnlPct);
-          closedTrades++;
+            totalPnl += pnl;
+            pnlPercents.push(pnlPct);
+            closedTrades++;
 
-          if (pnl > 0) wins++;
-          if (pnl > maxWin) maxWin = pnl;
-          if (pnl < maxLoss) maxLoss = pnl;
+            if (pnl > 0) wins++;
+            if (pnl > maxWin) maxWin = pnl;
+            if (pnl < maxLoss) maxLoss = pnl;
+
+            sellQty -= matched;
+            buy.remaining -= matched;
+            if (buy.remaining === 0) {
+              buys.shift();
+            }
+          }
         }
       }
     }

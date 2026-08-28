@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日复盘 — 2026年8月13日（周四·收盘版）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--c:#fff;--t:#2c3e50;--t2:#7f8c8d;--b:#e8ecf1;--r:#e74c3c;--g:#27ae60;--bl:#3498db;--o:#f39c12;--p:#8e44ad}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);line-height:1.75;padding:24px}
+.wrap{max-width:1120px;margin:0 auto}
+.hd{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;border-radius:12px;padding:32px 36px;margin-bottom:20px}
+.hd h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hd .meta{font-size:14px;opacity:.75;display:flex;gap:20px;flex-wrap:wrap}
+.hd .line{height:3px;width:60px;background:var(--o);margin-top:16px;border-radius:2px}
+.tldr{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:2px solid var(--o);border-radius:10px;padding:18px 24px;margin-bottom:20px}
+.tldr h3{font-size:16px;font-weight:700;color:#e67e22;margin-bottom:8px}
+.tldr p{font-size:14px;color:#7d6608;margin:0;line-height:1.6}
+.s{background:var(--c);border-radius:10px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.s h2{font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--b);display:flex;align-items:center;gap:8px}
+.s h3{font-size:15px;font-weight:600;margin:18px 0 10px;color:#34495e;padding-left:8px;border-left:3px solid var(--bl)}
+.s h4{font-size:14px;font-weight:600;margin:12px 0 8px;color:#555}
+.s p,.s li{font-size:13.5px;margin-bottom:5px}
+.s ul,.s ol{padding-left:20px;margin:8px 0}
+.s li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0 16px}
+th{background:#f0f3f7;font-weight:600;color:#555;padding:9px 6px;text-align:center;white-space:nowrap}
+td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--b);font-size:12px}
+tr:hover{background:#fafbfc}
+td:first-child,th:first-child{text-align:left;padding-left:10px}
+.up{color:var(--r);font-weight:600}.dn{color:var(--g);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.bu{background:#fdecea;color:var(--r)}.bd{background:#eafaf1;color:var(--g)}.bi{background:#eaf2f8;color:var(--bl)}.bw{background:#fef5e7;color:var(--o)}.bp{background:#f4ecf7;color:var(--p)}
+.news{background:#f8f9fa;border-left:3px solid var(--bl);padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0;font-size:13px}
+.news.imp{border-left-color:var(--r);background:#fff5f5}.news.warn{border-left-color:var(--o);background:#fffdf5}
+.fx{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
+.sc{background:#f8f9fb;border-radius:8px;padding:14px 16px;text-align:center;border:1px solid var(--b)}
+.sc .lb{font-size:12px;color:var(--t2);margin-bottom:4px}
+.sc .vl{font-size:20px;font-weight:700}
+.sc .sb{font-size:11px;color:var(--t2);margin-top:2px}
+.chart{width:100%;height:380px;margin:16px 0}
+.dv{border-top:1px dashed var(--b);margin:16px 0}
+.fn{font-size:12px;color:var(--t2);margin-top:12px;text-align:center}
+.hl{background:#f0f7ff;border:1px solid #bbd8f7;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.al{background:#fff5f5;border:1px solid #f5c6cb;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.pl{background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:16px 20px;margin:10px 0;font-size:13px}
+.pl h4{font-size:14px;margin-bottom:8px;color:#155724}.pl li{margin-bottom:6px}
+.stk{background:#fafbfc;border:1px solid var(--b);border-radius:8px;padding:16px 18px;margin:14px 0}
+.stk h4{font-size:14px;margin-bottom:10px}
+.ir{display:flex;flex-wrap:wrap;gap:8px 16px;margin:6px 0;font-size:12px}
+hr.sty{border:0;height:1px;background:linear-gradient(to right,transparent,var(--b),transparent);margin:16px 0}
+.mk{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:6px;vertical-align:middle}
+.ma{background:#e74c3c;color:#fff}.mh{background:#f39c12;color:#fff}.mu{background:#3498db;color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hd">
+<h1>&#x1F4CA; 每日复盘 — 2026年8月13日（周四·收盘版）</h1>
+<div class="meta">
+<span>&#x1F4C5; A股/港股 8/13 收盘 | 美股 8/12 收盘 + 8/13 盘中</span>
+<span>&#x1F550; 生成：2026-08-13 21:50 CST</span>
+<span>&#x1F7E2; 美联储双鸽·9月加息概率大降 | &#x1F7E2; 中芯/华虹财报双超预期 | &#x1F534; 腾讯绩后-4.46% | &#x1F7E2; 油价-2.49% | 27只持仓全覆盖</span>
+</div>
+<div class="line"></div>
+</div>
+
+<div class="tldr">
+<h3>&#x1F511; 今日速览（TL;DR）</h3>
+<p><strong>A股8/13冲高回落放量收跌（科创50领跌-1.11%、两市成交2.55万亿放量近4000亿、4300+个股下跌），但港股拒绝跟跌、美股延续risk-on——全球"通胀双鸽"格局进一步确认。</strong>美国7月<strong>PPI环比0%/同比+4.7%</strong>叠加前日CPI，通胀连续两份数据超预期降温，市场将9月加息概率进一步下修、押注10/12月，美元指数99.90微跌、美债收益率下滑。A股结构上<strong>创新药/CRO/大金融/电力走强，半导体/贵金属/光伏/存储跌幅居前</strong>；中际旭创高开960元后回落收921（成交277亿放量），兆易创新低开低走收404（-2.11%）。<strong>盘后重大利好：中芯国际、华虹宏力Q2财报双双大超预期</strong>（中芯营收首破30亿美元+毛利率25.3%、华虹营收创历史新高），晶圆代工景气上行，直接催化明日半导体链。<br><br>
+<strong>&#x1F4A1; 核心发现：</strong>(1) <strong>通胀双鸽锁定全球risk-on</strong>——CPI+PPI连续降温，美联储年内大概率维持高利率但不加息，流动性拐点确认；(2) <strong>港股对腾讯利空消化良好</strong>——腾讯绩后-4.46%收441（远好于ADR -5.44%预期），其余科网（阿里+1.22%/京东+0.98%/小米+0.46%/美团+0.60%/泡泡玛特+2.12%）全线收红，恒指仅微跌0.17%抗跌；(3) <strong>A股半导体当日回调≠趋势反转</strong>——盘后中芯/华虹业绩炸裂，明日兆易/中际有望修复；(4) <strong>油价WTI暴跌-2.49%至81.20</strong>，能源价格下跌是PPI降温主因，美伊缓和+需求走弱；(5) 联想集团季绩远胜预期单日+20.18%破顶，港股资金转向业绩确定性。<br>
+<strong>判断：通胀双鸽+中芯华虹业绩催化，A股科技明日有望修复；港股腾讯440支撑有效则利空出尽。整体维持6-7成进攻，主线聚焦半导体（晶圆代工链）+创新药+CRO，港股等腾讯企稳。</strong></p>
+</div>
+
+<!-- ============ 一、大盘环境诊断 ============ -->
+<div class="s">
+<h2>&#x1F4C8; 一、大盘环境诊断（定仓位）</h2>
+
+<h3>1. A股指数趋势（8/13收盘）— 冲高回落、放量收跌，结构分化</h3>
+<div class="fx">
+<div class="sc"><div class="lb">上证指数</div><div class="vl dn">3,926.96</div><div class="sb">-0.50% | 成交约1.16万亿</div></div>
+<div class="sc"><div class="lb">深证成指</div><div class="vl dn">14,289.44</div><div class="sb">-0.87% | 成交约1.39万亿</div></div>
+<div class="sc"><div class="lb">创业板指</div><div class="vl dn">3,586.04</div><div class="sb">-0.45% | 盘中一度翻红</div></div>
+<div class="sc"><div class="lb">科创50 &#x1F534;</div><div class="vl dn">1,717.75</div><div class="sb">-1.11% | 半导体领跌</div></div>
+<div class="sc"><div class="lb">沪深300</div><div class="vl dn">4,663.95</div><div class="sb">-0.57%</div></div>
+<div class="sc"><div class="lb">两市成交</div><div class="vl">2.55万亿</div><div class="sb dn">放量+3985亿</div></div>
+</div>
+<p><strong>8/13 A股特征：指数高开横盘、尾盘1.5小时跳水，全市场放量下跌。</strong>个股涨跌比1142:4317（<strong>上涨占比仅20%，较昨日76%骤降56个百分点</strong>），62涨停/4跌停。成交2.55万亿较昨日2.15万亿放量近4000亿，属"放量下跌"需警惕。结构上：半导体指数-1.68%、科创50-1.11%领跌；但创新药/CRO、证券/银行/保险大金融、电力逆势走强——呈现"科技退潮、防御与医药接棒"的轮动格局。黄白线看，权重（银行/券商）相对抗跌，中小盘（科创/半导体）杀跌明显。</p>
+
+<h3>2. 港股大盘（8/13收盘）— 拒绝跟跌，恒指仅微跌</h3>
+<div class="fx">
+<div class="sc"><div class="lb">恒生指数</div><div class="vl dn">25,396.51</div><div class="sb">-0.17% | 成交2637亿HKD</div></div>
+<div class="sc"><div class="lb">恒生科技</div><div class="vl up">4,792.39</div><div class="sb">+0.33%</div></div>
+<div class="sc"><div class="lb">国企指数</div><div class="vl dn">8,426.49</div><div class="sb">-0.23%</div></div>
+<div class="sc"><div class="lb">腾讯控股 &#x1F534;</div><div class="vl dn">441.00</div><div class="sb">-4.46% 绩后独跌</div></div>
+</div>
+<p><strong>港股8/13抗跌明显：恒指仅微跌0.17%、恒科甚至收涨0.33%。</strong>腾讯绩后大跌4.46%是主要拖累，但<strong>其余科网全线收红</strong>——阿里巴巴+1.22%、京东+0.98%、小米+0.46%、美团+0.60%、泡泡玛特+2.12%，百度+1%、联想集团季绩远胜预期飙升20.18%破顶。金属资源股（中国宏桥-7.12%/中国铝业-6.21%）大跌，但中资金融（中国银行+1.54%/汇丰+1.48%）走强。说明港股对腾讯财报利空消化良好，资金转向业绩确定性品种。</p>
+
+<h3>3. 美股大盘（8/12收盘 + 8/13盘中）— 通胀双鸽，risk-on延续</h3>
+<div class="fx">
+<div class="sc"><div class="lb">纳斯达克</div><div class="vl up">26,717</div><div class="sb">+0.48% 8/13盘中</div></div>
+<div class="sc"><div class="lb">标普500</div><div class="vl up">7,781</div><div class="sb">+0.43% 8/13盘中</div></div>
+<div class="sc"><div class="lb">道琼斯</div><div class="vl up">53,913</div><div class="sb">+0.26% 8/13盘中</div></div>
+<div class="sc"><div class="lb">费城半导体</div><div class="vl up">强势</div><div class="sb">存储/AI延续涨势</div></div>
+</div>
+<p><strong>美股8/12收盘：纳指+0.54%/标普+0.26%/道指-0.04%；8/13盘初延续risk-on（纳指+0.48%/标普+0.43%/道指+0.26%）。</strong>驱动：CPI+PPI连续两份通胀数据降温，9月加息概率大降。8/13盘初存储/AI延续强势——美光+1.67%/英伟达+0.31%/苹果+0.39%/特斯拉+0.61%，Sea-1.46%继续回吐。整体处于确认的上升趋势中。</p>
+
+<h3>4. 美国7月PPI数据解读 — 超预期降温，与CPI共振</h3>
+<div class="fx">
+<div class="sc"><div class="lb">7月PPI环比</div><div class="vl dn">0.0%</div><div class="sb">预期+0.2% | 大幅低于预期</div></div>
+<div class="sc"><div class="lb">7月PPI同比 &#x1F7E2;</div><div class="vl dn">+4.7%</div><div class="sb">6月5.5%→4.7% | 预期4.9%</div></div>
+<div class="sc"><div class="lb">核心PPI同比</div><div class="vl dn">+4.2%</div><div class="sb">6月4.7%→4.2%</div></div>
+<div class="sc"><div class="lb">9月加息概率</div><div class="vl dn">进一步降</div><div class="sb">市场押注10/12月</div></div>
+</div>
+<p><strong>PPI超预期降温，与昨日CPI形成"双鸽"共振。</strong>7月PPI环比持平（预期+0.2%），同比+4.7%（前值5.5%、预期4.9%）；核心PPI环比+0.2%（预期0.3%）。<strong>能源价格下跌3.1%（汽油-5.7%）是主因</strong>，商品价格连两月下滑。数据公布后，利率期货隐含加息概率几乎无变化，交易员转向押注10月或12月才可能行动，美元指数微跌至99.90、美债收益率下滑、美股期指走高。CPI+PPI双降，美联储年内"不加息"基准情景进一步锁定。</p>
+
+<h3>5. 全球宏观联动</h3>
+<div class="fx">
+<div class="sc"><div class="lb">美元指数</div><div class="vl dn">99.90</div><div class="sb">-0.04% 受PPI压制</div></div>
+<div class="sc"><div class="lb">COMEX黄金</div><div class="vl dn">$4,434</div><div class="sb">-0.75% | 伦敦金$4381</div></div>
+<div class="sc"><div class="lb">WTI原油 &#x1F7E2;</div><div class="vl dn">$81.20</div><div class="sb">-2.49% 大跌！</div></div>
+<div class="sc"><div class="lb">白银</div><div class="vl dn">$65.09</div><div class="sb">-0.93%</div></div>
+</div>
+<p><strong>美元走弱+油价大跌+黄金小跌，宏观组合偏鸽。</strong>美元指数99.90受PPI降温压制微跌；WTI原油暴跌2.49%至81.20（布油跟跌），能源价格下行既是PPI降温主因、也反映美伊局势阶段性缓和/需求走弱；黄金纽约金4434（-0.75%）小幅回调，通胀降温削弱避险买盘但降息预期托底。VIX回落至约15低位，风险偏好回升。传导路径：美元弱→人民币稳→利好港股/有色；油价跌→通胀预期降→延续risk-on。</p>
+</div>
+
+<!-- 三大市场指数对比 ECharts -->
+<div class="s"><h2>&#x1F4CA; 三大市场核心指数对比</h2>
+<div id="chart_idx" class="chart"></div>
+</div>
+
+<!-- ============ 二、板块与资金流向 ============ -->
+<div class="s">
+<h2>&#x1F4B0; 二、板块与资金流向（定方向）</h2>
+
+<h3>1. A股热点板块（8/13）— 创新药/CRO领涨，半导体/资源/光伏领跌</h3>
+<table>
+<tr><th>方向</th><th>板块</th><th>涨跌幅</th><th>领涨/领跌股</th><th>驱动逻辑</th></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>创新药/CRO</td><td class="up">强势</td><td>博济医药/万邦医药/陇神戎发涨停、药明康德+2.07%</td><td>美银上调CXO目标价+多家药企披露创新药临床进展+集采"优质优价"</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>证券/银行/保险</td><td class="up">走强</td><td>财通证券+7%、长江证券/天风证券跟涨</td><td>监管鼓励行业并购重组，券商整合提升集中度预期</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>电力</td><td class="up">活跃</td><td>大唐发电/金开新能/惠天热电涨停</td><td>夏季用电高峰+绿电装机增长</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>半导体/存储芯片</td><td class="dn">-1.68%</td><td>兆易创新-2.11%、半导体材料/MLCC调整</td><td>昨日CPI利好兑现+"卖事实"获利回吐</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>贵金属/有色金属</td><td class="dn">集体下跌</td><td>晓程科技-9%、中国铝业-6.21%/紫金-4.06%</td><td>国际金价回调+金属资源股抛售</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>光伏设备</td><td class="dn">跌幅居前</td><td>艾罗能源/华民股份-5%+</td><td>行业产能过剩担忧延续</td></tr>
+</table>
+
+<h3>2. 美股板块（8/12-8/13）— 存储/AI硬件延续，巨头分化</h3>
+<table>
+<tr><th>方向</th><th>板块</th><th>涨跌幅</th><th>领涨/领跌股</th><th>驱动逻辑</th></tr>
+<tr><td><span class="badge bu">强势</span></td><td>存储芯片</td><td class="up">延续涨</td><td>美光+4.92%(8/12)/+1.67%(8/13盘初)</td><td>供需紧张至2027+CPI/PP双鸽</td></tr>
+<tr><td><span class="badge bu">强势</span></td><td>AI算力/云</td><td class="up">延续涨</td><td>英伟达+3.03%(8/12)/+0.31%(8/13盘)</td><td>AI需求验证+流动性拐点</td></tr>
+<tr><td><span class="badge bw">分化</span></td><td>大型科技七巨头</td><td class="up">个别</td><td>苹果+0.39%/特斯拉+0.61%(8/13盘)</td><td>资金从巨头流向AI硬件/存储</td></tr>
+<tr><td><span class="badge bd">偏弱</span></td><td>中概股</td><td class="dn">回调</td><td>Sea -2.59%(8/12)/-1.46%(8/13盘)</td><td>两日暴涨+31%后获利回吐</td></tr>
+</table>
+
+<h3>3. 港股资金动向 — 南向分化，未现恐慌</h3>
+<p><strong>南向资金8/13整体维持区间波动（未现大幅净卖出）。</strong>结构上：腾讯绩后遭部分获利了结（成交额295亿居首、量比3.29倍放大），但阿里/京东/小米/美团/泡泡玛特逆势收红，显示资金在腾讯利空释放后转向业绩确定性品种（联想+20%、中资金融走强）。联想破顶飙升反映市场对"AI+业绩"的追捧。需观察明日南向是否延续对腾讯的承接。</p>
+
+<h3>4. 板块持续性判断</h3>
+<table>
+<tr><th>板块</th><th>持续性评估</th><th>判断依据</th></tr>
+<tr><td><span class="badge bu">半导体(晶圆代工)</span></td><td>&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50; 强催化</td><td>盘后中芯/华虹Q2双超预期→明日兆易/中际/设备链直接受益，趋势重启</td></tr>
+<tr><td><span class="badge bu">创新药/CRO</span></td><td>&#x2B50;&#x2B50;&#x2B50;&#x2B50; 趋势延续</td><td>美银上调CXO目标价+临床进展密集+药明+2.07%趋势明确</td></tr>
+<tr><td><span class="badge bw">大金融</span></td><td>&#x2B50;&#x2B50;&#x2B50; 修复</td><td>券商并购重组逻辑+低估值，但持续性看量能配合</td></tr>
+<tr><td><span class="badge bd">贵金属/有色</span></td><td>&#x2B50; 短期承压</td><td>金价回调+美元弱未及对冲，资源股获利了结</td></tr>
+<tr><td><span class="badge bd">光伏</span></td><td>&#x2B50; 弱势</td><td>产能过剩担忧，跌幅居前无催化</td></tr>
+</table>
+
+<h3>5. 融资融券</h3>
+<div class="fx">
+<div class="sc"><div class="lb">两市成交</div><div class="vl">2.55万亿</div><div class="sb dn">放量+3985亿</div></div>
+<div class="sc"><div class="lb">个股涨跌比</div><div class="vl dn">1142:4317</div><div class="sb">赚钱效应骤降</div></div>
+<div class="sc"><div class="lb">涨停/跌停</div><div class="vl">62/4</div><div class="sb">连板高度收敛</div></div>
+<div class="sc"><div class="lb">中际旭创成交</div><div class="vl">277亿</div><div class="sb">放量换手</div></div>
+</div>
+</div>
+
+<!-- ============ 三、欧奈尔选股模块 ============ -->
+<div class="s">
+<h2>&#x1F3AF; 三、欧奈尔选股模块（发现新机会）</h2>
+<p>本模块依据欧奈尔 CAN SLIM 体系选股。今日大盘环境：<strong>通胀双鸽（CPI+PPI连续降温）确认流动性拐点，美股risk-on延续，M开关=打开（偏多）</strong>——但A股8/13放量下跌、赚钱效应骤降，属"上升趋势中的单日回调"，仍可执行选股与建仓流程，但需等中芯/华虹业绩催化确认半导体趋势重启。</p>
+
+<h3>CAN SLIM 七维框架速查</h3>
+<table>
+<tr><th>因子</th><th>硬标准</th><th>当前状态</th></tr>
+<tr><td>C 当季EPS</td><td>同比≥25%</td><td>半导体链Q2爆发（中芯利润+261%YoY/华虹+386%YoY）、创新药CXO业绩修复</td></tr>
+<tr><td>A 年收益</td><td>ROE≥17%</td><td>中芯/华虹毛利率环比大幅提升，需逐只核查</td></tr>
+<tr><td>N 新高买点</td><td>股价创一年新高</td><td>联想破顶+20%；半导体设备/晶圆代工受业绩催化或挑战前高</td></tr>
+<tr><td>S 量价</td><td>突破日量≥日均40-50%</td><td>中际8/13成交277亿放量，关注明日半导体突破量能</td></tr>
+<tr><td>L 领军</td><td>RS≥80</td><td>半导体晶圆代工链、创新药CRO处于领涨地位</td></tr>
+<tr><td>I 机构</td><td>优质机构新进/加仓</td><td>美银上调CXO目标价；大行看多晶圆代工景气</td></tr>
+<tr><td>M 大盘</td><td>确认上升趋势</td><td><strong>打开（偏多）</strong>——通胀双鸽+美股risk-on，A股单日回调不改中期向上</td></tr>
+</table>
+
+<h3>当前候选观察池（M=打开，可开始建仓）</h3>
+<div class="hl">
+<p><strong>晶圆代工链+创新药CRO构成双主线候选。</strong>①<strong>半导体设备/晶圆代工映射</strong>：中芯国际/华虹宏力Q2业绩炸裂（营收历史新高、毛利率跳升），A股映射兆易创新、中际旭创（CPO）、北方华创等设备股明日若放量突破、量能≥日均40%则纳入；②<strong>创新药CRO</strong>：美银上调行业目标价+临床进展密集，药明康德已创阶段高，回踩155-158为加仓点。③<strong>联想集团式"AI+业绩"</strong>：季绩远胜预期单日+20%，反映市场对业绩确定性AI标的追捧。<strong>触发条件：放量突破且大盘回升配合才纳入建仓。</strong></p>
+<p><strong>⚠️ 策略互斥提醒：</strong>本模块仅填处于新高突破位的CAN SLIM标的，与"低估+高成长"模型互斥。勿将深跌低估值标的混入。</p>
+</div>
+</div>
+
+<!-- ============ 四、个股表现与消息面 ============ -->
+<div class="s">
+<h2>&#x1F4C4; 四、个股表现与消息面</h2>
+
+<h3>1. A股涨跌榜（8/13）</h3>
+<p><strong>62涨停、4跌停，但赚钱效应骤降（上涨占比20%）。</strong>领涨：创新药/CRO（博济医药/万邦医药/陇神戎发涨停、药石科技跟涨）、证券（财通证券+7%）、电力（大唐发电等涨停）。领跌：贵金属/有色（晓程科技-9%）、MLCC（昀冢科技-7%）、光伏设备（艾罗能源-5%+）、存储芯片/半导体（兆易-2.11%）。中际旭创高开960元后回落收921（成交277亿天量），呈放量长上影"射击之星"形态。</p>
+
+<h3>2. 港股个股表现（8/13）</h3>
+<p><strong>腾讯绩后-4.46%独跌，其余科网全线收红。</strong>联想集团+20.18%破顶（季绩远胜预期）、泡泡玛特+2.12%（段永平增持）、阿里+1.22%/京东+0.98%/美团+0.60%/小米+0.46%企稳反弹。金属资源股（中国宏桥-7.12%等）大跌，中资金融走强。科网分化特征明显，资金回避短期盈利受AI资本开支压制的腾讯、转向业绩确定性。</p>
+
+<h3>3. 美股个股表现（8/12收盘 + 8/13盘初）</h3>
+<p><strong>8/12收盘：</strong>英伟达+3.03%（6/2以来最高）、美光+4.92%（存储主线）、苹果-0.87%/谷歌-0.08%基本企稳、特斯拉-1.59%、Sea-2.59%（+31%后回吐）。<strong>8/13盘初：</strong>延续risk-on——美光+1.67%/英伟达+0.31%/苹果+0.39%/特斯拉+0.61%，Sea-1.46%续调。费半整体强势，存储/AI硬件仍是美股最强主线。</p>
+
+<h3>4. 腾讯财报解读（8/12盘后·8/13港股反应）</h3>
+<div class="news imp"><strong>&#x1F4E2; 腾讯绩后-4.46%收441港元：大行忧AI投资短期拖累盈利，但港股消化良好。</strong>Q2营收2047.85亿（+11%超预期、首次破2000亿）、本土游戏+17%大超预期、营销服务+22%；但资本开支527.84亿（+176%创纪录）、自由现金流转负-138亿，AI军备竞赛代价引发担忧（ADR隔夜-5.44%）。8/13港股仅跌4.46%（远好于ADR），成交额295亿、量比3.29倍，说明利空已较充分释放。<strong>核心业务不弱，CAPEX属"整笔投资"非线性增长，440港元是关键支撑。</strong></div>
+
+<h3>5. 中芯国际/华虹宏力Q2财报（8/13盘后·重大利好）</h3>
+<div class="news imp"><strong>&#x1F4E2; 晶圆代工双雄Q2业绩双双大超预期！</strong>①<strong>中芯国际</strong>：Q2营收首破<strong>30亿美元</strong>（+20% QoQ、+36.1% YoY），毛利率25.3%（+5.2pp QoQ），归母利润4.79亿美元（+142.7% QoQ、+261.7% YoY），均超市场预期；Q3指引收入+2-4% QoQ、毛利率26-28%（连续两季上行）。②<strong>华虹宏力</strong>：Q2营收7.175亿美元<strong>创历史新高</strong>（+26.8% YoY、+8.6% QoQ），毛利率16.5%（+5.6pp YoY），归母利润3860万美元（+385.9% YoY），均超预期；Q3指引营收7.7-7.8亿、毛利率16-18%。<strong>半导体景气上行确认→明日兆易创新/中际旭创/设备链直接受益。</strong></div>
+
+<h3>6. 消息与公告</h3>
+<div class="news imp"><strong>&#x1F4E2; 美国7月PPI超预期降温：</strong>环比0%（预期+0.2%）、同比+4.7%（6月5.5%），核心PPI+0.2%。与CPI共振，9月加息概率进一步降，市场押注10/12月。美元99.90微跌、美债收益率下滑。</div>
+<div class="news imp"><strong>&#x1F4E2; 中芯/华虹Q2财报双超预期：</strong>晶圆代工景气上行，半导体链明日催化（详见上文）。</div>
+<div class="news"><strong>&#x1F4E2; 联想集团季绩远胜预期：</strong>单日+20.18%破顶，AI+业绩确定性受追捧。</div>
+<div class="news"><strong>&#x1F4E2; 美银上调CXO/创新药目标价：</strong>受益全球生物科技一级融资强劲+对外授权活跃，中国CRO/CDMO可望受惠。</div>
+<div class="news"><strong>&#x1F4E2; 段永平增持泡泡玛特：</strong>持股比例升至7.70%，叠加PE 14.5合理，泡泡玛特+2.12%。</div>
+<div class="news warn"><strong>&#x26A0; 油价WTI暴跌-2.49%至$81.20：</strong>能源价格下跌是PPI降温主因，美伊缓和+需求走弱信号，关注通胀反复风险。</div>
+
+<h3>7. 关键事件日历</h3>
+<table>
+<tr><th>日期</th><th>事件</th><th>市场</th><th>影响等级</th><th>对持仓的潜在影响</th></tr>
+<tr><td>8/13盘后</td><td>中芯/华虹Q2财报</td><td>A/港股</td><td><span class="badge bu">极高</span></td><td>半导体链（兆易/中际/设备）明日直接催化</td></tr>
+<tr><td>8/13</td><td>美国7月PPI</td><td>全球</td><td><span class="badge bu">高</span></td><td>通胀双鸽确认risk-on，利好全球成长股</td></tr>
+<tr><td>8/14（周五）</td><td>央行隔夜逆回购开展</td><td>A股</td><td><span class="badge bw">中</span></td><td>流动性呵护（每日不超6000亿）</td></tr>
+<tr><td>8/14</td><td>美国零售销售/初请失业金</td><td>全球</td><td><span class="badge bw">中</span></td><td>消费/就业验证经济韧性</td></tr>
+<tr><td>8/26</td><td>美国7月PCE物价</td><td>全球</td><td><span class="badge bu">高</span></td><td>美联储偏好的通胀指标，定调利率路径</td></tr>
+<tr><td>本周</td><td>美伊谈判进展</td><td>全球</td><td><span class="badge bu">高</span></td><td>油价走势→通胀预期→所有资产</td></tr>
+</table>
+</div>
+
+<!-- ============ 五、个股跟踪 ============ -->
+<div class="s">
+<h2>&#x1F50D; 五、个股跟踪</h2>
+
+<h3>1. A股自选股与ETF技术分析（14只·含6 ETF）</h3>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 贵州茅台 (600519) — 1355.29 <span class="up">+0.92%</span></h4>
+<div class="ir"><span>成交43.76亿 | PE约20.3</span><span>昨收1343.00</span></div>
+<p><strong>技术评估：</strong>逆势收红，白酒板块整体偏强（集采利好中药+消费修复）。PE 20.3历史低位，防御底仓逻辑不变。支撑1330，阻力1380。<strong>中性偏多，底仓持有。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 中国平安 (601318) — 52.80 <span class="up">+0.38%</span></h4>
+<div class="ir"><span>成交27.61亿 | PE约7.2</span><span>昨收52.60</span></div>
+<p><strong>技术评估：</strong>大金融走强带动，PE 7.2/PB 0.97极端低估。支撑50.00，阻力54.00。<strong>中性偏多，低估值底仓持有。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 药明康德 (603259) — 162.33 <span class="up">+2.07%</span></h4>
+<div class="ir"><span>成交120.28亿 | PE约22</span><span>昨收159.04 | 换手约3%</span></div>
+<p><strong>&#x1F7E2; 技术评估：创新药CRO主线领涨，放量突破站稳160。</strong>CRO概念强势（美银上调目标价）+孙公司临床进展。支撑158，阻力165（前高）。回踩158-160是加仓点。<strong>偏多，趋势延续，等回踩加仓。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 东方财富 (300059) — 19.78 <span class="dn">-0.25%</span></h4>
+<div class="ir"><span>成交55.61亿 | PE约24</span><span>昨收19.83</span></div>
+<p><strong>技术评估：</strong>缩量微跌，券商板块走强但东财弹性不足。支撑19.00，阻力20.50。<strong>中性，持有观望。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 招商银行 (600036) — 38.77 <span class="up">+0.18%</span></h4>
+<div class="ir"><span>成交19.41亿 | PE约6.5</span><span>昨收38.70</span></div>
+<p><strong>技术评估：</strong>大金融托底微涨，PE 6.5深度低估。支撑38.00，阻力40.00。<strong>中性，低估值底仓持有。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 宁德时代 (300750) — 396.30 <span class="up">+0.60%</span></h4>
+<div class="ir"><span>成交96.65亿 | PE约21.4</span><span>昨收393.93</span></div>
+<p><strong>技术评估：</strong>温和上涨站稳395，PE 21.4合理。支撑380，阻力400整数关。放量收复400→短期转强。<strong>中性偏多，持有为主。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 兆易创新 (603986) — 404.50 <span class="dn">-2.11%</span></h4>
+<div class="ir"><span>成交229.01亿 | PE约99</span><span>昨收413.17 | 换手约9%</span></div>
+<p><strong>&#x26A0; 技术评估：低开425后低走收404，跌破413/400双支撑，放量下跌（成交229亿）。</strong>属"卖事实"获利回吐，但<strong>盘后中芯/华虹业绩大超预期直接利好存储/半导体链</strong>，明日有望修复。支撑400（今日已触及）/390，阻力420。PE仍高但景气上行。<strong>偏空转中性，明日观察中芯华虹催化下能否重回410+。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 中际旭创 (300308) — 921.04 <span class="up">+0.00%</span></h4>
+<div class="ir"><span>成交277.45亿 | PE约72</span><span>昨收921.00 | 振幅4.96%</span></div>
+<p><strong>&#x26A0; 技术评估：高开960元后大幅回落收921，留长上影"射击之星"，成交277亿天量换手。</strong>CPO逻辑未变（美股光通信/存储延续涨），但短期获利盘沉重。支撑880（昨日低点），阻力950/980。明日半导体业绩催化或带动修复。<strong>中性偏多，核心持仓，回踩880-900可加仓，突破950确认趋势。</strong></p>
+</div>
+
+<h4 style="margin-top:18px">A股 ETF（6只·宽基/行业）</h4>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> 沪深300ETF华泰柏瑞 (510300) — 4.729 <span class="dn">-0.40%</span></h4>
+<div class="ir"><span>成交43.65亿</span><span>昨收4.748</span></div>
+<p><strong>中性，宽基底仓。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> A500ETF东财 (159380) — 1.375 <span class="dn">-0.65%</span></h4>
+<div class="ir"><span>成交活跃</span><span>昨收1.384</span></div>
+<p><strong>中性，核心宽基底仓。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> 创业板ETF易方达 (159915) — 3.604 <span class="dn">-0.47%</span></h4>
+<div class="ir"><span>成交58.21亿</span><span>昨收3.621</span></div>
+<p><strong>中性，创业板弹性仓位，随大盘回调。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> 科创50ETF东财 (589850) — 1.648 <span class="dn">-1.02%</span></h4>
+<div class="ir"><span>成交1.40亿</span><span>昨收1.665</span></div>
+<p><strong>偏弱，科创50-1.11%拖累。明日半导体业绩催化或修复。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> 机器人ETF易方达 (159530) — 1.397 <span class="dn">-1.62%</span></h4>
+<div class="ir"><span>成交8.18亿</span><span>昨收1.420</span></div>
+<p><strong>前高后回调，跌破1.40。支撑1.36，阻力1.45。偏中性，回踩1.36-1.38可分批。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk ma">A股ETF</span> 恒指科技ETF博时 (159742) — 0.613 <span class="up">+0.16%</span></h4>
+<div class="ir"><span>成交活跃</span><span>昨收0.612</span></div>
+<p><strong>微涨，港股抗跌带动。中性，持有。</strong></p>
+</div>
+
+<h3>2. 港股自选股技术分析（7只）</h3>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 腾讯控股 (00700) — 441.00 HKD <span class="dn">-4.46%</span> <span class="badge bw">量比3.29</span></h4>
+<div class="ir"><span>PE约14.8 | 成交295.46亿HKD（居首）</span><span>昨收461.60</span></div>
+<p><strong>&#x26A0; 绩后大跌-4.46%，但远好于ADR -5.44%预期，利空释放较充分。</strong>大行忧AI资本开支压制短期盈利，但核心业务不弱（游戏+17%/营销+22%），CAPEX属"整笔投资"非线性。440港元是关键支撑（今日最低439.6守住）。<strong>偏空转中性，440不破则利空出尽；跌破430→减仓30%。持有观察。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 阿里巴巴 (09988) — 124.10 HKD <span class="up">+1.22%</span></h4>
+<div class="ir"><span>成交71.28亿HKD | 昨收122.60</span></div>
+<p>企稳反弹收红，南向未现大幅抛售。<strong>中性偏多，跟随科网企稳。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 理想汽车 (02015) — 49.22 HKD <span class="dn">-0.36%</span></h4>
+<div class="ir"><span>成交3.93亿HKD | 昨收49.40</span></div>
+<p>微跌，公司持续回购提供底部支撑。<strong>中性，PE仍高但回购积极。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 小米集团 (01810) — 26.48 HKD <span class="up">+0.46%</span></h4>
+<div class="ir"><span>成交30.35亿HKD | 昨收26.36</span></div>
+<p>企稳微涨，南向连续买入。<strong>中性，26支撑有效。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 美团 (03690) — 92.20 HKD <span class="up">+0.60%</span></h4>
+<div class="ir"><span>成交19.62亿HKD | 昨收91.65</span></div>
+<p>随科网反弹收红。<strong>中性偏多，持有为主。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 京东集团 (09618) — 124.20 HKD <span class="up">+0.98%</span></h4>
+<div class="ir"><span>成交11.48亿HKD | 昨收123.00</span></div>
+<p>反弹收红。<strong>中性偏多，企稳信号。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mh">港股</span> 泡泡玛特 (09992) — 154.20 HKD <span class="up">+2.12%</span></h4>
+<div class="ir"><span>成交21.25亿HKD | PE约14.5 | 段永平增持至7.70%</span></div>
+<p><strong>逆势领涨+2.12%，IP消费龙头。</strong>段永平增持+PE 14.5合理。<strong>中性偏多，知名投资人背书+估值合理，持有。</strong></p>
+</div>
+
+<h3>3. 美股自选股分析（8/12收盘）</h3>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> 苹果 (AAPL) — 302.25 USD <span class="dn">-0.87%</span></h4>
+<div class="ir"><span>PE约39-40 | 8/13盘初+0.39%</span></div>
+<p>连跌后企稳，8/13盘初微涨。<strong>中性，核心持仓持有，动能待恢复。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> 谷歌 (GOOG) — 343.54 USD <span class="dn">-0.08%</span></h4>
+<div class="ir"><span>PE约16 | 8/13盘初+0.29%</span></div>
+<p>基本企稳，PE~16深度价值。<strong>中性，等确认。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> 特斯拉 (TSLA) — 327.51 USD <span class="dn">-1.59%</span></h4>
+<div class="ir"><span>PE约250+ | 8/13盘初+0.61%</span></div>
+<p>回调后盘初回升。<strong>中性，观望。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> 英伟达 (NVDA) — 224.09 USD <span class="up">+3.03%</span></h4>
+<div class="ir"><span>PE约29 | 8/13盘初+0.31%</span></div>
+<p><strong>&#x1F7E2; 8/12大涨+3.03%创6/2以来最高，8/13盘初续涨。</strong>通胀双鸽+AI需求验证。<strong>偏多，AI算力核心，持有。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> 美光科技 (MU) — 911.29 USD <span class="up">+4.92%</span></h4>
+<div class="ir"><span>PE约20 | 8/13盘初+1.67%</span></div>
+<p><strong>&#x1F7E2;&#x1F7E2; 8/12大涨+4.92%，8/13盘初续涨，存储主线确认。</strong>PE~20深度价值，供需紧张至2027。<strong>偏多，核心持仓，回调850-860仍是买点。</strong></p>
+</div>
+
+<div class="stk">
+<h4><span class="mk mu">美股</span> Sea Limited (SE) — 128.11 USD <span class="dn">-2.59%</span></h4>
+<div class="ir"><span>PE约39 | 8/13盘初-1.46%</span></div>
+<p>两日+31%后获利回吐延续。<strong>中性偏多，等财报确认，不追高。</strong></p>
+</div>
+
+<h3>4. 自选股横向对比（按当日涨跌幅排序，不分市场·共27只）</h3>
+<table>
+<tr><th>排名</th><th>股票</th><th>市场</th><th>收盘价</th><th>涨跌幅</th><th>信号</th></tr>
+<tr><td>1</td><td>美光科技 MU</td><td><span class="mk mu">美</span></td><td>$911.29</td><td class="up">+4.92%</td><td>&#x1F7E2;&#x1F7E2; 存储主线(8/12)</td></tr>
+<tr><td>2</td><td>英伟达 NVDA</td><td><span class="mk mu">美</span></td><td>$224.09</td><td class="up">+3.03%</td><td>&#x1F7E2; 6/2以来最高(8/12)</td></tr>
+<tr><td>3</td><td>泡泡玛特 09992</td><td><span class="mk mh">港</span></td><td>HK$154.20</td><td class="up">+2.12%</td><td>&#x1F7E2; 段永平增持</td></tr>
+<tr><td>4</td><td>药明康德 603259</td><td><span class="mk ma">A</span></td><td>¥162.33</td><td class="up">+2.07%</td><td>&#x1F7E2; 创新药CRO领涨</td></tr>
+<tr><td>5</td><td>阿里巴巴 09988</td><td><span class="mk mh">港</span></td><td>HK$124.10</td><td class="up">+1.22%</td><td>&#x1F7E2; 科网企稳</td></tr>
+<tr><td>6</td><td>京东集团 09618</td><td><span class="mk mh">港</span></td><td>HK$124.20</td><td class="up">+0.98%</td><td>&#x1F7E2; 反弹收红</td></tr>
+<tr><td>7</td><td>贵州茅台 600519</td><td><span class="mk ma">A</span></td><td>¥1355.29</td><td class="up">+0.92%</td><td>&#x1F7E2; 逆势收红</td></tr>
+<tr><td>8</td><td>美团 03690</td><td><span class="mk mh">港</span></td><td>HK$92.20</td><td class="up">+0.60%</td><td>&#x1F7E2; 随科网反弹</td></tr>
+<tr><td>9</td><td>宁德时代 300750</td><td><span class="mk ma">A</span></td><td>¥396.30</td><td class="up">+0.60%</td><td>&#x1F7E2;</td></tr>
+<tr><td>10</td><td>小米集团 01810</td><td><span class="mk mh">港</span></td><td>HK$26.48</td><td class="up">+0.46%</td><td>&#x1F7E2; 南向承接</td></tr>
+<tr><td>11</td><td>中国平安 601318</td><td><span class="mk ma">A</span></td><td>¥52.80</td><td class="up">+0.38%</td><td>&#x1F7E2; 大金融走强</td></tr>
+<tr><td>12</td><td>招商银行 600036</td><td><span class="mk ma">A</span></td><td>¥38.77</td><td class="up">+0.18%</td><td>&#x1F7E2; 低估值</td></tr>
+<tr><td>13</td><td>恒指科技ETF 159742</td><td><span class="mk ma">A</span></td><td>¥0.613</td><td class="up">+0.16%</td><td>&#x1F7E2; 港股抗跌</td></tr>
+<tr><td>14</td><td>中际旭创 300308</td><td><span class="mk ma">A</span></td><td>¥921.04</td><td class="up">+0.00%</td><td>&#x26A0; 高开回落放天量</td></tr>
+<tr><td>15</td><td>谷歌 GOOG</td><td><span class="mk mu">美</span></td><td>$343.54</td><td class="dn">-0.08%</td><td>&#x1F7E1; 企稳(8/12)</td></tr>
+<tr><td>16</td><td>东方财富 300059</td><td><span class="mk ma">A</span></td><td>¥19.78</td><td class="dn">-0.25%</td><td>&#x1F7E1;</td></tr>
+<tr><td>17</td><td>理想汽车 02015</td><td><span class="mk mh">港</span></td><td>HK$49.22</td><td class="dn">-0.36%</td><td>&#x1F7E1; 回购支撑</td></tr>
+<tr><td>18</td><td>沪深300ETF 510300</td><td><span class="mk ma">A</span></td><td>¥4.729</td><td class="dn">-0.40%</td><td>&#x1F7E1;</td></tr>
+<tr><td>19</td><td>创业板ETF 159915</td><td><span class="mk ma">A</span></td><td>¥3.604</td><td class="dn">-0.47%</td><td>&#x1F7E1;</td></tr>
+<tr><td>20</td><td>A500ETF 159380</td><td><span class="mk ma">A</span></td><td>¥1.375</td><td class="dn">-0.65%</td><td>&#x1F7E1;</td></tr>
+<tr><td>21</td><td>苹果 AAPL</td><td><span class="mk mu">美</span></td><td>$302.25</td><td class="dn">-0.87%</td><td>&#x1F7E1; 三连跌后企稳(8/12)</td></tr>
+<tr><td>22</td><td>科创50ETF 589850</td><td><span class="mk ma">A</span></td><td>¥1.648</td><td class="dn">-1.02%</td><td>&#x1F7E1; 科创50拖累</td></tr>
+<tr><td>23</td><td>特斯拉 TSLA</td><td><span class="mk mu">美</span></td><td>$327.51</td><td class="dn">-1.59%</td><td>&#x1F7E1; 回调(8/12)</td></tr>
+<tr><td>24</td><td>机器人ETF 159530</td><td><span class="mk ma">A</span></td><td>¥1.397</td><td class="dn">-1.62%</td><td>&#x1F7E1; 跌破1.40</td></tr>
+<tr><td>25</td><td>兆易创新 603986</td><td><span class="mk ma">A</span></td><td>¥404.50</td><td class="dn">-2.11%</td><td>&#x26A0; 跌破400支撑</td></tr>
+<tr><td>26</td><td>Sea SE</td><td><span class="mk mu">美</span></td><td>$128.11</td><td class="dn">-2.59%</td><td>&#x1F7E1; +31%后回吐(8/12)</td></tr>
+<tr><td>27</td><td>腾讯控股 00700</td><td><span class="mk mh">港</span></td><td>HK$441.00</td><td class="dn">-4.46%</td><td>&#x1F534; 绩后独跌</td></tr>
+</table>
+<p><strong>横向对比结论：</strong>27只持仓中15只收红/12只收跌（美股按8/12收盘）。结构清晰——<strong>存储/AI（美光/英伟达）与港股消费/科网（泡泡玛特/阿里/京东/美团/小米）领涨，半导体A股（兆易-2.11%）与腾讯（-4.46%）拖累</strong>。腾讯是最大短板但利空已较充分释放；兆易当日回调但盘后中芯/华虹业绩将提供明日修复催化。美股双鸽环境下存储/AI仍是全球最强主线。</p>
+</div>
+
+<!-- 自选股涨跌幅 ECharts -->
+<div class="s"><h2>&#x1F4CA; 自选股当日表现全景（A/H 8/13收盘 · 美股 8/12收盘）</h2>
+<div id="chart_stocks" class="chart"></div>
+</div>
+
+<!-- ============ 六、昨日计划执行回顾 ============ -->
+<div class="s">
+<h2>&#x2705; 六、昨日计划执行回顾</h2>
+
+<h3>1. 仓位执行情况</h3>
+<div class="hl">
+<p><strong>8/13盘前计划（即今日早间版）：</strong>上调至6-7成进攻，主线聚焦CPO/存储，等中芯/华虹财报+美国PPI+油价信号。</p>
+<p><strong>实际结果：</strong>A股单日放量下跌（半导体领跌），与盘前"科技高开"预期相悖；但港股抗跌、美股双鸽risk-on符合预期。整体未盲目加仓（多数价格条件未触发），仓位维持中性偏多。<strong>结论：盘前对A股科技过于乐观，但实际因"卖事实"获利回吐+尾盘跳水，纪律性未追高是正确的。</strong></p>
+</div>
+
+<h3>2. 买卖执行情况</h3>
+<div class="hl">
+<p><strong>核心执行要点：</strong>(1) <strong>中际旭创</strong>：盘前计划"回踩880-900加仓"，实际高开960后回落收921，未触及加仓区→未加仓（正确，未追高）；(2) <strong>兆易创新</strong>：计划"突破420加仓"，实际低走收404跌破400→未加仓（正确回避）；(3) <strong>药明康德</strong>：计划"回踩155-158加仓"，实际+2.07%收162未回踩→未加仓；(4) <strong>腾讯</strong>：计划"低开>4%观察不割，跌破430减30%"，实际-4.46%收441（>430）→持有未减仓（符合纪律）；(5) <strong>中芯/华虹财报</strong>：盘前列为"今日关注点"，盘后如期大超预期→将驱动明日操作。</p>
+</div>
+
+<h3>3. 止损止盈触发</h3>
+<div class="hl">
+<p><strong>无止损触发，纪律良好。</strong>腾讯-4.46%但未破430止损线，按计划持有观察；兆易跌破400但属板块性回调（盘后有利好），未触发无条件止损。Sea两日+31%后回吐属正常，未触发止盈。</p>
+</div>
+</div>
+
+<!-- ============ 七、制定今日交易计划 ============ -->
+<div class="s">
+<h2>&#x1F4CB; 七、制定明日交易计划（8/14 周五）</h2>
+
+<h3>1. 市场环境评估</h3>
+<div class="pl">
+<h4>&#x1F4CC; 当前市场状态：通胀双鸽确认risk-on，但A股单日放量回调需修复（进攻为主 + 半导体业绩催化 + 港股腾讯企稳待确认）</h4>
+<ul>
+<li><strong>全球：</strong>CPI+PPI连续降温，9月加息概率大降、押注10/12月，美元99.90微跌、美债收益率下滑，VIX回落——流动性拐点确认，风险偏好回升。</li>
+<li><strong>A股：</strong>8/13放量下跌（2.55万亿/+3985亿、4300+下跌），科创50/半导体领跌；但盘后中芯/华虹业绩炸裂，明日半导体链（兆易/中际/设备）有望修复。创新药/CRO/大金融趋势延续。</li>
+<li><strong>港股：</strong>恒指仅微跌0.17%抗跌，科网除腾讯外全线收红。腾讯-4.46%但440支撑有效、利空较充分释放，关注企稳。</li>
+<li><strong>美股：</strong>双鸽环境下risk-on延续，美光/英伟达存储AI主线领涨。</li>
+<li><strong>仓位建议：</strong>维持6-7成。A股科技4-5成（半导体晶圆代工链+创新药优先），消费防御1-2成，美股2成（存储/AI），港股1-2成（等腾讯企稳后回补）。</li>
+</ul>
+</div>
+
+<h3>2. 具体操作计划</h3>
+
+<h4>A股操作（关注中芯/华虹业绩催化）</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发价格</th><th>仓位/金额</th><th>止损价</th><th>逻辑</th></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>兆易创新</td><td><span class="badge bu">业绩催化加仓</span></td><td>放量重回410-420加仓</td><td>加仓至5%</td><td>跌破390减仓</td><td>中芯/华虹Q2双超预期，半导体景气上行直接利好</td></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>中际旭创</td><td><span class="badge bu">回踩加仓</span></td><td>回踩880-900加仓</td><td>加仓至8%</td><td>跌破850止损</td><td>CPO龙头，高开回落洗盘，880支撑有效则加仓</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>药明康德</td><td><span class="badge bw">等回调</span></td><td>回踩158-160加仓</td><td>可加仓</td><td>跌破150减持</td><td>创新药CRO主线，美银上调目标价</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>机器人ETF</td><td><span class="badge bw">等回调</span></td><td>回踩1.36-1.38加仓</td><td>加仓</td><td>跌破1.33止损</td><td>宇树IPO催化+近一月净流入</td></tr>
+<tr><td>&#x2B50;</td><td>茅台/平安/招行</td><td><span class="badge bu">持有</span></td><td>维持现有仓位</td><td>—</td><td>—</td><td>低估值防御底仓</td></tr>
+</table>
+
+<h4>港股操作（腾讯企稳观察）</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发条件</th><th>策略</th></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>腾讯</td><td><span class="badge bw">观察企稳</span></td><td>440支撑+南向承接</td><td>-4.46%利空较充分释放，440不破则利空出尽；跌破430→减仓30%；站稳450可小幅回补</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>泡泡玛特</td><td><span class="badge bu">持有</span></td><td>段永平增持利好</td><td>PE 14.5合理+知名投资人背书，持有</td></tr>
+<tr><td>&#x2B50;</td><td>阿里/京东/小米</td><td><span class="badge bu">持有观察</span></td><td>科网企稳信号</td><td>8/13全线收红，持有等趋势确认</td></tr>
+</table>
+
+<h4>美股操作（8/12收盘 + 8/13盘初）</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发条件</th></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>美光科技</td><td><span class="badge bu">核心持有</span></td><td>+4.92%趋势确认，回调850-860仍是买点，PE~20</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>英伟达</td><td><span class="badge bu">持有</span></td><td>+3.03%创6/2以来最高，AI算力核心</td></tr>
+<tr><td>&#x2B50;</td><td>Sea Limited</td><td><span class="badge bw">持股待涨</span></td><td>两日+31%后回吐，等财报确认</td></tr>
+<tr><td>&#x2B50;</td><td>苹果/谷歌</td><td><span class="badge bw">观望</span></td><td>企稳信号初现，暂不加仓</td></tr>
+</table>
+
+<h3>3. 情景决策矩阵</h3>
+<table>
+<tr><th>情景</th><th>A股科技</th><th>港股</th><th>美股</th><th>应对</th></tr>
+<tr><td>中芯/华虹催化+半导体修复，A股缩量企稳</td><td>兆易/中际放量反弹</td><td>腾讯440守住</td><td>存储/AI延续</td><td>全面加仓至7成，科技4-5成，腾讯企稳后回补</td></tr>
+<tr><td>A股延续放量下跌，半导体继续杀</td><td>兆易破390/中际破850</td><td>腾讯破430</td><td>风险偏好回落</td><td>降至5成，科技减仓锁利，腾讯减30%，防御底仓为主</td></tr>
+<tr><td>油价急涨+美伊恶化，通胀担忧重燃</td><td>获利回吐</td><td>加速下行</td><td>美债收益率上行</td><td>降至4-5成，规避资源/周期，持有消费防御+美股存储</td></tr>
+</table>
+
+<h3>4. 关键观察清单（8月14日周五）</h3>
+<div class="pl">
+<h4>&#x1F440; 明日开盘重点关注</h4>
+<ol>
+<li><strong>&#x1F7E2; 中芯/华虹业绩对A股半导体传导：</strong>兆易能否放量重回410-420？中际能否在880-900获得支撑并修复？这是明日最强主线</li>
+<li><strong>&#x1F534; 腾讯440支撑（最高优先级）：</strong>8/13收441（-4.46%），440不破则利空出尽；跌破430→减仓30%。观察南向是否承接</li>
+<li><strong>&#x1F7E2; A股量能修复：</strong>8/13放量近4000亿下跌，明日能否缩量企稳？若继续放量下跌需降仓</li>
+<li><strong>&#x1F7E1; 科创50能否重回1750：</strong>8/13收1717.75（-1.11%），半导体修复是关键</li>
+<li><strong>&#x1F7E1; 美国PPI后加息预期演变：</strong>市场押注10/12月，关注8/14零售销售/初请数据</li>
+<li><strong>&#x1F30D; 油价与美伊：</strong>WTI-2.49%至81.20，若中东再升级推升油价→通胀反复风险</li>
+<li><strong>&#x1F4CA; 创新药/CRO持续性：</strong>药明+2.07%趋势延续？美银上调目标价后资金是否持续流入</li>
+</ol>
+</div>
+</div>
+
+<div class="fn">
+&#x1F4C5; 生成时间：2026-08-13 21:50 CST | 数据来源：新浪财经 hq.sinajs.cn（A/H/美股行情）+ 证券时报/每经/财联社/新华财经/格隆汇/央广/华尔街见闻/央广财经 | 免责声明：以上分析仅供参考，不构成投资建议。投资有风险，决策需谨慎。
+</div>
+</div>
+
+<script>
+// 三大市场指数近8日对比
+(function(){
+var dates=['8/4','8/5','8/6','8/7','8/10','8/11','8/12','8/13'];
+var sh=[3917,3925,3958,3967,3967,3934,3947,3927];
+var sz=[13850,13900,14200,14300,14300,14259,14414,14289];
+var kc50=[1850,1920,1960,1980,1980,1955,2018,1718];
+var hsi=[25300,25400,25550,25600,25937,25653,25440,25397];
+var ndx=[25700,26000,26200,26400,26500,26445,26588,26717];
+
+echarts.init(document.getElementById('chart_idx')).setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['上证指数','深证成指','科创50','恒生指数','纳斯达克'],top:5},
+  grid:{left:60,right:50,top:50,bottom:30},
+  xAxis:{type:'category',data:dates},
+  yAxis:[{type:'value',name:'A股/港股'}],
+  series:[
+    {name:'上证指数',type:'line',data:sh,smooth:true,lineStyle:{color:'#e74c3c'},itemStyle:{color:'#e74c3c'}},
+    {name:'深证成指',type:'line',data:sz,smooth:true,lineStyle:{color:'#f39c12'},itemStyle:{color:'#f39c12'}},
+    {name:'科创50',type:'line',data:kc50,smooth:true,lineStyle:{color:'#8e44ad'},itemStyle:{color:'#8e44ad'}},
+    {name:'恒生指数',type:'line',data:hsi,smooth:true,lineStyle:{color:'#27ae60'},itemStyle:{color:'#27ae60'}},
+    {name:'纳斯达克',type:'line',data:ndx,smooth:true,lineStyle:{color:'#3498db',type:'dashed'},itemStyle:{color:'#3498db'}}
+  ]
+});
+})();
+
+// 自选股涨跌幅（A/H 8/13收盘，美股8/12收盘）
+(function(){
+var names=['美光科技','英伟达','泡泡玛特','药明康德','阿里巴巴','京东集团','贵州茅台','美团','宁德时代','小米集团','中国平安','招商银行','恒指科技ETF','中际旭创','谷歌','东方财富','理想汽车','沪深300ETF','创业板ETF','A500ETF','苹果','科创50ETF','特斯拉','机器人ETF','兆易创新','Sea','腾讯控股'];
+var vals=[4.92,3.03,2.12,2.07,1.22,0.98,0.92,0.60,0.60,0.46,0.38,0.18,0.16,0.00,-0.08,-0.25,-0.36,-0.40,-0.47,-0.65,-0.87,-1.02,-1.59,-1.62,-2.11,-2.59,-4.46];
+var colors=vals.map(function(v){return v>=0?'#e74c3c':'#27ae60';});
+
+echarts.init(document.getElementById('chart_stocks')).setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:'{b}: {c}%'},
+  grid:{left:100,right:30,top:10,bottom:30},
+  xAxis:{type:'value',name:'涨跌幅(%)',axisLabel:{formatter:'{value}%'}},
+  yAxis:{type:'category',data:names.slice().reverse(),inverse:true},
+  series:[{
+    type:'bar',
+    data:vals.slice().reverse().map(function(v,i){return {value:v,itemStyle:{color:colors.slice().reverse()[i]}};}),
+    label:{show:true,position:'right',formatter:'{c}%',fontSize:10}
+  }]
+});
+})();
+</script>
+</body>
+</html>

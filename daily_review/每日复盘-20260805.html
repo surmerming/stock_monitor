@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日复盘 — 2026年8月5日（周三·收盘版）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--c:#fff;--t:#2c3e50;--t2:#7f8c8d;--b:#e8ecf1;--r:#e74c3c;--g:#27ae60;--bl:#3498db;--o:#f39c12;--p:#8e44ad}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);line-height:1.75;padding:24px}
+.wrap{max-width:1120px;margin:0 auto}
+.hd{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;border-radius:12px;padding:32px 36px;margin-bottom:20px}
+.hd h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hd .meta{font-size:14px;opacity:.75;display:flex;gap:20px;flex-wrap:wrap}
+.hd .line{height:3px;width:60px;background:var(--o);margin-top:16px;border-radius:2px}
+.tldr{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:2px solid var(--o);border-radius:10px;padding:18px 24px;margin-bottom:20px}
+.tldr h3{font-size:16px;font-weight:700;color:#e67e22;margin-bottom:8px}
+.tldr p{font-size:14px;color:#7d6608;margin:0;line-height:1.6}
+.s{background:var(--c);border-radius:10px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.s h2{font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--b);display:flex;align-items:center;gap:8px}
+.s h3{font-size:15px;font-weight:600;margin:18px 0 10px;color:#34495e;padding-left:8px;border-left:3px solid var(--bl)}
+.s h4{font-size:14px;font-weight:600;margin:12px 0 8px;color:#555}
+.s p,.s li{font-size:13.5px;margin-bottom:5px}
+.s ul,.s ol{padding-left:20px;margin:8px 0}
+.s li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0 16px}
+th{background:#f0f3f7;font-weight:600;color:#555;padding:9px 6px;text-align:center;white-space:nowrap}
+td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--b);font-size:12px}
+tr:hover{background:#fafbfc}
+td:first-child,th:first-child{text-align:left;padding-left:10px}
+.up{color:var(--r);font-weight:600}.dn{color:var(--g);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.bu{background:#fdecea;color:var(--r)}.bd{background:#eafaf1;color:var(--g)}.bi{background:#eaf2f8;color:var(--bl)}.bw{background:#fef5e7;color:var(--o)}.bp{background:#f4ecf7;color:var(--p)}
+.news{background:#f8f9fa;border-left:3px solid var(--bl);padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0;font-size:13px}
+.news.imp{border-left-color:var(--r);background:#fff5f5}.news.warn{border-left-color:var(--o);background:#fffdf5}
+.fx{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
+.sc{background:#f8f9fb;border-radius:8px;padding:14px 16px;text-align:center;border:1px solid var(--b)}
+.sc .lb{font-size:12px;color:var(--t2);margin-bottom:4px}
+.sc .vl{font-size:20px;font-weight:700}
+.sc .sb{font-size:11px;color:var(--t2);margin-top:2px}
+.chart{width:100%;height:380px;margin:16px 0}
+.dv{border-top:1px dashed var(--b);margin:16px 0}
+.fn{font-size:12px;color:var(--t2);margin-top:12px;text-align:center}
+.hl{background:#f0f7ff;border:1px solid #bbd8f7;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.al{background:#fff5f5;border:1px solid #f5c6cb;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.pl{background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:16px 20px;margin:10px 0;font-size:13px}
+.pl h4{font-size:14px;margin-bottom:8px;color:#155724}.pl li{margin-bottom:6px}
+.stk{background:#fafbfc;border:1px solid var(--b);border-radius:8px;padding:16px 18px;margin:14px 0}
+.stk h4{font-size:14px;margin-bottom:10px}
+.ir{display:flex;flex-wrap:wrap;gap:8px 16px;margin:6px 0;font-size:12px}
+.ft{width:100%;font-size:11px;margin:8px 0}.ft th{font-size:11px;padding:6px 4px}.ft td{font-size:11px;padding:5px 4px}
+hr.sty{border:0;height:1px;background:linear-gradient(to right,transparent,var(--b),transparent);margin:16px 0}
+.mk{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:6px;vertical-align:middle}
+.ma{background:#e74c3c;color:#fff}.mh{background:#f39c12;color:#fff}.mu{background:#3498db;color:#fff}
+.tg{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;margin:0 2px}
+.tg-r{background:#fdecea;color:#e74c3c}.tg-g{background:#eafaf1;color:#27ae60}.tg-b{background:#eaf2f8;color:#3498db}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hd">
+<h1>&#x1F4CA; 每日复盘 — 2026年8月5日（周三·收盘版）</h1>
+<div class="meta">
+<span>&#x1F4C5; A股/港股 8/5 收盘 | 美股 8/4 收盘</span>
+<span>&#x1F550; 生成：2026-08-05 19:16 CST</span>
+<span>&#x1F7E2; A股低开高走全面反攻 | 科创50+4.78% | 费半+6.55%王者归来 | 中际675亿天量深V | 27只持仓全覆盖</span>
+</div>
+<div class="line"></div>
+</div>
+
+<div class="tldr">
+<h3>&#x1F511; 今日速览（TL;DR）</h3>
+<p><strong>全球半导体共振反攻！A股低开高走，科技全面爆发，防御补跌。</strong>科创50<span class="up">+4.78%</span>领涨两市（盘中一度+6%），电子/有色金属双双大涨超5%。存储芯片全天强势：兆易创新<span class="up">+8.26%</span>强势反弹。两市成交2.68万亿放量超4000亿，超3700只个股上涨。但结构剧烈分化——科技暴涨 vs 防御补跌：茅台<span class="dn">-1.65%</span>、招行<span class="dn">-0.87%</span>。中际旭创成交<span class="up">675亿</span>创A股个股历史天量，开盘-13.9%→深V收-7.27%。隔夜美股全面暴涨：纳指<span class="up">+2.59%</span>、费半<span class="up">+6.55%</span>、道指/标普均创历史新高。美光<span class="up">+7.62%</span>两日从739→893累涨+16%。国际油价暴跌6%（WTI $75），霍尔木兹海峡局势缓和。<br><br>
+<strong>&#x1F4A1; 核心发现：</strong>(1) 全球半导体从"恐慌出清"→"共振反攻"确认，费半+6.55%两日+13%+，存储芯片全线暴涨；(2) A股低开高走深V印证"卖盘衰竭"——科创50开盘仅+0.07%→收盘+4.78%；(3) 中际旭创675亿天量深V（开盘880→收947）——多空极限博弈，天量换手可能意味着阶段性底部；(4) 风格从"防御为王"切换至"科技进攻"——茅台/招行/银行补跌，兆易/药明/科创ETF暴涨；(5) 油价暴跌6%+美伊缓和→通胀预期降温→利好全球风险资产；(6) 港股温和跟涨(恒指+0.24%)，A股科技弹性远超港股。<br>
+<strong>判断：全球半导体出清结束、进入趋势反转初期。仓位可从3-4成升至5-6成。警惕明日科技高开后的获利回吐——中际天量深V次日方向是关键验证。</strong></p>
+</div>
+
+<div class="s">
+<h2>&#x1F4C8; 一、大盘环境诊断（定仓位）</h2>
+<h3>1. A股指数趋势 — 低开高走，科技全面反攻</h3>
+<div class="fx"><div class="sc"><div class="lb">上证指数</div><div class="vl up">3,878.43</div><div class="sb">+1.47%</div></div><div class="sc"><div class="lb">深证成指</div><div class="vl up">14,144.20</div><div class="sb">+1.86%</div></div><div class="sc"><div class="lb">创业板指</div><div class="vl up">3,535.14</div><div class="sb">+1.32% | 振幅6.08%</div></div><div class="sc"><div class="lb">科创50 &#x1F534;</div><div class="vl up">1,693.67</div><div class="sb">+4.78% | 盘中+6%</div></div></div>
+<h3>2. 风格指数分化</h3>
+<div class="fx"><div class="sc"><div class="lb">沪深300（大盘）</div><div class="vl up">4,658.15</div><div class="sb">+1.24% | PE 14.30</div></div><div class="sc"><div class="lb">中证500（中盘）</div><div class="vl up">7,809.21</div><div class="sb">+2.65% | PE 36.57</div></div><div class="sc"><div class="lb">中证1000（小盘）</div><div class="vl up">7,493.05</div><div class="sb">+2.94% | PE 44.50</div></div></div>
+<p><strong>关键信号：</strong>今天是典型的"科技进攻+防御补跌"格局。科创50+4.78%领涨（盘中一度涨超6%），中证1000+2.94%>中证500+2.65%>沪深300+1.24%，小盘成长风格全面占优。电子+5.80%/有色金属+5%+/集成电路+4.85%等科技板块暴涨，而银行/酿酒/油服等防御板块逆势下跌。风格切换从"防御为王"正式进入"科技进攻"阶段。全市场3700+上涨vs约1600下跌，赚钱效应显著改善。</p>
+
+<h3>3. 量能表现</h3>
+<div class="fx">
+<div class="sc"><div class="lb">两市总成交额</div><div class="vl">2.68万亿</div><div class="sb">放量4000亿+ | 较昨日+18%</div></div>
+<div class="sc"><div class="lb">上涨家数</div><div class="vl">~3700家</div><div class="sb">约70%</div></div>
+<div class="sc"><div class="lb">下跌家数</div><div class="vl">~1600家</div><div class="sb">约30%</div></div>
+<div class="sc"><div class="lb">成交额>100亿个股</div><div class="vl">30只</div><div class="sb">中际675亿居首</div></div>
+</div>
+<p><strong>放量反攻，资金大举回流。</strong>成交额从昨日约2.2万亿大幅增至2.68万亿（+4000亿+），创近期新高。30只个股成交超100亿，中际旭创675亿/新易盛/长鑫科技/兆易创新/东山精密/寒武纪超200亿——全部是科技股。量价配合良好：放量+普涨=增量资金入场信号明确。</p>
+
+<h3>4. 港股大盘 — 温和跟涨</h3>
+<div class="fx"><div class="sc"><div class="lb">恒生指数</div><div class="vl up">25,915.82</div><div class="sb">+0.24%</div></div><div class="sc"><div class="lb">恒生科技指数</div><div class="vl up">4,933.07</div><div class="sb">+0.97%</div></div><div class="sc"><div class="lb">国企指数</div><div class="vl up">8,603.73</div><div class="sb">+0.34%</div></div><div class="sc"><div class="lb">南向资金</div><div class="vl">—</div><div class="sb">盘后公布</div></div></div>
+<p><strong>港股今日表现温和，恒指+0.24%小幅收涨。</strong>恒生科技+0.97%略强于大盘。互联网龙头涨跌互现：阿里+1.83%/腾讯+0.94%领涨，小米-1.14%逆势回调。港股整体情绪跟随A股回暖但弹性不及A股，恒指仍在26000关口前蓄力。</p>
+
+<h3>5. 美股大盘（8/4收盘）— 全面暴涨，道指标普历史新高</h3>
+<div class="fx"><div class="sc"><div class="lb">道琼斯</div><div class="vl up">54,085.88</div><div class="sb">+1.71% | 历史新高！</div></div><div class="sc"><div class="lb">纳斯达克</div><div class="vl up">26,584.99</div><div class="sb">+2.59% | 两日+4.8%</div></div><div class="sc"><div class="lb">标普500</div><div class="vl up">7,736.52</div><div class="sb">+1.79% | 历史新高！</div></div><div class="sc"><div class="lb">费城半导体 &#x1F534;</div><div class="vl up">+6.55%</div><div class="sb">王者归来!</div></div></div>
+<p><strong>美股8/4全面暴涨！三大引擎驱动：</strong>①美伊霍尔木兹海峡谈判取得积极进展→油价暴跌6%→通胀预期大幅降温；②SpaceX财报炸裂（Q2收入78亿美元+92%）→科技情绪全面回暖；③芯片股超跌后暴力反弹——费半+6.55%（两日累涨+13%+），光通信/存储板块集体暴涨。ARM+17%/英特尔+10%/闪迪+10%/SK海力士+8%/美光+7.62%/AMD+7%。道指54085/标普7736均创历史新高。</p>
+
+<h3>6. 全球宏观联动</h3>
+<div class="fx"><div class="sc"><div class="lb">美元指数 DXY</div><div class="vl">~99</div><div class="sb">偏弱 | 利好风险资产</div></div><div class="sc"><div class="lb">离岸人民币 CNH</div><div class="vl">~6.78</div><div class="sb">稳定</div></div><div class="sc"><div class="lb">WTI原油 &#x1F534;</div><div class="vl dn">$75.14</div><div class="sb">-6.47% | 霍尔木兹缓和</div></div><div class="sc"><div class="lb">现货黄金</div><div class="vl">$4080</div><div class="sb">高位震荡</div></div></div>
+<p><strong>霍尔木兹海峡局势缓和是今日全球资产的核心定价变量。</strong>伊朗与阿曼就海峡航行安全谈判取得积极进展→国际油价暴跌6%（WTI $75.14/布油$78.74）→通胀预期大幅降温→美联储加息压力骤降→全球风险资产全面反攻。美元指数偏弱（~99），人民币稳定。黄金在4050-4100美元区间震荡。</p>
+</div>
+
+<div class="s"><h2>&#x1F4CA; 三大市场核心指数对比</h2><div id="chart_idx" class="chart"></div></div>
+
+<div class="s">
+<h2>&#x1F4B0; 二、板块与资金流向（定方向）</h2>
+<h3>1. A股热点板块 — 电子/有色双雄暴涨，防御补跌</h3>
+<table>
+<tr><th>方向</th><th>板块</th><th>涨跌幅</th><th>领涨/领跌股</th><th>驱动逻辑</th></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>电子/半导体</td><td class="up">+5.80%</td><td>正帆科技20%涨停/工业富联涨停</td><td>费半+6.55%传导+存储芯片强势</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>有色金属</td><td class="up">+5%+</td><td>四川黄金涨停/洛阳钼业+9%</td><td>金价坚挺+工业金属反弹</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>存储芯片</td><td class="up">全天强势</td><td>正帆科技20%涨停/兆易+8.26%</td><td>全球存储共振（美光+8%/闪迪+10%）</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>集成电路</td><td class="up">+4.85%</td><td>多股涨停</td><td>费半传导+国产替代逻辑</td></tr>
+<tr><td><span class="badge bu">领涨</span></td><td>国防军工</td><td class="up">+2.24%</td><td>跟涨</td><td>中小盘风格扩散</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>石油天然气</td><td class="dn">下跌</td><td>—</td><td>国际油价暴跌6%直接拖累</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>银行</td><td class="dn">下跌</td><td>四大行普遍-1%+</td><td>风格切换，防御资金流出</td></tr>
+<tr><td><span class="badge bd">领跌</span></td><td>酿酒/食品饮料</td><td class="dn">下跌</td><td>茅台-1.65%</td><td>防御补跌，资金转投科技</td></tr>
+</table>
+
+<h3>2. 北向资金 — 科技股博弈激烈</h3>
+<div class="hl">
+<p><strong>今日全市场成交额2.68万亿，中际旭创成交675亿居A股第一、创历史天量。</strong>科技股仍是主战场：中际675亿（低开深V，多空极限博弈）、兆易262亿（存储龙头强势反弹）。工业富联成交180亿涨停。北向资金方向待盘后公布。</p>
+<p><strong>关键解读：</strong>中际旭创开盘880（-13.9%）→一路攀升至983→收947，天量675亿意味着：空头早盘恐慌抛售→多头午后大举接盘。如果明日能继续收阳，则确认"天量见底"信号。</p>
+</div>
+
+<h3>3. 港股板块与资金</h3>
+<p>恒指+0.24%温和上涨，恒生科技+0.97%。互联网龙头分化：阿里+1.83%/腾讯+0.94%领涨，小米-1.14%逆势回调。A股科创50+4.78% vs 恒科+0.97%，弹性差异显著。</p>
+
+<h3>4. 美股板块（8/4）— 芯片股全面暴涨</h3>
+<p><strong>费半+6.55%创近两个月最大涨幅，两日累涨+13%+。</strong>光通信、存储、AI芯片三大主线全面爆发。大型科技股跟涨。仅亚马逊-2%拖累。油价暴跌6%缓解通胀担忧→资金从防御转向科技进攻。</p>
+
+<h3>5. 板块持续性判断</h3>
+<table>
+<tr><th>板块</th><th>持续性评估</th><th>判断依据</th></tr>
+<tr><td><span class="badge bu">半导体/芯片</span></td><td>&#x2B50;&#x2B50;&#x2B50;&#x2B50; 趋势反转初期</td><td>费半两日+13%+全球共振。从"超跌反弹"升级为"趋势修复"</td></tr>
+<tr><td><span class="badge bu">存储芯片</span></td><td>&#x2B50;&#x2B50;&#x2B50;&#x2B50; 王者归来</td><td>美光两日+16%，A股兆易+8.26%。短缺逻辑+PE深度价值共振</td></tr>
+<tr><td><span class="badge bu">有色金属/贵金属</span></td><td>&#x2B50;&#x2B50;&#x2B50; 资源主线</td><td>金价高位+工业金属反弹，主线延续</td></tr>
+<tr><td><span class="badge bu">创新药</span></td><td>&#x2B50;&#x2B50;&#x2B50; 业绩驱动</td><td>药明H1超预期持续发酵，两日累涨+14%+</td></tr>
+<tr><td><span class="badge bd">银行/防御</span></td><td>&#x2B50;&#x2B50; 风格切换承压</td><td>科技进攻=银行补跌，但低估值底仓价值仍在</td></tr>
+<tr><td><span class="badge bw">油气</span></td><td>&#x2B50; 油价暴跌拖累</td><td>WTI-6.47%，美伊缓和→地缘溢价消退</td></tr>
+</table>
+</div>
+
+<div class="s">
+<h2>&#x1F4C4; 四、个股表现与消息面</h2>
+<h3>1. A股涨跌榜复盘</h3>
+<p><strong>今日涨停潮再现：</strong>电子/半导体板块多股涨停（正帆科技20%/工业富联涨停/沃格光电2连板），贵金属四川黄金涨停。3700+上涨、30只个股成交超100亿，赚钱效应全面回暖。从昨日"恐慌出清"→今日"放量反攻"，市场情绪完成180度逆转。</p>
+
+<h3>2. A股龙虎榜分析</h3>
+<p><strong>中际旭创675亿天量成交——今日最值得关注的龙虎榜标的。</strong>开盘880（-13.9%）→最低880→反弹至983→收947.74。龙虎榜盘后公布，重点关注：机构是净买入还是净卖出？若机构+北向联手买入→"天量见底"信号确认。</p>
+
+<h3>3. 昨日强势股表现回顾</h3>
+<p><strong>8/4的科技反弹今日分化但整体延续：</strong>药明康德昨日涨停+10%→今日+4.35%继续走强（两日+14%+）。兆易创新昨日+4.48%→今日+8.26%加速上涨。但中际旭创昨日+13.24%涨停→今日开盘-13.9%→收-7.27%。<strong>科技股"强者恒强"特征初步确认，但高位品种博弈激烈。</strong></p>
+
+<h3>6. 消息与公告</h3>
+<div class="news imp"><strong>&#x1F4E2; 美股三大指数暴涨，道指标普历史新高：</strong>纳指+2.59%收26585，道指+1.71%收54086，标普+1.79%收7737。费半+6.55%。</div>
+<div class="news imp"><strong>&#x1F4E2; 费城半导体+6.55%王者归来：</strong>两日累涨+13%+。ARM+17%/英特尔+10%/闪迪+10%/SK海力士+8%/美光+7.62%/AMD+7%。</div>
+<div class="news imp"><strong>&#x1F4E2; 霍尔木兹海峡局势缓和+油价暴跌6%：</strong>伊朗与阿曼谈判取得积极进展。WTI暴跌6.47%至$75.14，布油跌6%至$78.74。</div>
+<div class="news imp"><strong>&#x1F4E2; 工业富联涨停：</strong>市值1.31万亿，午后拉升涨停，8月累计涨幅超16%。</div>
+<div class="news"><strong>SpaceX财报炸裂：</strong>Q2收入78亿美元+92%，调整后EBITDA 35亿+191%。</div>
+<div class="news"><strong>中际旭创成交675亿创A股历史天量：</strong>开盘880→反弹983→收947，全天深V。</div>
+
+<h3>8. 关键事件日历</h3>
+<table>
+<tr><th>日期</th><th>事件</th><th>市场</th><th>影响等级</th><th>对持仓的潜在影响</th></tr>
+<tr><td>8/5-6（今夜）</td><td>美股8/5开盘</td><td>全球</td><td><span class="badge bu">极高</span></td><td>A股科技反弹能否延续，取决于美股芯片是否继续走强</td></tr>
+<tr><td>8/6（周四）</td><td>A股科技溢价率+中际天量次日</td><td>A股</td><td><span class="badge bu">高</span></td><td>675亿天量深V→次日方向决定短期趋势</td></tr>
+<tr><td>本周五</td><td>美国非农就业数据</td><td>全球</td><td><span class="badge bu">极高</span></td><td>影响美联储9月利率决策路径</td></tr>
+</table>
+</div>
+
+<div class="s">
+<h2>&#x1F50D; 五、个股跟踪</h2>
+<h3>1. A股自选股与ETF技术分析（14只·含6 ETF）</h3>
+
+<div class="stk">
+<h4><span class="mk ma">A股</span> 贵州茅台 (600519) — 1,306.45 <span class="dn">-1.65%</span></h4>
+<div class="ir"><span>成交56.01亿 | PE 19.95</span><span>昨收1328.36</span></div>
+<p><strong>技术评估：</strong>缩量小阴线回调，防御板块今日承压补跌。PE 19.95处历史低位。短期支撑1280，阻力1330。偏多，低位防御底仓持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 中际旭创 (300308) — 947.74 <span class="dn">-7.27%</span></h4>
+<div class="ir"><span>成交675.11亿（创A股历史天量！）</span><span>昨收1021.99 | 最低880→收947深V</span></div>
+<p><strong>技术评估：</strong>&#x26A0;&#x26A0; 天量成交+深V探底！开盘880（低开-13.9%）→最低880→反弹至983→收947.74。成交675亿创A股个股历史天量！多空极限博弈。支撑900/880，阻力1020。极度偏空但深V+天量换手可能是见底信号。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 药明康德 (603259) — 147.49 <span class="up">+4.35%</span></h4>
+<div class="ir"><span>成交197.40亿 | PE 18.23</span><span>昨收141.35 | 最高150.00</span></div>
+<p><strong>技术评估：</strong>放量大阳线突破145，触及150后略回落。H1业绩超预期（营收+38.93%/扣非+89.39%）持续发酵。两日累涨+14%+。阻力150，支撑140。偏多，创新药核心持仓。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 兆易创新 (603986) — 385.44 <span class="up">+8.26%</span></h4>
+<div class="ir"><span>成交261.79亿 | PE 95.36</span><span>昨收356.02 | 最高390.12 | 振幅9.02%</span></div>
+<p><strong>技术评估：</strong>存储芯片强势反弹！低开358→一路拉升至390→收385.44（+8.26%）。全球存储共振（费半+6.55%+美光+7.62%）驱动。支撑360，阻力400/430。偏多，存储超跌反弹核心品种。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 宁德时代 (300750) — 405.20 <span class="up">+2.56%</span></h4>
+<div class="ir"><span>成交121.24亿 | PE 21.27</span><span>昨收395.10 | 重回400</span></div>
+<p><strong>技术评估：</strong>放量收复400整数关口，新能源龙头企稳回升。PE 21.27合理估值。支撑395，阻力420。偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 东方财富 (300059) — 20.36 <span class="up">+1.55%</span></h4>
+<div class="ir"><span>成交70.46亿 | PE 23.44</span><span>昨收20.05</span></div>
+<p><strong>技术评估：</strong>放量小阳线温和反弹。券商板块今日分化。支撑19.50，阻力21.00。中性，持有观望。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 中国平安 (601318) — 54.02 <span class="up">+0.17%</span></h4>
+<div class="ir"><span>成交39.46亿 | PE 7.39</span><span>昨收53.93 | PB 0.99</span></div>
+<p><strong>技术评估：</strong>窄幅震荡微涨，PE 7.39极端低估。风格切换中防御属性减弱。支撑52.50，阻力55.00。中性偏多，低估底仓。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 招商银行 (600036) — 38.94 <span class="dn">-0.87%</span></h4>
+<div class="ir"><span>成交37.41亿 | PE约7.0</span><span>昨收39.28</span></div>
+<p><strong>技术评估：</strong>小幅回调，银行板块今日领跌（四大行普遍-1%+）。风格切换后资金流出。PE约7x/PB约0.9x仍处历史低位。支撑38.00，阻力40.00。中性，防御底仓。</p>
+</div><h4 style="margin-top:18px">A股 ETF（6只·宽基/行业）</h4>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 科创50ETF东财 (589850) — 1.62 <span class="up">+4.66%</span></h4>
+<div class="ir"><span>成交2.59亿</span><span>昨收1.546 | 跟踪科创50</span></div>
+<p><strong>技术评估：</strong>跟涨科创50+4.78%，芯片/半导体全面反攻。高弹性。支撑1.55，阻力1.70。偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 机器人ETF易方达 (159530) — 1.42 <span class="up">+2.68%</span></h4>
+<div class="ir"><span>成交10.57亿</span><span>昨收1.378 | 跟踪机器人指数</span></div>
+<p><strong>技术评估：</strong>跟涨中小盘风格，中证1000+2.94%带动。支撑1.38，阻力1.44。中性偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 沪深300ETF华泰柏瑞 (510300) — 4.71 <span class="up">+1.35%</span></h4>
+<div class="ir"><span>成交66.90亿</span><span>昨收4.651 | 跟踪沪深300</span></div>
+<p><strong>技术评估：</strong>跟踪沪深300+1.24%，温和跟涨。支撑4.60，阻力4.75。中性，底仓持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> A500ETF东财 (159380) — 1.36 <span class="up">+1.41%</span></h4>
+<div class="ir"><span>成交1141万</span><span>昨收1.345 | 跟踪中证A500</span></div>
+<p><strong>技术评估：</strong>温和跟涨，核心宽基底仓。中性，底仓持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 创业板ETF易方达 (159915) — 3.56 <span class="up">+1.28%</span></h4>
+<div class="ir"><span>成交106.11亿</span><span>昨收3.514 | 日内振幅6%</span></div>
+<p><strong>技术评估：</strong>开盘低开3.400（-3.2%）→一路走高至3.607，深V反弹。支撑3.40，阻力3.60。中性偏多。</p>
+</div>
+<div class="stk">
+<h4><span class="mk ma">A股</span> 恒指科技ETF博时 (159742) — 0.63 <span class="up">+0.96%</span></h4>
+<div class="ir"><span>成交1.73亿</span><span>昨收0.624 | 跟踪恒生科技</span></div>
+<p><strong>技术评估：</strong>跟涨恒生科技+0.97%。跨市场配置。支撑0.62，阻力0.64。中性，持有。</p>
+</div><h3>2. 港股自选股技术分析（7只）</h3>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 腾讯控股 (00700) — 492.20 <span class="up">+0.94%</span></h4>
+<div class="ir"><span>PE 16.33 | 最高497.80 | 逼近500大关</span></div>
+<p><strong>技术评估：</strong>温和上涨逼近500关口！PE 16.33处历史低位。盘中最高触及497.80。支撑480，阻力500。偏多，核心持仓。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 阿里巴巴 (09988) — 128.10 <span class="up">+1.83%</span></h4>
+<div class="ir"><span>PE 18.31 | 最高129.00</span></div>
+<p><strong>技术评估：</strong>放量上涨领涨港股互联网。阿里千问+Apple AI合作持续催化。支撑125，阻力132。偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 京东集团 (09618) — 130.00 <span class="up">+0.70%</span></h4>
+<div class="ir"><span>PE 15.60 | PB 1.18</span></div>
+<p><strong>技术评估：</strong>小幅上涨，PE 15.60低位。支撑127，阻力135。中性偏多。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 美团 (03690) — 93.05 <span class="up">+0.38%</span></h4>
+<div class="ir"><span>PE亏损 | 最高93.65</span></div>
+<p><strong>技术评估：</strong>窄幅震荡微涨。中性，持有为主。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 小米集团 (01810) — 27.64 <span class="dn">-1.14%</span></h4>
+<div class="ir"><span>PE 16.40 | 最低27.46</span></div>
+<p><strong>技术评估：</strong>今日港股互联网中唯一收跌。PE 16.40合理估值+汽车业务催化仍在。支撑27，阻力29。中性偏空。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 理想汽车 (02015) — 50.65 <span class="up">+0.40%</span></h4>
+<div class="ir"><span>PE 81.82 | 最低49.52</span></div>
+<p><strong>技术评估：</strong>窄幅震荡，PE偏高制约上涨空间。支撑49，阻力52。中性偏空。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mh">港股</span> 泡泡玛特 (09992) — 161.40 <span class="up">+0.75%</span></h4>
+<div class="ir"><span>PE偏高（消费成长溢价）| 最高162.30</span></div>
+<p><strong>技术评估：</strong>温和上涨，IP消费龙头韧性延续。中性偏多。</p>
+</div><h3>3. 美股自选股分析（8/4收盘）</h3>
+<div class="stk">
+<h4><span class="mk mu">美股</span> 英伟达 (NVDA) — 211.94 <span class="up">+2.56%</span></h4>
+<div class="ir"><span>PE 32.26 | 费半+6.55%共振</span></div>
+<p><strong>技术评估：</strong>费半+6.55%暴涨带动下+2.56%，连续三日上涨。PE 32.26较此前40+大幅压缩。支撑200，阻力220。偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mu">美股</span> 美光科技 (MU) — 892.67 <span class="up">+7.62%</span></h4>
+<div class="ir"><span>PE 19.93 | 从739→893两日累涨+16%！</span></div>
+<p><strong>技术评估：</strong>&#x26A0;&#x26A0; 存储王者归来！两日从739底部暴涨至893（累涨+16%）。PE 19.93深度价值。支撑850，阻力950。偏多，核心存储持仓。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mu">美股</span> 谷歌 (GOOG) — 375.35 <span class="up">+0.77%</span></h4>
+<div class="ir"><span>PE 24.65 | AI应用龙头</span></div>
+<p><strong>技术评估：</strong>温和上涨，AI应用端持续获资金青睐。偏多，持有。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mu">美股</span> 苹果 (AAPL) — 309.38 <span class="up">+1.96%</span></h4>
+<div class="ir"><span>PE 37.27 | 止跌反弹</span></div>
+<p><strong>技术评估：</strong>止跌反弹+1.96%。此前连续多日下跌后企稳。支撑300，阻力320。中性偏多。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mu">美股</span> 特斯拉 (TSLA) — 327.35 <span class="up">+1.64%</span></h4>
+<div class="ir"><span>PE 272.79</span></div>
+<p><strong>技术评估：</strong>小幅反弹，PE仍处极高估值区间。支撑310，阻力340。中性偏空。</p>
+</div>
+<div class="stk">
+<h4><span class="mk mu">美股</span> Sea Limited (SE) — 111.44 <span class="up">+0.26%</span></h4>
+<div class="ir"><span>PE 41.74</span></div>
+<p><strong>技术评估：</strong>微涨，东南亚科技龙头温和反弹。中性偏多。</p>
+</div>
+<h3>4. 自选股横向对比（按当日涨跌幅排序，不分市场·共27只）</h3>
+<table><tr><th>排名</th><th>股票</th><th>市场</th><th>收盘价</th><th>涨跌幅</th><th>PE</th><th>信号</th></tr><tr><td>1</td><td>美光科技 MU</td><td><span class="mk mu">美</span></td><td>$892.67</td><td class="up"><span class="up">+7.62%</span></td><td>19.93</td><td>&#x1F7E2; 存储王者</td></tr><tr><td>2</td><td>兆易创新 603986</td><td><span class="mk ma">A</span></td><td>¥385.44</td><td class="up"><span class="up">+8.26%</span></td><td>95.36</td><td>&#x1F7E2; 强势反弹</td></tr><tr><td>3</td><td>科创50ETF东财 589850</td><td><span class="mk ma">A</span></td><td>¥1.62</td><td class="up"><span class="up">+4.66%</span></td><td>ETF</td><td>&#x1F7E2; 跟涨科创</td></tr><tr><td>4</td><td>药明康德 603259</td><td><span class="mk ma">A</span></td><td>¥147.49</td><td class="up"><span class="up">+4.35%</span></td><td>18.23</td><td>&#x1F7E2; 创新药龙头</td></tr><tr><td>5</td><td>机器人ETF易方达 159530</td><td><span class="mk ma">A</span></td><td>¥1.42</td><td class="up"><span class="up">+2.68%</span></td><td>ETF</td><td>&#x1F7E2;</td></tr><tr><td>6</td><td>英伟达 NVDA</td><td><span class="mk mu">美</span></td><td>$211.94</td><td class="up"><span class="up">+2.56%</span></td><td>32.26</td><td>&#x1F7E2;</td></tr><tr><td>7</td><td>宁德时代 300750</td><td><span class="mk ma">A</span></td><td>¥405.20</td><td class="up"><span class="up">+2.56%</span></td><td>21.27</td><td>&#x1F7E2; 重回400</td></tr><tr><td>8</td><td>苹果 AAPL</td><td><span class="mk mu">美</span></td><td>$309.38</td><td class="up"><span class="up">+1.96%</span></td><td>37.27</td><td>&#x1F7E2;</td></tr><tr><td>9</td><td>阿里巴巴 09988</td><td><span class="mk mh">港</span></td><td>HK$128.10</td><td class="up"><span class="up">+1.83%</span></td><td>18.31</td><td>&#x1F7E2;</td></tr><tr><td>10</td><td>特斯拉 TSLA</td><td><span class="mk mu">美</span></td><td>$327.35</td><td class="up"><span class="up">+1.64%</span></td><td>272.79</td><td>&#x1F7E1;</td></tr><tr><td>11</td><td>东方财富 300059</td><td><span class="mk ma">A</span></td><td>¥20.36</td><td class="up"><span class="up">+1.55%</span></td><td>23.44</td><td>&#x1F7E1;</td></tr><tr><td>12</td><td>A500ETF东财 159380</td><td><span class="mk ma">A</span></td><td>¥1.36</td><td class="up"><span class="up">+1.41%</span></td><td>ETF</td><td>&#x1F7E1;</td></tr><tr><td>13</td><td>沪深300ETF华泰柏瑞 510300</td><td><span class="mk ma">A</span></td><td>¥4.71</td><td class="up"><span class="up">+1.35%</span></td><td>ETF</td><td>&#x1F7E1;</td></tr><tr><td>14</td><td>创业板ETF易方达 159915</td><td><span class="mk ma">A</span></td><td>¥3.56</td><td class="up"><span class="up">+1.28%</span></td><td>ETF</td><td>&#x1F7E1;</td></tr><tr><td>15</td><td>恒指科技ETF博时 159742</td><td><span class="mk ma">A</span></td><td>¥0.63</td><td class="up"><span class="up">+0.96%</span></td><td>ETF</td><td>&#x1F7E1;</td></tr><tr><td>16</td><td>腾讯控股 00700</td><td><span class="mk mh">港</span></td><td>HK$492.20</td><td class="up"><span class="up">+0.94%</span></td><td>16.33</td><td>&#x1F7E1; 逼近500</td></tr><tr><td>17</td><td>谷歌 GOOG</td><td><span class="mk mu">美</span></td><td>$375.35</td><td class="up"><span class="up">+0.77%</span></td><td>24.65</td><td>&#x1F7E1;</td></tr><tr><td>18</td><td>泡泡玛特 09992</td><td><span class="mk mh">港</span></td><td>HK$161.40</td><td class="up"><span class="up">+0.75%</span></td><td>偏高</td><td>&#x1F7E1;</td></tr><tr><td>19</td><td>京东集团 09618</td><td><span class="mk mh">港</span></td><td>HK$130.00</td><td class="up"><span class="up">+0.70%</span></td><td>15.60</td><td>&#x1F7E1;</td></tr><tr><td>20</td><td>理想汽车 02015</td><td><span class="mk mh">港</span></td><td>HK$50.65</td><td class="up"><span class="up">+0.40%</span></td><td>81.82</td><td>&#x1F7E1;</td></tr><tr><td>21</td><td>美团 03690</td><td><span class="mk mh">港</span></td><td>HK$93.05</td><td class="up"><span class="up">+0.38%</span></td><td>亏损</td><td>&#x1F7E1;</td></tr><tr><td>22</td><td>Sea SE</td><td><span class="mk mu">美</span></td><td>$111.44</td><td class="up"><span class="up">+0.26%</span></td><td>41.74</td><td>&#x1F7E1;</td></tr><tr><td>23</td><td>中国平安 601318</td><td><span class="mk ma">A</span></td><td>¥54.02</td><td class="up"><span class="up">+0.17%</span></td><td>7.39</td><td>&#x1F7E1; 低估</td></tr><tr><td>24</td><td>招商银行 600036</td><td><span class="mk ma">A</span></td><td>¥38.94</td><td class="dn"><span class="dn">-0.87%</span></td><td>约7.0</td><td>&#x1F534; 防御补跌</td></tr><tr><td>25</td><td>小米集团 01810</td><td><span class="mk mh">港</span></td><td>HK$27.64</td><td class="dn"><span class="dn">-1.14%</span></td><td>16.40</td><td>&#x1F534;</td></tr><tr><td>26</td><td>贵州茅台 600519</td><td><span class="mk ma">A</span></td><td>¥1,306.45</td><td class="dn"><span class="dn">-1.65%</span></td><td>19.95</td><td>&#x1F534; 防御补跌</td></tr><tr><td>27</td><td>中际旭创 300308</td><td><span class="mk ma">A</span></td><td>¥947.74</td><td class="dn"><span class="dn">-7.27%</span></td><td>67.74</td><td>&#x1F534;&#x1F534; 天量深V</td></tr></table>
+<p><strong>横向对比结论：</strong>27只持仓中18只收红，9只下跌。结构与昨日完全相反——科技（兆易+8.26%/药明+4.35%/科创50ETF+4.66%）全面领涨，防御（茅台-1.65%/招行-0.87%）全面补跌。美股存储（美光+7.62%）领涨全球。中际旭创-7.27%是唯一深跌品种但天量深V。风格切换从"防御为王"→"科技进攻"正式确认。</p>
+</div>
+
+<div class="s"><h2>&#x1F4CA; 自选股当日表现全景</h2><div id="chart_stocks" class="chart"></div></div>
+
+<div class="s">
+<h2>&#x2705; 六、昨日计划执行回顾</h2>
+<h3>1. 仓位执行情况</h3>
+<div class="hl"><p><strong>8/4策略回顾："升至5-6成，科技3-4成（优先CPO/光通信/存储/创新药），防御1-2成"。</strong>如果按计划执行了加仓科技：兆易+8.26%/药明+4.35%/科创50ETF+4.66%均获得显著正收益。中际旭创虽然-7.27%但开盘深跌后深V，低点880附近加仓到收盘947已有+7.6%浮盈。防御仓位小幅亏损但在可控范围。"科技加仓+防御减仓"策略方向正确。</p></div>
+<h3>2. 买卖执行情况</h3>
+<div class="hl"><p><strong>8/4计划核心："美光回调至850-860回补此前减仓"。</strong>美光8/4收盘892.67（+7.62%），未触及850-860回补区间。若8/5美股继续走强，需上调回补目标价。</p></div>
+<h3>3. 止损止盈触发</h3>
+<div class="pl">
+<p><strong>&#x2705; 兆易创新+8.26%强势反弹：</strong>8/4策略"优先存储"完全正确。从358低点反弹至385，验证"超跌反弹→趋势反转"逻辑。</p>
+<p><strong>&#x2705; 药明康德+4.35%延续涨停：</strong>两日累涨+14%+，8/4策略"优先创新药"同样正确。</p>
+<p><strong>&#x26A0; 中际旭创-7.27%但深V：</strong>开盘880极度恐慌→收947。如果在开盘恐慌中抛售则锁定亏损。天量换手后明日方向至关重要。</p>
+</div>
+</div>
+
+<div class="s">
+<h2>&#x1F4CB; 七、制定明日交易计划</h2>
+<h3>1. 市场环境评估</h3>
+<div class="pl">
+<h4>&#x1F4CC; 当前市场状态：全球半导体趋势反转初期（科技进攻 + 防御减配 + 逐步加仓）</h4>
+<ul>
+<li><strong>A股：</strong>低开高走全面反攻，科创50+4.78%领涨。成交2.68万亿放量4000亿。风格从"防御为王"正式切换至"科技进攻"。</li>
+<li><strong>港股：</strong>温和跟涨（恒指+0.24%），弹性不及A股。互联网龙头温和走强。</li>
+<li><strong>美股：</strong>费半+6.55%王者归来（两日+13%+），道指/标普历史新高。油价暴跌6%→通胀降温→风险偏好全面回升。</li>
+<li><strong>仓位建议：</strong>升至5-6成。科技3-4成（优先存储/半导体/创新药），港股1-2成，防御降至0.5-1成。关键观察：明日A股科技高开幅度+中际天量次日方向+今夜美股芯片延续性。</li>
+</ul>
+</div>
+
+<h3>2. 具体操作计划</h3>
+<h4>A股操作</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发价格</th><th>仓位/金额</th><th>止损价</th><th>止盈价</th><th>逻辑</th></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>兆易创新</td><td><span class="badge bu">持有/加仓</span></td><td>回踩370-375</td><td>加仓至总仓位5%</td><td>跌破358止损</td><td>430</td><td>存储全球共振龙头</td></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>中际旭创</td><td><span class="badge bw">观察</span></td><td>若明日收阳站上980→加仓</td><td>试探性加仓至3%</td><td>跌破880止损</td><td>-</td><td>675亿天量深V，明日方向是关键验证</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>药明康德</td><td><span class="badge bu">持有</span></td><td>回踩143-145可小幅加仓</td><td>维持现有仓位</td><td>跌破138减持</td><td>160</td><td>创新药龙头，两日+14%+</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>宁德时代</td><td><span class="badge bu">持有</span></td><td>—</td><td>维持现有仓位</td><td>跌破390减持</td><td>430</td><td>重回400关口</td></tr>
+<tr><td>&#x2B50;</td><td>贵州茅台/平安/招行</td><td><span class="badge bw">观望/小幅减仓</span></td><td>—</td><td>可小幅减仓</td><td>跌破关键位减持</td><td>—</td><td>防御补跌承压</td></tr>
+</table>
+
+<h4>港股操作</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发条件</th></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>腾讯</td><td><span class="badge bu">持有</span></td><td>突破500确认强势。PE约16x历史低位</td></tr>
+<tr><td>&#x2B50;</td><td>阿里/京东</td><td><span class="badge bu">持有</span></td><td>阿里千问+AI合作催化延续</td></tr>
+<tr><td>&#x2B50;</td><td>小米</td><td><span class="badge bw">观望</span></td><td>今日唯一收跌，等企稳信号</td></tr>
+</table>
+
+<h4>美股操作（等今晚8/5开盘）</h4>
+<table>
+<tr><th>优先级</th><th>股票</th><th>方向</th><th>触发条件</th></tr>
+<tr><td>&#x2B50;&#x2B50;&#x2B50;</td><td>美光科技</td><td><span class="badge bu">持有/小幅加仓</span></td><td>若回调至850-860回补。PE 19.93深度价值</td></tr>
+<tr><td>&#x2B50;&#x2B50;</td><td>英伟达</td><td><span class="badge bu">持有</span></td><td>费半+6.55%共振中，趋势向好</td></tr>
+<tr><td>&#x2B50;</td><td>苹果/谷歌</td><td><span class="badge bu">持有</span></td><td>核心持仓维持</td></tr>
+</table>
+
+<h3>3. 情景决策矩阵</h3>
+<table>
+<tr><th>情景</th><th>A股科技</th><th>港股互联网</th><th>美股芯片</th><th>应对</th></tr>
+<tr><td>今夜美股继续走强（费半>+2%）</td><td>高开高走，全面爆发</td><td>跟涨</td><td>延续强势</td><td>科技仓位加至4-5成</td></tr>
+<tr><td>今夜美股震荡（费半±1%）</td><td>高开震荡，分化</td><td>窄幅震荡</td><td>震荡</td><td>维持5-6成，等待方向选择</td></tr>
+<tr><td>今夜美股回调（费半>-2%）</td><td>低开但未必深跌</td><td>承压</td><td>获利回吐</td><td>科技降至3-4成，等回调企稳</td></tr>
+</table>
+
+<h3>4. 关键观察清单（8月6日周四开盘）</h3>
+<div class="pl">
+<h4>&#x1F440; 明日开盘重点关注</h4>
+<ol>
+<li><strong>&#x1F534; 今夜美股芯片表现（最高优先级）：</strong>费半+6.55%后能否延续？美光+7.62%后是否获利回吐？</li>
+<li><strong>&#x1F534; 中际旭创天量次日方向：</strong>675亿历史天量深V→明日若收阳站上980=見底；若再跌→仅为技术反弹</li>
+<li><strong>&#x1F7E0; A股科技溢价率：</strong>高开>3%+冲高回落→警惕获利回吐；小幅高开+稳步上行→趋势延续</li>
+<li><strong>&#x1F7E1; 兆易创新能否站稳380：</strong>今日+8.26%，明日能否继续上攻400？</li>
+<li><strong>&#x1F7E2; 北向资金方向：</strong>盘后公布——重点看科技股北向态度</li>
+<li><strong>&#x26A1; 南向资金：</strong>决定港股独立行情能否延续</li>
+<li><strong>&#x1F4B0; 两融余额变化：</strong>杠杆资金是否回流？</li>
+<li><strong>&#x1F30D; 美伊霍尔木兹谈判进展：</strong>油价能否稳定在$75附近？</li>
+</ol>
+</div>
+</div>
+
+<div class="fn">
+&#x1F4C5; 生成时间：2026-08-05 19:16 CST | 数据来源：新浪财经/证券时报/中国基金报/每经/中新经纬 | 免责声明：以上分析仅供参考，不构成投资建议。投资有风险，决策需谨慎。
+</div>
+</div>
+
+<script>
+(function(){
+var dates=['7/28','7/29','7/30','7/31','8/3','8/4','8/5'];
+var sh=[3813,3828,3805,3973,3956,3822,3878];
+var sz=[13510,13658,13680,14002,13946,13886,14144];
+var kc50=[1693,1702,1588,1653,1630,1616,1694];
+var hsi=[25272,25808,25888,25884,25916,25853,25916];
+var ndx=[24932,25122,25168,25260,25914,26585,26585];
+echarts.init(document.getElementById('chart_idx')).setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['上证指数','深证成指','科创50','恒生指数','纳斯达克'],top:5},
+  grid:{left:60,right:50,top:50,bottom:30},
+  xAxis:{type:'category',data:dates},
+  yAxis:[{type:'value',name:'A股/港股'}],
+  series:[
+    {name:'上证指数',type:'line',data:sh,smooth:true,lineStyle:{color:'#e74c3c'},itemStyle:{color:'#e74c3c'}},
+    {name:'深证成指',type:'line',data:sz,smooth:true,lineStyle:{color:'#f39c12'},itemStyle:{color:'#f39c12'}},
+    {name:'科创50',type:'line',data:kc50,smooth:true,lineStyle:{color:'#8e44ad'},itemStyle:{color:'#8e44ad'}},
+    {name:'恒生指数',type:'line',data:hsi,smooth:true,lineStyle:{color:'#27ae60'},itemStyle:{color:'#27ae60'}},
+    {name:'纳斯达克',type:'line',data:ndx,smooth:true,lineStyle:{color:'#3498db'},itemStyle:{color:'#3498db'},lineStyle:{type:'dashed'}}
+  ]
+});
+})();
+(function(){
+var names=["\u4e2d\u9645\u65ed\u521b", "\u8d35\u5dde\u8305\u53f0", "\u5c0f\u7c73\u96c6\u56e2", "\u62db\u5546\u94f6\u884c", "\u4e2d\u56fd\u5e73\u5b89", "Sea", "\u7f8e\u56e2", "\u7406\u60f3\u6c7d\u8f66", "\u4eac\u4e1c\u96c6\u56e2", "\u6ce1\u6ce1\u739b\u7279", "\u8c37\u6b4c", "\u817e\u8baf\u63a7\u80a1", "\u6052\u6307\u79d1\u6280ETF\u535a\u65f6", "\u521b\u4e1a\u677fETF\u6613\u65b9\u8fbe", "\u6caa\u6df1300ETF\u534e\u6cf0\u67cf\u745e", "A500ETF\u4e1c\u8d22", "\u4e1c\u65b9\u8d22\u5bcc", "\u7279\u65af\u62c9", "\u963f\u91cc\u5df4\u5df4", "\u82f9\u679c", "\u5b81\u5fb7\u65f6\u4ee3", "\u82f1\u4f1f\u8fbe", "\u673a\u5668\u4ebaETF\u6613\u65b9\u8fbe", "\u836f\u660e\u5eb7\u5fb7", "\u79d1\u521b50ETF\u4e1c\u8d22", "\u5146\u6613\u521b\u65b0", "\u7f8e\u5149\u79d1\u6280"];
+var vals=[-7.27, -1.65, -1.14, -0.87, 0.17, 0.26, 0.38, 0.4, 0.7, 0.75, 0.77, 0.94, 0.96, 1.28, 1.35, 1.41, 1.55, 1.64, 1.83, 1.96, 2.56, 2.56, 2.68, 4.35, 4.66, 8.26, 7.62];
+var colors=vals.map(function(v){return v>=0?'#e74c3c':'#27ae60';});
+echarts.init(document.getElementById('chart_stocks')).setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'},formatter:'{b}: {c}%'},
+  grid:{left:100,right:30,top:10,bottom:30},
+  xAxis:{type:'value',name:'涨跌幅(%)',axisLabel:{formatter:'{value}%'}},
+  yAxis:{type:'category',data:names,inverse:true},
+  series:[{
+    type:'bar',
+    data:vals.map(function(v,i){return {value:v,itemStyle:{color:colors[i]}};}),
+    label:{show:true,position:'right',formatter:'{c}%',fontSize:10}
+  }]
+});
+})();
+</script>
+</body>
+</html>
