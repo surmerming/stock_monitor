@@ -181,9 +181,20 @@ export class MoneyFlowService {
 
   private normalizeSymbolKey(symbol: string): string {
     const s = symbol.toUpperCase().trim();
-    if (s.startsWith('HK')) return s;
-    const match = s.match(/^(\d+)\.(HK|SS|SZ)$/);
-    if (match) return `${match[2]}${match[1]}`;
+    // 港股：HK09988 与 9988.HK 统一为 HK+5位数字（前导零一致才能正确去重）
+    const hk = s.match(/^HK(\d+)$/) || s.match(/^(\d+)\.HK$/);
+    if (hk) return `HK${hk[1].padStart(5, '0')}`;
+    // A股 Yahoo 后缀归一为内部前缀格式
+    const cn = s.match(/^(\d+)\.(SS|SZ)$/);
+    if (cn) return `${cn[2]}${cn[1]}`;
+    return s;
+  }
+
+  /** 港股显示格式统一为 HK+5位数字（9988.HK → HK09988） */
+  private toHkDisplaySymbol(symbol: string): string {
+    const s = symbol.trim().toUpperCase();
+    const m = s.match(/^(\d+)\.HK$/) || s.match(/^HK(\d+)$/);
+    if (m) return `HK${m[1].padStart(5, '0')}`;
     return s;
   }
 
@@ -201,6 +212,9 @@ export class MoneyFlowService {
       const wlItems = await this.getWatchlistFlowToday(m);
       const existing = new Set(items.map((i) => this.normalizeSymbolKey(i.symbol)));
       for (const wi of wlItems) {
+        // 港股统一为 HK+5位数字显示格式（与行情池一致，避免同股两种代码）
+        const yhk = wi.symbol.match(/^(\d+)\.HK$/i);
+        if (yhk) wi.symbol = `HK${yhk[1].padStart(5, '0')}`;
         if (!existing.has(this.normalizeSymbolKey(wi.symbol))) items.push(wi);
       }
     } catch (err) {
@@ -210,6 +224,7 @@ export class MoneyFlowService {
     const seen = new Set<string>();
     const deduped: MoneyFlowItem[] = [];
     for (const item of items) {
+      item.symbol = this.toHkDisplaySymbol(item.symbol);
       const key = this.normalizeSymbolKey(item.symbol);
       if (!seen.has(key)) {
         seen.add(key);
@@ -314,14 +329,15 @@ export class MoneyFlowService {
     });
 
     return uniqueQuotes.map((q) => {
+      const symbol = this.toHkDisplaySymbol(q.symbol);
       let market: string;
-      if (/^(SH|sh|SZ|sz|BJ|bj)\d{6}$/.test(q.symbol)) market = 'A股';
-      else if (/^(HK|hk)\d{4,5}$/.test(q.symbol)) market = '港股';
+      if (/^(SH|sh|SZ|sz|BJ|bj)\d{6}$/.test(symbol)) market = 'A股';
+      else if (/^(HK|hk)\d{4,5}$/.test(symbol)) market = '港股';
       else market = '美股';
 
       const turnover = q.turnover || q.current_price * q.volume;
       return {
-        symbol: q.symbol,
+        symbol,
         name: q.name,
         market,
         price: q.current_price,

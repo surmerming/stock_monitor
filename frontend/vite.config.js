@@ -14,6 +14,10 @@ export default defineConfig({
         target: 'http://localhost:4444',
         changeOrigin: true,
       },
+      '/comment_attachments': {
+        target: 'http://localhost:4444',
+        changeOrigin: true,
+      },
     },
   },
   css: {

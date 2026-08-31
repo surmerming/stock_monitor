@@ -1,10 +1,23 @@
 import type { SentimentResult, SectorRotationItem } from '../../types';
-import { formatVolume } from '../../utils/format';
+import { formatVolume, formatTurnover } from '../../utils/format';
 
 interface Props {
   data: {
     sentiment: SentimentResult | null;
     sectorRanking: { gainers: SectorRotationItem[]; losers: SectorRotationItem[] };
+    marketTurnover: { total: number; sh: number; sz: number } | null;
+    moneyFlow: {
+      time: string;
+      mainNetFlow: number;
+      smallNetFlow: number;
+      mediumNetFlow: number;
+      largeNetFlow: number;
+      superNetFlow: number;
+    } | null;
+    hsgtFlow: {
+      north: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+      south: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+    } | null;
   } | null;
   loading: boolean;
 }
@@ -45,25 +58,7 @@ export default function MarketOverview({ data, loading }: Props) {
     <div className="rv-market">
       <h3 className="rv-section-title">今日市场总览</h3>
 
-      <div className="rv-market__grid">
-        {/* Sentiment Gauge */}
-        <div className="rv-market__card rv-market__card--gauge">
-          <div className="rv-market__gauge">
-            <div className="rv-market__gauge-score" style={{ color: gaugeColor }}>
-              {sentiment.gauge.score}
-            </div>
-            <div className="rv-market__gauge-label" style={{ color: gaugeColor }}>
-              {LEVEL_LABEL[sentiment.gauge.level] || sentiment.gauge.label}
-            </div>
-            <div className="rv-market__gauge-bar">
-              <div
-                className="rv-market__gauge-fill"
-                style={{ width: `${sentiment.gauge.score}%`, background: gaugeColor }}
-              />
-            </div>
-          </div>
-        </div>
-
+      <div className="rv-market__grid rv-market__grid--indices">
         {/* Indices */}
         <div className="rv-market__card rv-market__card--indices">
           <h4 className="rv-market__card-title">主要指数</h4>
@@ -86,6 +81,134 @@ export default function MarketOverview({ data, loading }: Props) {
             })}
           </div>
         </div>
+      </div>
+
+      <div className="rv-market__grid rv-market__grid--funds">
+        {/* Volume */}
+        <div className="rv-market__card">
+          <h4 className="rv-market__card-title">成交量分析</h4>
+          <div className="rv-market__volume">
+            <div className="rv-market__volume-main">
+              <span className="rv-market__volume-val">
+                {formatVolume(sentiment.volume.totalVolume)}
+              </span>
+              <span
+                className={`rv-market__volume-level rv-market__volume-level--${sentiment.volume.volumeLevel}`}
+              >
+                量比 {sentiment.volume.volumeRatio.toFixed(2)}
+              </span>
+            </div>
+            <div className="rv-market__volume-avg">
+              均量: {formatVolume(sentiment.volume.avgVolume)}
+            </div>
+          </div>
+        </div>
+
+        {/* 市场成交额 */}
+        {data.marketTurnover && (
+          <div className="rv-market__card">
+            <h4 className="rv-market__card-title">市场成交额</h4>
+            <div className="rv-market__volume">
+              <div className="rv-market__volume-main">
+                <span className="rv-market__volume-val">
+                  {formatTurnover(data.marketTurnover.total)}
+                </span>
+              </div>
+              <div className="rv-market__volume-avg">
+                沪 {formatTurnover(data.marketTurnover.sh)} · 深{' '}
+                {formatTurnover(data.marketTurnover.sz)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 资金流向 */}
+        {data.moneyFlow && (
+          <div className="rv-market__card">
+            <h4 className="rv-market__card-title">资金流向</h4>
+            <div className="rv-market__volume">
+              <div className="rv-market__volume-main">
+                <span
+                  className={`rv-market__volume-val ${data.moneyFlow.mainNetFlow >= 0 ? 'up' : 'down'}`}
+                >
+                  {formatTurnover(data.moneyFlow.mainNetFlow)}
+                </span>
+                <span className="rv-market__volume-level">主力净流入</span>
+              </div>
+              <div className="rv-market__volume-avg">
+                超大单{' '}
+                <span className={data.moneyFlow.superNetFlow >= 0 ? 'up' : 'down'}>
+                  {formatTurnover(data.moneyFlow.superNetFlow)}
+                </span>{' '}
+                · 大单{' '}
+                <span className={data.moneyFlow.largeNetFlow >= 0 ? 'up' : 'down'}>
+                  {formatTurnover(data.moneyFlow.largeNetFlow)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 北向资金 */}
+        {data.hsgtFlow?.north && (
+          <div className="rv-market__card">
+            <h4 className="rv-market__card-title">北向资金</h4>
+            <div className="rv-market__volume">
+              <div className="rv-market__volume-main">
+                <span className="rv-market__volume-val">
+                  {formatTurnover(data.hsgtFlow.north.dealAmt)}
+                </span>
+                <span className="rv-market__volume-level">当日成交额</span>
+              </div>
+              <div className="rv-market__volume-avg">
+                净买入已停止披露
+                {data.hsgtFlow.north.date ? `（${data.hsgtFlow.north.date}）` : ''}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 南向资金 */}
+        {data.hsgtFlow?.south && (
+          <div className="rv-market__card">
+            <h4 className="rv-market__card-title">南向资金</h4>
+            <div className="rv-market__volume">
+              <div className="rv-market__volume-main">
+                <span
+                  className={`rv-market__volume-val ${
+                    (data.hsgtFlow.south.netDealAmt ?? 0) >= 0 ? 'up' : 'down'
+                  }`}
+                >
+                  {formatTurnover(data.hsgtFlow.south.netDealAmt)}
+                </span>
+                <span className="rv-market__volume-level">净买入</span>
+              </div>
+              <div className="rv-market__volume-avg">
+                成交额 {formatTurnover(data.hsgtFlow.south.dealAmt)}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rv-market__grid rv-market__grid--sentiment">
+        {/* Sentiment Gauge */}
+        <div className="rv-market__card rv-market__card--gauge">
+          <div className="rv-market__gauge">
+            <div className="rv-market__gauge-score" style={{ color: gaugeColor }}>
+              {sentiment.gauge.score}
+            </div>
+            <div className="rv-market__gauge-label" style={{ color: gaugeColor }}>
+              {LEVEL_LABEL[sentiment.gauge.level] || sentiment.gauge.label}
+            </div>
+            <div className="rv-market__gauge-bar">
+              <div
+                className="rv-market__gauge-fill"
+                style={{ width: `${sentiment.gauge.score}%`, background: gaugeColor }}
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Breadth */}
         <div className="rv-market__card">
@@ -105,26 +228,6 @@ export default function MarketOverview({ data, loading }: Props) {
               <span>MA50上方: {sentiment.breadth.aboveMa50Pct.toFixed(0)}%</span>
               <span>新高: {sentiment.breadth.newHighs}</span>
               <span>新低: {sentiment.breadth.newLows}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Volume */}
-        <div className="rv-market__card">
-          <h4 className="rv-market__card-title">成交量分析</h4>
-          <div className="rv-market__volume">
-            <div className="rv-market__volume-main">
-              <span className="rv-market__volume-val">
-                {formatVolume(sentiment.volume.totalVolume)}
-              </span>
-              <span
-                className={`rv-market__volume-level rv-market__volume-level--${sentiment.volume.volumeLevel}`}
-              >
-                量比 {sentiment.volume.volumeRatio.toFixed(2)}
-              </span>
-            </div>
-            <div className="rv-market__volume-avg">
-              均量: {formatVolume(sentiment.volume.avgVolume)}
             </div>
           </div>
         </div>

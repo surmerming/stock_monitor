@@ -10,6 +10,19 @@ export interface ScannerItem {
     exchange: string;
     avgVolume3m: number | null;
 }
+export interface LimitUpItem extends ScannerItem {
+    limitUpDays: number;
+    limitRate: number;
+}
+export interface LimitUpStats {
+    total: number;
+    lianban: number;
+    maxLianban: number;
+}
+export interface LimitUpResult {
+    stats: LimitUpStats;
+    items: LimitUpItem[];
+}
 export declare class ScannerService {
     private readonly akShareService;
     private readonly logger;
@@ -18,6 +31,7 @@ export declare class ScannerService {
     private getCached;
     private setCache;
     private transformQuote;
+    private getAShareSnapshot;
     getGainers(count?: number): Promise<ScannerItem[]>;
     getLosers(count?: number): Promise<ScannerItem[]>;
     getActive(count?: number): Promise<ScannerItem[]>;
@@ -30,4 +44,8 @@ export declare class ScannerService {
         regionName: string;
         items: ScannerItem[];
     }[]>;
+    private limitRateFor;
+    private isLimitUpBar;
+    getLimitUp(): Promise<LimitUpResult>;
+    private countConsecutiveLimitUp;
 }

@@ -167,7 +167,11 @@ export class SentimentService {
         { symbol: 'sh000001', name: '上证指数' },
         { symbol: 'sz399001', name: '深证成指' },
         { symbol: 'sz399006', name: '创业板指' },
-        { symbol: 'hk00001', name: '恒生指数' },
+        { symbol: 'sh000680', name: '科创综指' },
+        { symbol: 'sh000300', name: '沪深300' },
+        { symbol: 'sh000688', name: '科创50' },
+        { symbol: 'hkHSI', name: '恒生指数' },
+        { symbol: 'hkHSTECH', name: '恒生科技指数' },
         { symbol: '^GSPC', name: '标普500' },
         { symbol: '^IXIC', name: '纳斯达克' },
         { symbol: '^DJI', name: '道琼斯' },
@@ -177,15 +181,17 @@ export class SentimentService {
       const indexMap = new Map(indices.map((index) => [index.symbol, index.name]));
       const validIndices = quotes.flatMap((item) => {
         if (!item.data) return [];
-        return [{
-          symbol: item.symbol,
-          name: indexMap.get(item.symbol) || item.data.name,
-          price: item.data.current_price,
-          change: item.data.change,
-          changePercent: item.data.change_percent,
-          volume: item.data.volume,
-          volumeRatio: item.data.volume_ratio,
-        }];
+        return [
+          {
+            symbol: item.symbol,
+            name: indexMap.get(item.symbol) || item.data.name,
+            price: item.data.current_price,
+            change: item.data.change,
+            changePercent: item.data.change_percent,
+            volume: item.data.volume,
+            volumeRatio: item.data.volume_ratio,
+          },
+        ];
       });
 
       const advancers = validIndices.filter((index) => index.changePercent > 0).length;
@@ -201,15 +207,16 @@ export class SentimentService {
       const breadthScore = advanceRatio;
       const momentumScore = Math.max(0, Math.min(100, 50 + averageChange * 12.5));
       const score = Math.round(momentumScore * 0.45 + breadthScore * 0.35 + volumeScore * 0.2);
-      const level = score < 20
-        ? 'extreme_fear'
-        : score < 40
-          ? 'fear'
-          : score < 60
-            ? 'neutral'
-            : score < 80
-              ? 'greed'
-              : 'extreme_greed';
+      const level =
+        score < 20
+          ? 'extreme_fear'
+          : score < 40
+            ? 'fear'
+            : score < 60
+              ? 'neutral'
+              : score < 80
+                ? 'greed'
+                : 'extreme_greed';
       const labels: Record<string, string> = {
         extreme_fear: '极度恐惧',
         fear: '恐惧',
@@ -218,13 +225,14 @@ export class SentimentService {
         extreme_greed: '极度贪婪',
       };
       const totalVolume = validIndices.reduce((sum, index) => sum + index.volume, 0);
-      const volumeLevel = volumeRatio < 0.8
-        ? 'shrink'
-        : volumeRatio < 1.2
-          ? 'normal'
-          : volumeRatio < 2
-            ? 'expand'
-            : 'surge';
+      const volumeLevel =
+        volumeRatio < 0.8
+          ? 'shrink'
+          : volumeRatio < 1.2
+            ? 'normal'
+            : volumeRatio < 2
+              ? 'expand'
+              : 'surge';
 
       const result = {
         timestamp: new Date().toISOString(),

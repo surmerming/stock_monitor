@@ -31,6 +31,9 @@ let ScannerController = class ScannerController {
     getTrending() {
         return this.scannerService.getTrendingWithQuotes();
     }
+    getLimitUp() {
+        return this.scannerService.getLimitUp();
+    }
 };
 exports.ScannerController = ScannerController;
 __decorate([
@@ -60,6 +63,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ScannerController.prototype, "getTrending", null);
+__decorate([
+    (0, common_1.Get)('limit-up'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ScannerController.prototype, "getLimitUp", null);
 exports.ScannerController = ScannerController = __decorate([
     (0, common_1.Controller)('scanner'),
     __metadata("design:paramtypes", [scanner_service_1.ScannerService])

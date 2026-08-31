@@ -39,10 +39,11 @@ export class DetailService {
     const isYearly = interval === '1y';
 
     try {
-      const chartResult = await this.akShareService.getChart(symbol, period);
-      if (!chartResult) {
-        throw new Error(`No chart data for ${symbol}`);
-      }
+      // 分时/5日走腾讯分钟数据；日K及以上走日/周/月K
+      const rawQuotes =
+        interval === '1m' || interval === '5m'
+          ? ((await this.akShareService.getIntradayChart(symbol, interval === '1m' ? 1 : 5)) ?? [])
+          : ((await this.akShareService.getChart(symbol, period))?.quotes ?? []);
 
       const quote = await this.akShareService.getQuote(symbol);
 
@@ -62,13 +63,24 @@ export class DetailService {
         timezone: 'Asia/Shanghai',
       };
 
-      let quotes = chartResult.quotes.map((q: ChartQuote) => ({
-        date: new Date(q.date).getTime() / 1000,
+      // 保留原始日期字符串：'YYYY-MM-DD'（日K及以上，前端按业务日显示日期）
+      // 或 'YYYY-MM-DDTHH:mm'（分钟线，前端按时间戳显示时分）
+      let quotes: {
+        date: string;
+        open: number;
+        high: number;
+        low: number;
+        close: number;
+        volume: number;
+        turnover?: number | null;
+      }[] = rawQuotes.map((q: ChartQuote) => ({
+        date: q.date,
         open: q.open,
         high: q.high,
         low: q.low,
         close: q.close,
         volume: q.volume,
+        turnover: q.turnover ?? null,
       }));
 
       if (isYearly) {
@@ -84,23 +96,32 @@ export class DetailService {
 
   private aggregateToYearly(
     monthlyQuotes: {
-      date: number;
+      date: string;
       open: number;
       high: number;
       low: number;
       close: number;
       volume: number;
+      turnover?: number | null;
     }[],
   ) {
     const yearMap = new Map<
       number,
-      { date: number; open: number; high: number; low: number; close: number; volume: number }
+      {
+        date: string;
+        open: number;
+        high: number;
+        low: number;
+        close: number;
+        volume: number;
+        turnover?: number | null;
+      }
     >();
 
     for (const q of monthlyQuotes) {
       if (q.close == null) continue;
-      const d = new Date(q.date * 1000);
-      const year = d.getFullYear();
+      const year = parseInt(q.date.slice(0, 4), 10);
+      if (!Number.isFinite(year)) continue;
       const existing = yearMap.get(year);
 
       if (!existing) {
@@ -111,19 +132,11 @@ export class DetailService {
         if (q.low != null && (existing.low == null || q.low < existing.low)) existing.low = q.low;
         existing.close = q.close;
         existing.volume = (existing.volume ?? 0) + (q.volume ?? 0);
+        existing.date = q.date; // 年K锚定该年最后一个交易日
       }
     }
 
-    return [...yearMap.entries()]
-      .sort(([a], [b]) => a - b)
-      .map(([year, q]) => ({
-        date: new Date(year, 0, 1).getTime() / 1000,
-        open: q.open,
-        high: q.high,
-        low: q.low,
-        close: q.close,
-        volume: q.volume,
-      }));
+    return [...yearMap.entries()].sort(([a], [b]) => a - b).map(([, q]) => q);
   }
 
   async getDetail(rawSymbol: string) {
@@ -155,7 +168,8 @@ export class DetailService {
           marketState: null,
           regularMarketPrice: quote.current_price,
           regularMarketChange: quote.change,
-          regularMarketChangePercent: quote.change_percent,
+          // 前端按小数约定展示（×100），quote.change_percent 是百分数值，需除以100
+          regularMarketChangePercent: quote.change_percent / 100,
           regularMarketDayHigh: quote.day_high,
           regularMarketDayLow: quote.day_low,
           regularMarketVolume: quote.volume,

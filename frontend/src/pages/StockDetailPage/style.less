@@ -59,6 +59,40 @@
     color: @text-dim;
   }
 
+  &__watch-btn {
+    border: 1px solid #d8dee8;
+    background: #fff;
+    border-radius: 6px;
+    padding: 3px 12px;
+    font-size: 13px;
+    color: @text-dim;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+
+    &:hover:not(&--active) {
+      border-color: @primary;
+      color: @primary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--active {
+      border-color: @primary;
+      background: @primary;
+      color: #fff;
+
+      &:hover {
+        border-color: darken(@primary, 8%);
+        background: darken(@primary, 8%);
+        color: #fff;
+      }
+    }
+  }
+
   &__header-right {
     display: flex;
     flex-direction: column;
@@ -151,6 +185,12 @@
     margin-bottom: 20px;
   }
 
+  &__side-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+  }
 }
 
 .events-panel {
@@ -241,7 +281,9 @@
     font-size: 13px;
     color: @text-dim;
     opacity: 0;
-    transition: opacity 0.15s, color 0.15s;
+    transition:
+      opacity 0.15s,
+      color 0.15s;
   }
 }
 

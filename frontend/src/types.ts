@@ -86,6 +86,7 @@ export interface ChartQuote {
   low: number | null;
   close: number | null;
   volume: number | null;
+  turnover?: number | null;
 }
 
 export interface ChartMeta {

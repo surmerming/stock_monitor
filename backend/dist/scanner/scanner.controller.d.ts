@@ -10,4 +10,5 @@ export declare class ScannerController {
         regionName: string;
         items: import("./scanner.service").ScannerItem[];
     }[]>;
+    getLimitUp(): Promise<import("./scanner.service").LimitUpResult>;
 }

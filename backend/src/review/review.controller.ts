@@ -41,16 +41,6 @@ export class ReviewController {
     return this.reviewService.getSectorRanking(market || 'us');
   }
 
-  @Get('compare')
-  async getComparison(@Query('symbols') symbols: string, @Query('range') range?: string) {
-    const symbolList = symbols
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (symbolList.length < 2) return { error: 'At least 2 symbols required' };
-    return this.reviewService.getComparison(symbolList, range || '3mo');
-  }
-
   @Get('stock/:symbol')
   async getStockReview(@Param('symbol') symbol: string) {
     const detail = await this.reviewService.getStockReview(symbol);

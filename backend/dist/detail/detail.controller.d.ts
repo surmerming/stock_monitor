@@ -19,12 +19,13 @@ export declare class DetailController {
             timezone: string;
         };
         quotes: {
-            date: number;
+            date: string;
             open: number;
             high: number;
             low: number;
             close: number;
             volume: number;
+            turnover?: number | null;
         }[];
     }>;
     getDetail(symbol: string): Promise<{

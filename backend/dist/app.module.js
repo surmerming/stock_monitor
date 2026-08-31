@@ -25,15 +25,21 @@ const sentiment_module_1 = require("./sentiment/sentiment.module");
 const review_module_1 = require("./review/review.module");
 const trade_module_1 = require("./trade/trade.module");
 const review_note_module_1 = require("./review-note/review-note.module");
+const daily_review_module_1 = require("./daily-review/daily-review.module");
 const auth_module_1 = require("./auth/auth.module");
+const stock_comment_module_1 = require("./stock-comment/stock-comment.module");
 const watchlist_entity_1 = require("./watchlist/watchlist.entity");
 const alert_rule_entity_1 = require("./alert/alert-rule.entity");
 const alert_history_entity_1 = require("./alert/alert-history.entity");
 const strategy_entity_1 = require("./screener/strategy.entity");
 const trade_entity_1 = require("./trade/trade.entity");
 const review_note_entity_1 = require("./review-note/review-note.entity");
+const config_entity_1 = require("./daily-review/config.entity");
+const review_entity_1 = require("./daily-review/review.entity");
+const run_entity_1 = require("./daily-review/run.entity");
 const user_entity_1 = require("./auth/user.entity");
 const login_attempt_entity_1 = require("./auth/login-attempt.entity");
+const comment_entity_1 = require("./stock-comment/comment.entity");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 let AppModule = class AppModule {
 };
@@ -55,8 +61,12 @@ exports.AppModule = AppModule = __decorate([
                     strategy_entity_1.ScreenerStrategy,
                     trade_entity_1.Trade,
                     review_note_entity_1.ReviewNote,
+                    config_entity_1.DailyReviewConfig,
+                    review_entity_1.DailyReview,
+                    run_entity_1.DailyReviewRun,
                     user_entity_1.User,
                     login_attempt_entity_1.LoginAttempt,
+                    comment_entity_1.StockComment,
                 ],
                 synchronize: true,
             }),
@@ -76,6 +86,8 @@ exports.AppModule = AppModule = __decorate([
             review_module_1.ReviewModule,
             trade_module_1.TradeModule,
             review_note_module_1.ReviewNoteModule,
+            daily_review_module_1.DailyReviewModule,
+            stock_comment_module_1.StockCommentModule,
         ],
         providers: [
             {

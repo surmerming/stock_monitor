@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { apiFetch } from '../../utils/apiFetch';
+import DailyReviewModal from './DailyReviewModal';
 
 interface DayRecord {
   date: string;
@@ -17,6 +18,15 @@ interface DailyFile {
   date: string;
 }
 
+interface DailyReviewItem {
+  id: number;
+  date: string;
+  title: string | null;
+  updatedAt: string;
+  source: string | null;
+  fileSize: number;
+}
+
 export default function ReviewCalendar() {
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
@@ -26,17 +36,19 @@ export default function ReviewCalendar() {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [noteDetail, setNoteDetail] = useState<any>(null);
-  const [dailyFileDates, setDailyFileDates] = useState<Set<string>>(new Set());
-  const [dailyFileMap, setDailyFileMap] = useState<Map<string, string>>(new Map());
+  const [dailyReviewDates, setDailyReviewDates] = useState<Set<string>>(new Set());
+  const [legacyFileDates, setLegacyFileDates] = useState<Map<string, string>>(new Map());
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const [hoveredNote, setHoveredNote] = useState<any>(null);
+  const [activeModal, setActiveModal] = useState<'settings' | 'run' | null>(null);
 
   const fetchMonthData = useCallback(async () => {
     setLoading(true);
     try {
-      const [notesRes, tradesRes, dailyFilesRes] = await Promise.all([
+      const [notesRes, tradesRes, dailyReviewsRes, legacyFilesRes] = await Promise.all([
         apiFetch('/api/review/notes'),
         apiFetch('/api/trades'),
+        apiFetch('/api/daily-review/list'),
         apiFetch('/api/review/daily-files'),
       ]);
 
@@ -74,19 +86,22 @@ export default function ReviewCalendar() {
 
       setNotes(records);
 
-      // 解析每日复盘文件
-      if (dailyFilesRes.ok) {
-        const { files } = (await dailyFilesRes.json()) as { files: DailyFile[] };
+      // 主数据源：MySQL daily_reviews
+      if (dailyReviewsRes.ok) {
+        const { items } = (await dailyReviewsRes.json()) as { items: DailyReviewItem[] };
         const dateSet = new Set<string>();
+        for (const r of items || []) dateSet.add(r.date);
+        setDailyReviewDates(dateSet);
+      }
+
+      // 兜底：磁盘旧文件（仅在 MySQL 没记录时作为 fallback）
+      if (legacyFilesRes.ok) {
+        const { files } = (await legacyFilesRes.json()) as { files: DailyFile[] };
         const fileMap = new Map<string, string>();
-        for (const f of files) {
-          if (f.date) {
-            dateSet.add(f.date);
-            fileMap.set(f.date, f.fileName);
-          }
+        for (const f of files || []) {
+          if (f.date) fileMap.set(f.date, f.fileName);
         }
-        setDailyFileDates(dateSet);
-        setDailyFileMap(fileMap);
+        setLegacyFileDates(fileMap);
       }
     } catch {
       // handle error
@@ -100,13 +115,23 @@ export default function ReviewCalendar() {
   }, [fetchMonthData]);
 
   const handleSelectDate = async (date: string) => {
-    // 如果有每日复盘 HTML 文件，用新窗口打开
-    if (dailyFileDates.has(date)) {
-      const fileName = dailyFileMap.get(date);
-      if (fileName) {
-        window.open(`/daily_review/${encodeURIComponent(fileName)}`, '_blank');
+    // 优先用 MySQL 中的报告
+    if (dailyReviewDates.has(date)) {
+      const res = await apiFetch(`/api/daily-review/by-date/${encodeURIComponent(date)}`);
+      if (res.ok) {
+        const html = await res.text();
+        const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
         return;
       }
+    }
+
+    // 兜底：磁盘旧文件
+    const legacyName = legacyFileDates.get(date);
+    if (legacyName) {
+      window.open(`/daily_review/${encodeURIComponent(legacyName)}`, '_blank');
+      return;
     }
 
     setSelectedDate(date);
@@ -166,6 +191,22 @@ export default function ReviewCalendar() {
         <button className="rv-btn rv-btn--sm" onClick={nextMonth}>
           →
         </button>
+        <div className="rv-calendar__nav-actions">
+          <button
+            className="rv-btn rv-btn--sm"
+            onClick={() => setActiveModal('settings')}
+            title="配置每日复盘.md / 我的持仓.md"
+          >
+            ⚙ 设置
+          </button>
+          <button
+            className="rv-btn rv-btn--sm rv-btn--primary"
+            onClick={() => setActiveModal('run')}
+            title="运行每日复盘 / 查看运行记录"
+          >
+            ▶ 运行
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -184,7 +225,7 @@ export default function ReviewCalendar() {
             const record = noteMap.get(dateStr);
             const isToday = dateStr === new Date().toISOString().slice(0, 10);
             const isSelected = dateStr === selectedDate;
-            const hasDailyReview = dailyFileDates.has(dateStr);
+            const hasDailyReview = dailyReviewDates.has(dateStr);
 
             const classNames = [
               'rv-calendar__day',
@@ -302,6 +343,8 @@ export default function ReviewCalendar() {
           )}
         </div>
       )}
+
+      {activeModal && <DailyReviewModal mode={activeModal} onClose={() => setActiveModal(null)} />}
     </div>
   );
 }

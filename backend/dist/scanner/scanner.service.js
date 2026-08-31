@@ -15,44 +15,17 @@ const common_1 = require("@nestjs/common");
 const akshare_service_1 = require("../akshare/akshare.service");
 const cn_names_1 = require("../common/cn-names");
 const CACHE_TTL = 2 * 60 * 1000;
-const US_TOP_STOCKS = [
-    'AAPL',
-    'MSFT',
-    'NVDA',
-    'GOOGL',
-    'AMZN',
-    'META',
-    'TSLA',
-    'BRK-B',
-    'JPM',
-    'V',
-    'UNH',
-    'MA',
-    'JNJ',
-    'PG',
-    'HD',
-    'AVGO',
-    'COST',
-    'MRK',
-    'ABBV',
-    'CRM',
-    'AMD',
-    'NFLX',
-    'PEP',
-    'KO',
-    'TMO',
-    'ADBE',
-    'LIN',
-];
+const LIMIT_UP_CACHE_TTL = 10 * 60 * 1000;
+const SNAPSHOT_CACHE_TTL = 60 * 1000;
 let ScannerService = ScannerService_1 = class ScannerService {
     constructor(akShareService) {
         this.akShareService = akShareService;
         this.logger = new common_1.Logger(ScannerService_1.name);
         this.cache = new Map();
     }
-    getCached(key) {
+    getCached(key, ttlMs = CACHE_TTL) {
         const entry = this.cache.get(key);
-        if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+        if (entry && Date.now() - entry.timestamp < ttlMs) {
             return entry.data;
         }
         return null;
@@ -73,17 +46,24 @@ let ScannerService = ScannerService_1 = class ScannerService {
             avgVolume3m: null,
         };
     }
+    async getAShareSnapshot() {
+        const cached = this.getCached('a_share_snapshot', SNAPSHOT_CACHE_TTL);
+        if (cached)
+            return cached;
+        const list = await this.akShareService.getMarketStockList('a_share');
+        this.setCache('a_share_snapshot', list);
+        return list;
+    }
     async getGainers(count = 25) {
         const cached = this.getCached('gainers');
         if (cached)
             return cached;
         try {
-            const sectorResult = await this.akShareService.getSector('a_share');
-            const sectors = sectorResult?.sectors || [];
-            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-            const quotes = results.filter((r) => r.data).map((r) => r.data);
-            quotes.sort((a, b) => b.change_percent - a.change_percent);
-            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+            const snapshot = await this.getAShareSnapshot();
+            const items = [...snapshot]
+                .sort((a, b) => b.change_percent - a.change_percent)
+                .slice(0, count)
+                .map((q) => this.transformQuote(q));
             this.setCache('gainers', items);
             this.logger.debug(`Fetched ${items.length} gainers`);
             return items;
@@ -98,10 +78,11 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (cached)
             return cached;
         try {
-            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-            const quotes = results.filter((r) => r.data).map((r) => r.data);
-            quotes.sort((a, b) => a.change_percent - b.change_percent);
-            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+            const snapshot = await this.getAShareSnapshot();
+            const items = [...snapshot]
+                .sort((a, b) => a.change_percent - b.change_percent)
+                .slice(0, count)
+                .map((q) => this.transformQuote(q));
             this.setCache('losers', items);
             this.logger.debug(`Fetched ${items.length} losers`);
             return items;
@@ -116,10 +97,11 @@ let ScannerService = ScannerService_1 = class ScannerService {
         if (cached)
             return cached;
         try {
-            const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-            const quotes = results.filter((r) => r.data).map((r) => r.data);
-            quotes.sort((a, b) => b.volume - a.volume);
-            const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+            const snapshot = await this.getAShareSnapshot();
+            const items = [...snapshot]
+                .sort((a, b) => (b.turnover || 0) - (a.turnover || 0))
+                .slice(0, count)
+                .map((q) => this.transformQuote(q));
             this.setCache('active', items);
             this.logger.debug(`Fetched ${items.length} most active`);
             return items;
@@ -133,22 +115,27 @@ let ScannerService = ScannerService_1 = class ScannerService {
         const cached = this.getCached('trending');
         if (cached)
             return cached;
-        const regions = ['US', 'HK'];
-        const results = [];
-        const usSymbols = US_TOP_STOCKS;
-        const hkSymbols = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
-        results.push({ region: 'US', symbols: usSymbols });
-        results.push({ region: 'HK', symbols: hkSymbols });
-        this.setCache('trending', results);
-        this.logger.debug(`Fetched trending for ${regions.join(', ')}`);
-        return results;
+        try {
+            const snapshot = await this.getAShareSnapshot();
+            const symbols = [...snapshot]
+                .sort((a, b) => (b.turnover_rate || 0) - (a.turnover_rate || 0))
+                .slice(0, 25)
+                .map((q) => q.symbol);
+            const results = [{ region: 'CN', symbols }];
+            this.setCache('trending', results);
+            return results;
+        }
+        catch (err) {
+            this.logger.error(`Failed to fetch trending: ${err.message}`);
+            return this.getCached('trending') ?? [];
+        }
     }
     async getTrendingWithQuotes() {
         const cached = this.getCached('trending_quotes');
         if (cached)
             return cached;
         const trending = await this.getTrending();
-        const regionNames = { US: '美股', HK: '港股' };
+        const regionNames = { CN: 'A股', US: '美股', HK: '港股' };
         const allSymbols = trending.flatMap((t) => t.symbols);
         if (allSymbols.length === 0)
             return [];
@@ -175,6 +162,101 @@ let ScannerService = ScannerService_1 = class ScannerService {
         catch (err) {
             this.logger.error(`Failed to fetch trending quotes: ${err.message}`);
             return [];
+        }
+    }
+    limitRateFor(symbol) {
+        const code = symbol.replace(/^(SH|SZ)/, '');
+        if (code.startsWith('688') || code.startsWith('300') || code.startsWith('301'))
+            return 20;
+        return 10;
+    }
+    isLimitUpBar(bars, i, rate) {
+        if (i < 1)
+            return false;
+        const prevClose = bars[i - 1].close;
+        if (!prevClose)
+            return false;
+        const limitPrice = Math.round(prevClose * (1 + rate / 100) * 100) / 100;
+        return bars[i].close >= limitPrice - 0.001;
+    }
+    async getLimitUp() {
+        const cached = this.getCached('limitup', LIMIT_UP_CACHE_TTL);
+        if (cached)
+            return cached;
+        const empty = {
+            stats: { total: 0, lianban: 0, maxLianban: 0 },
+            items: [],
+        };
+        try {
+            const list = await this.akShareService.getMarketStockList('a_share');
+            const prefiltered = list.filter((q) => {
+                const rate = this.limitRateFor(q.symbol);
+                return q.change_percent >= rate - 0.5;
+            });
+            const limitPrices = await this.akShareService.getTencentLimitPrices(prefiltered.map((q) => q.symbol));
+            const candidates = prefiltered.filter((q) => {
+                const limitPrice = limitPrices.get(q.symbol.toUpperCase());
+                if (limitPrice != null)
+                    return q.current_price >= limitPrice - 0.001;
+                return q.change_percent >= this.limitRateFor(q.symbol) - 0.25;
+            });
+            this.logger.log(`Limit-up candidates: ${candidates.length}`);
+            const items = [];
+            const batchSize = 20;
+            for (let i = 0; i < candidates.length; i += batchSize) {
+                const batch = candidates.slice(i, i + batchSize);
+                const settled = await Promise.allSettled(batch.map(async (q) => {
+                    const rate = this.limitRateFor(q.symbol);
+                    const days = await this.countConsecutiveLimitUp(q.symbol, rate);
+                    return { q, rate, days };
+                }));
+                for (const s of settled) {
+                    if (s.status !== 'fulfilled')
+                        continue;
+                    const { q, rate, days } = s.value;
+                    items.push({
+                        ...this.transformQuote(q),
+                        limitUpDays: days,
+                        limitRate: rate,
+                    });
+                }
+            }
+            items.sort((a, b) => b.limitUpDays - a.limitUpDays || b.changePercent - a.changePercent);
+            const result = {
+                stats: {
+                    total: items.length,
+                    lianban: items.filter((it) => it.limitUpDays >= 2).length,
+                    maxLianban: items.reduce((max, it) => Math.max(max, it.limitUpDays), 0),
+                },
+                items,
+            };
+            this.setCache('limitup', result);
+            return result;
+        }
+        catch (err) {
+            this.logger.error(`Failed to fetch limit-up: ${err.message}`);
+            return this.getCached('limitup', Infinity) ?? empty;
+        }
+    }
+    async countConsecutiveLimitUp(symbol, rate) {
+        try {
+            const chart = await this.akShareService.getChart(symbol, 'daily');
+            const bars = (chart?.quotes ?? [])
+                .filter((b) => b.close > 0)
+                .sort((a, b) => (a.date < b.date ? -1 : 1));
+            if (bars.length < 2)
+                return 1;
+            let days = 0;
+            for (let i = bars.length - 1; i >= 1; i--) {
+                if (this.isLimitUpBar(bars, i, rate))
+                    days++;
+                else
+                    break;
+            }
+            return Math.max(days, 1);
+        }
+        catch {
+            return 1;
         }
     }
 };

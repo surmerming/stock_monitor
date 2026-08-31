@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuoteSSE } from '../../hooks/useQuoteSSE';
+import { useWatchlist } from '../../hooks/useWatchlist';
 import StockChart from '../../components/StockChart';
+import StockPattern from '../../components/StockPattern';
+import StockInteraction from '../../components/StockInteraction';
 import { formatVolume, formatMarketCap } from '../../utils/format';
 import type { QuoteData, ChartData } from '../../types';
 import { apiFetch } from '../../utils/apiFetch';
@@ -200,8 +203,9 @@ export default function StockDetailPage() {
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
   const { quotes } = useQuoteSSE();
+  const { symbols: watchSymbols, addSymbols, removeSymbol } = useWatchlist();
 
-  const [activeRange, setActiveRange] = useState<string>('1d');
+  const [activeRange, setActiveRange] = useState<string>('daily');
   const [chartData, setChartData] = useState<ChartData | null>(null);
   const [chartLoading, setChartLoading] = useState(false);
   const [detail, setDetail] = useState<DetailResponse | null>(null);
@@ -260,7 +264,19 @@ export default function StockDetailPage() {
   const isUp = change >= 0;
   const trend = isUp ? 'up' : 'down';
   const sign = isUp ? '+' : '';
-  const chartType = activeRange === '1d' || activeRange === '5d' ? 'area' : 'candle';
+  const chartType = 'candle';
+
+  const upperSymbol = (symbol ?? '').toUpperCase();
+  const isWatched = watchSymbols.some((s) => s.toUpperCase() === upperSymbol);
+
+  const handleToggleWatch = useCallback(() => {
+    if (!upperSymbol) return;
+    if (isWatched) {
+      removeSymbol(upperSymbol);
+    } else {
+      addSymbols([upperSymbol]);
+    }
+  }, [upperSymbol, isWatched, addSymbols, removeSymbol]);
 
   return (
     <div className="stock-detail">
@@ -274,6 +290,13 @@ export default function StockDetailPage() {
           {priceData?.exchange && (
             <span className="stock-detail__exchange">{priceData.exchange}</span>
           )}
+          <button
+            className={`stock-detail__watch-btn ${isWatched ? 'stock-detail__watch-btn--active' : ''}`}
+            onClick={handleToggleWatch}
+            disabled={!upperSymbol}
+          >
+            {isWatched ? '★ 已监控' : '☆ 加入监控'}
+          </button>
         </div>
         <div className="stock-detail__header-right">
           <span className={`stock-detail__price stock-detail__price--${trend}`}>
@@ -306,12 +329,9 @@ export default function StockDetailPage() {
             <StockChart
               quotes={chartData.quotes}
               type={chartType}
-              prevClose={
-                activeRange === '1d' || activeRange === '5d'
-                  ? (chartData.meta?.chartPreviousClose ?? null)
-                  : null
-              }
               timezone={chartData.meta?.timezone}
+              liveTurnoverRate={liveQuote?.turnover_rate ?? null}
+              livePeRatio={liveQuote?.pe_ratio ?? null}
             />
           ) : (
             <div className="stock-detail__chart-loading">暂无图表数据</div>
@@ -321,7 +341,10 @@ export default function StockDetailPage() {
 
       <div className="stock-detail__panels">
         <FundamentalPanel detail={detail} liveQuote={liveQuote} loading={detailLoading} />
-        <AnalystPanel detail={detail} loading={detailLoading} />
+        <div className="stock-detail__side-panels">
+          {symbol && <StockPattern key={symbol} symbol={symbol} />}
+          <AnalystPanel detail={detail} loading={detailLoading} />
+        </div>
       </div>
 
       <ShortInterestPanel detail={detail} loading={detailLoading} />
@@ -351,6 +374,8 @@ export default function StockDetailPage() {
           </div>
         </div>
       )}
+
+      {symbol && <StockInteraction key={symbol} symbol={symbol} />}
     </div>
   );
 }
@@ -395,7 +420,7 @@ function FundamentalPanel({ detail, liveQuote, loading }: FundamentalPanelProps)
 
   return (
     <div className="fund-panel">
-      <h3 className="fund-panel__title">基本面数据</h3>
+      <h3 className="fund-panel__title">基本面</h3>
       <div className="fund-panel__grid">
         {items.map((item) => (
           <div key={item.label} className="fund-panel__item">

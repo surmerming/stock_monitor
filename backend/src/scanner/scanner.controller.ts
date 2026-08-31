@@ -24,4 +24,9 @@ export class ScannerController {
   getTrending() {
     return this.scannerService.getTrendingWithQuotes();
   }
+
+  @Get('limit-up')
+  getLimitUp() {
+    return this.scannerService.getLimitUp();
+  }
 }

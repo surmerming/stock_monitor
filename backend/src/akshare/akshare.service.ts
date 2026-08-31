@@ -43,6 +43,7 @@ export interface ChartQuote {
   low: number;
   close: number;
   volume: number;
+  turnover?: number | null; // 成交额（元），仅部分数据源提供（分时）
 }
 
 export interface ChartResult {
@@ -552,40 +553,51 @@ export class AkShareService {
     period: string,
   ): Promise<ChartQuote[] | null> {
     const endpoint = market === 'hk' ? 'hkfqkline' : market === 'us' ? 'usfqkline' : 'fqkline';
-    const variable = `kline_${period}qfq`;
     const klinePeriod = period === 'weekly' ? 'week' : period === 'monthly' ? 'month' : 'day';
-    const url = `https://web.ifzq.gtimg.cn/appstock/app/${endpoint}/get?_var=${variable}&param=${symbol},${klinePeriod},,,320,qfq`;
 
-    try {
-      const response = await axios.get(url, { timeout: 15000 });
-      const payload =
-        typeof response.data === 'string'
-          ? JSON.parse(response.data.replace(new RegExp(`^${variable}=`), '').replace(/;$/, ''))
-          : response.data;
-      const days: unknown[] = payload?.data?.[symbol]?.[klinePeriod] ?? [];
-      if (!Array.isArray(days) || !days.length) return null;
+    // 美股需带交易所后缀（NASDAQ=.OQ / NYSE=.N），无后缀时接口只返回占位数据
+    const candidates = market === 'us' ? [`${symbol}.OQ`, `${symbol}.N`, symbol] : [symbol];
 
-      return days
-        .map((day: any) => ({
-          date: String(day?.[0] ?? ''),
-          open: this.safeFloat(day?.[1], Number.NaN),
-          close: this.safeFloat(day?.[2], Number.NaN),
-          high: this.safeFloat(day?.[3], Number.NaN),
-          low: this.safeFloat(day?.[4], Number.NaN),
-          volume: this.safeInt(day?.[5], 0),
-        }))
-        .filter(
-          (day: ChartQuote) =>
-            day.date &&
-            Number.isFinite(day.open) &&
-            Number.isFinite(day.close) &&
-            Number.isFinite(day.high) &&
-            Number.isFinite(day.low),
-        );
-    } catch (e: any) {
-      this.logger.debug(`Tencent chart failed for ${symbol}: ${e.message}`);
-      return null;
+    for (const candidate of candidates) {
+      const variable = `kline_${period}qfq`;
+      const url = `https://web.ifzq.gtimg.cn/appstock/app/${endpoint}/get?_var=${variable}&param=${candidate},${klinePeriod},,,320,qfq`;
+
+      try {
+        const response = await axios.get(url, { timeout: 15000 });
+        const payload =
+          typeof response.data === 'string'
+            ? JSON.parse(response.data.replace(new RegExp(`^${variable}=`), '').replace(/;$/, ''))
+            : response.data;
+        const node = payload?.data?.[candidate];
+        if (!node || typeof node !== 'object') continue;
+
+        // qfq 响应的键名为 qfqday/qfqweek/qfqmonth，未复权为 day/week/month
+        const days: unknown[] = node[`qfq${klinePeriod}`] ?? node[klinePeriod] ?? [];
+        if (!Array.isArray(days) || days.length < 2) continue;
+
+        const quotes = days
+          .map((day: any) => ({
+            date: String(day?.[0] ?? ''),
+            open: this.safeFloat(day?.[1], Number.NaN),
+            close: this.safeFloat(day?.[2], Number.NaN),
+            high: this.safeFloat(day?.[3], Number.NaN),
+            low: this.safeFloat(day?.[4], Number.NaN),
+            volume: this.safeInt(day?.[5], 0),
+          }))
+          .filter(
+            (day: ChartQuote) =>
+              day.date &&
+              Number.isFinite(day.open) &&
+              Number.isFinite(day.close) &&
+              Number.isFinite(day.high) &&
+              Number.isFinite(day.low),
+          );
+        if (quotes.length) return quotes;
+      } catch (e: any) {
+        this.logger.debug(`Tencent chart failed for ${candidate}: ${e.message}`);
+      }
     }
+    return null;
   }
 
   private getCache(key: string): any {
@@ -1305,6 +1317,154 @@ export class AkShareService {
     }));
   }
 
+  /**
+   * 批量获取腾讯行情的涨停价（qt.gtimg.cn，GBK 编码）
+   * 用于涨停板精确校验：现价 >= 涨停价 才算涨停（名义涨幅容差法在低股价/规则变化时易误判）
+   */
+  async getTencentLimitPrices(symbols: string[]): Promise<Map<string, number>> {
+    const map = new Map<string, number>();
+    if (!symbols.length) return map;
+    const batchSize = 60;
+    for (let i = 0; i < symbols.length; i += batchSize) {
+      const batch = symbols.slice(i, i + batchSize);
+      try {
+        const resp = await axios.get(`https://qt.gtimg.cn/q=${batch.join(',')}`, {
+          timeout: 10000,
+          responseType: 'arraybuffer',
+        });
+        const text = iconv.decode(Buffer.from(resp.data), 'gbk');
+        const re = /v_(\w+)="([^"]*)"/g;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(text))) {
+          const fields = m[2].split('~');
+          const limitUp = this.safeFloat(fields[47], Number.NaN); // 47=涨停价
+          if (Number.isFinite(limitUp) && limitUp > 0) {
+            map.set(m[1].toUpperCase(), limitUp);
+          }
+        }
+      } catch (e: any) {
+        this.logger.debug(`Tencent limit-price batch failed: ${e.message}`);
+      }
+    }
+    return map;
+  }
+
+  /**
+   * 获取全市场股票列表（含实时行情快照），数据源为东财 clist 接口。
+   * push2 不可达时依次回退 push2delay / 82.push2（延迟行情，选股场景可接受）。
+   */
+  async getMarketStockList(market: 'a_share' | 'hk' | 'us'): Promise<QuoteResult[]> {
+    const fsMap: Record<string, string> = {
+      a_share: 'm:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23',
+      hk: 'm:116',
+      us: 'm:105,m:106,m:107',
+    };
+    const currencyMap: Record<string, string> = { a_share: 'CNY', hk: 'HKD', us: 'USD' };
+    const pageSize = 100;
+    const fields = 'f12,f13,f14,f2,f3,f5,f6,f8,f9,f15,f16,f17,f18,f20,f23';
+    const hosts = [
+      'https://push2.eastmoney.com',
+      'https://push2delay.eastmoney.com',
+      'https://82.push2.eastmoney.com',
+    ];
+    let preferredHost = hosts[0];
+
+    const fetchPage = async (pn: number): Promise<{ total: number; rows: any[] }> => {
+      const orderedHosts = [preferredHost, ...hosts.filter((h) => h !== preferredHost)];
+      let lastErr: any;
+      for (const host of orderedHosts) {
+        const url = `${host}/api/qt/clist/get?pn=${pn}&pz=${pageSize}&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f20&fs=${encodeURIComponent(
+          fsMap[market],
+        )}&fields=${fields}`;
+        try {
+          const response = await axios.get(url, { timeout: 10000 });
+          const data = response.data?.data;
+          if (!data) return { total: 0, rows: [] };
+          preferredHost = host;
+          return {
+            total: Number(data.total) || 0,
+            rows: Array.isArray(data.diff) ? data.diff : [],
+          };
+        } catch (e: any) {
+          lastErr = e;
+        }
+      }
+      throw lastErr;
+    };
+
+    const firstPage = await fetchPage(1);
+    const total = firstPage.total;
+    const pages = Math.min(Math.ceil(total / pageSize), 220);
+    const pageRows: any[][] = new Array(pages);
+    pageRows[0] = firstPage.rows;
+
+    const batchSize = 8;
+    for (let start = 2; start <= pages; start += batchSize) {
+      const pageNumbers: number[] = [];
+      for (let pn = start; pn <= Math.min(start + batchSize - 1, pages); pn++) pageNumbers.push(pn);
+      const settled = await Promise.allSettled(pageNumbers.map((pn) => fetchPage(pn)));
+      settled.forEach((s, idx) => {
+        if (s.status === 'fulfilled') pageRows[pageNumbers[idx] - 1] = s.value.rows;
+        else
+          this.logger.warn(
+            `Market stock list [${market}] page ${pageNumbers[idx]} failed: ${s.reason?.message}`,
+          );
+      });
+    }
+
+    const numRows = (v: any): number | null => {
+      const n = typeof v === 'number' ? v : parseFloat(v);
+      return Number.isFinite(n) ? n : null;
+    };
+
+    // 港股列表含大量权证/牛熊证/人民币柜台，通过名称过滤掉
+    const isHkDerivative = (name: string) =>
+      /[购|沽|牛|熊]/.test(name) || name.endsWith('-R') || name.endsWith('-WS');
+
+    const quotes: QuoteResult[] = [];
+    for (const rows of pageRows) {
+      if (!rows) continue;
+      for (const row of rows) {
+        const code = String(row.f12 ?? '').trim();
+        const name = String(row.f14 ?? '').trim();
+        if (!code || !name) continue;
+        if (market === 'hk' && isHkDerivative(name)) continue;
+
+        let symbol = code;
+        if (market === 'a_share') {
+          symbol = `${row.f13 === 1 ? 'SH' : 'SZ'}${code}`;
+        } else if (market === 'hk') {
+          symbol = `HK${code.padStart(5, '0')}`;
+        }
+
+        const price = numRows(row.f2);
+        const prevClose = numRows(row.f18);
+        quotes.push({
+          symbol,
+          name,
+          current_price: price ?? 0,
+          prev_close: prevClose ?? 0,
+          open_price: numRows(row.f17) ?? 0,
+          day_high: numRows(row.f15) ?? 0,
+          day_low: numRows(row.f16) ?? 0,
+          volume: Math.round(numRows(row.f5) ?? 0),
+          turnover: numRows(row.f6) ?? 0,
+          turnover_rate: numRows(row.f8) ?? undefined,
+          pe_ratio: numRows(row.f9) ?? undefined,
+          pb_ratio: numRows(row.f23) ?? undefined,
+          market_cap: numRows(row.f20) ?? undefined,
+          change: price != null && prevClose != null ? +(price - prevClose).toFixed(4) : 0,
+          change_percent: numRows(row.f3) ?? 0,
+          market,
+          currency: currencyMap[market],
+        });
+      }
+    }
+
+    this.logger.log(`Market stock list [${market}]: fetched ${quotes.length}/${total} symbols`);
+    return quotes;
+  }
+
   async getChart(
     symbol: string,
     period = 'daily',
@@ -1315,6 +1475,16 @@ export class AkShareService {
       const normalized = this.normalizeSymbol(symbol);
 
       if (normalized.market === 'a_share') {
+        // 腾讯优先：周K/月K数据干净且稳定（新浪的 scale=60/120 实为分钟K，不可用于周/月）
+        const tencentQuotes = await this.fetchChartFromTencent(
+          `${normalized.prefix}${normalized.code}`,
+          normalized.market,
+          period,
+        );
+        if (tencentQuotes?.length) {
+          return { symbol, quotes: tencentQuotes };
+        }
+
         const quotes = await this.fetchChartFromEastmoney(
           normalized.code,
           normalized.prefix,
@@ -1354,13 +1524,109 @@ export class AkShareService {
     }
   }
 
+  /**
+   * 分钟级行情：1=当日分时（minute/query），5=5分钟K（mkline，约320根≈近7个交易日）
+   * 日期格式：'YYYY-MM-DDTHH:mm'（前端按时间戳渲染时分）
+   */
+  async getIntradayChart(symbol: string, minutes: 1 | 5): Promise<ChartQuote[] | null> {
+    try {
+      const normalized = this.normalizeSymbol(symbol);
+      const code = `${normalized.prefix}${normalized.code}`.toLowerCase();
+
+      if (minutes === 1) {
+        const url = `https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=${code}`;
+        const res = await axios.get(url, { timeout: 15000 });
+        const node = res.data?.data?.[code];
+        const date = String(node?.data?.date ?? node?.date ?? '');
+        const rows: string[] = node?.data?.data ?? [];
+        if (!/^\d{8}$/.test(date) || !rows.length) return null;
+
+        // parts: [HHmm, 价格, 累计量(手), 累计额(元)] — 差分得每分钟成交额
+        let prevAmount = 0;
+        const quotes = rows
+          .map((row: string) => {
+            const parts = row.split(' ');
+            const hhmm = parts[0] ?? '';
+            const price = this.safeFloat(parts[1], Number.NaN);
+            const cumAmount = this.safeFloat(parts[3], 0);
+            const amount = Math.max(cumAmount - prevAmount, 0);
+            prevAmount = cumAmount;
+            return {
+              date: `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T${hhmm.slice(0, 2)}:${hhmm.slice(2, 4)}`,
+              open: price,
+              close: price,
+              high: price,
+              low: price,
+              volume: this.safeFloat(parts[2], 0),
+              turnover: amount,
+            };
+          })
+          .filter(
+            (q) => Number.isFinite(q.close) && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(q.date),
+          );
+        return quotes.length ? quotes : null;
+      }
+
+      const url = `https://ifzq.gtimg.cn/appstock/app/kline/mkline?param=${code},m5,,,320`;
+      const res = await axios.get(url, { timeout: 15000 });
+      const node = res.data?.data?.[code];
+      const rows: unknown[] = node?.m5 ?? [];
+      const quotes = rows
+        .map((row: any) => {
+          const t = String(row?.[0] ?? '');
+          return {
+            date: `${t.slice(0, 4)}-${t.slice(4, 6)}-${t.slice(6, 8)}T${t.slice(8, 10)}:${t.slice(10, 12)}`,
+            open: this.safeFloat(row?.[1], Number.NaN),
+            close: this.safeFloat(row?.[2], Number.NaN),
+            high: this.safeFloat(row?.[3], Number.NaN),
+            low: this.safeFloat(row?.[4], Number.NaN),
+            volume: this.safeFloat(row?.[5], 0),
+          };
+        })
+        .filter(
+          (q) =>
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(q.date) &&
+            Number.isFinite(q.close) &&
+            Number.isFinite(q.open) &&
+            Number.isFinite(q.high) &&
+            Number.isFinite(q.low),
+        );
+      return quotes.length ? quotes : null;
+    } catch (e: any) {
+      this.logger.debug(`Intraday chart failed for ${symbol}: ${e.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * 东财 push2 单股接口统一入口：push2 不可达时依次回退
+   * push2delay / 82.push2（延迟行情，可接受）。
+   */
+  private async fetchFromPush2(pathWithQuery: string): Promise<any> {
+    const hosts = [
+      'https://push2.eastmoney.com',
+      'https://push2delay.eastmoney.com',
+      'https://82.push2.eastmoney.com',
+    ];
+    let lastErr: any;
+    for (const host of hosts) {
+      try {
+        const response = await axios.get(`${host}${pathWithQuery}`, { timeout: 15000 });
+        return response.data;
+      } catch (e: any) {
+        lastErr = e;
+      }
+    }
+    throw lastErr;
+  }
+
   async getMoneyflow(symbol: string, _date?: string): Promise<MoneyflowResult | null> {
     try {
       const normalized = this.normalizeSymbol(symbol);
       if (normalized.market === 'a_share') {
-        const url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${normalized.prefix}.${normalized.code}&fields=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65`;
-        const response = await axios.get(url, { timeout: 15000 });
-        const data = response.data;
+        const data = await this.fetchFromPush2(
+          `/api/qt/stock/trends2/get?secid=${normalized.prefix}.${normalized.code}&fields=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65`,
+        );
 
         if (data.data && data.data.trends) {
           const latest = data.data.trends[data.data.trends.length - 1];
@@ -1393,9 +1659,9 @@ export class AkShareService {
     try {
       const normalized = this.normalizeSymbol(symbol);
       if (normalized.market === 'a_share') {
-        const url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${normalized.prefix}.${normalized.code}&fields=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65`;
-        const response = await axios.get(url, { timeout: 15000 });
-        const data = response.data;
+        const data = await this.fetchFromPush2(
+          `/api/qt/stock/trends2/get?secid=${normalized.prefix}.${normalized.code}&fields=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65`,
+        );
 
         if (data.data && data.data.trends) {
           const timeline: MoneyflowTimeline[] = [];
@@ -1419,6 +1685,68 @@ export class AkShareService {
       this.logger.error(`Failed to get moneyflow timeline for ${symbol}:`, error.message);
       return null;
     }
+  }
+
+  /**
+   * 大盘资金流（沪深两市合计，东财 fflow 1分钟累计K线）。
+   * 返回当日最新累计值（元）：主力 = 大单 + 超大单。
+   */
+  async getMarketMoneyFlow(): Promise<{
+    time: string;
+    mainNetFlow: number;
+    smallNetFlow: number;
+    mediumNetFlow: number;
+    largeNetFlow: number;
+    superNetFlow: number;
+  } | null> {
+    try {
+      const data = await this.fetchFromPush2(
+        '/api/qt/stock/fflow/kline/get?lmt=0&klt=1&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56&secid=1.000001&secid2=0.399001',
+      );
+      const klines: string[] = data?.data?.klines ?? [];
+      if (klines.length === 0) return null;
+      const parts = klines[klines.length - 1].split(',');
+      return {
+        time: parts[0] ?? '',
+        mainNetFlow: parseFloat(parts[1]) || 0,
+        smallNetFlow: parseFloat(parts[2]) || 0,
+        mediumNetFlow: parseFloat(parts[3]) || 0,
+        largeNetFlow: parseFloat(parts[4]) || 0,
+        superNetFlow: parseFloat(parts[5]) || 0,
+      };
+    } catch (e: any) {
+      this.logger.error(`Failed to get market money flow: ${e.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * 沪深港通资金（东财 datacenter，最近交易日）。
+   * 北向(005) 自 2024-08 起净买入停止披露，只有成交额；南向(006) 仍有净买入。
+   * 接口金额单位为百万元，统一换算为元。
+   */
+  async getHsgtFlow(): Promise<{
+    north: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+    south: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+  }> {
+    const fetchType = async (type: string) => {
+      const resp = await axios.get(
+        `https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MUTUAL_DEAL_HISTORY&columns=ALL&filter=(MUTUAL_TYPE%3D%22${type}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageSize=1`,
+        { timeout: 15000 },
+      );
+      const row = resp.data?.result?.data?.[0];
+      if (!row) return null;
+      return {
+        dealAmt: (row.DEAL_AMT ?? 0) * 1e6,
+        netDealAmt: row.NET_DEAL_AMT == null ? null : row.NET_DEAL_AMT * 1e6,
+        date: String(row.TRADE_DATE ?? '').slice(0, 10),
+      };
+    };
+    const [north, south] = await Promise.allSettled([fetchType('005'), fetchType('006')]);
+    return {
+      north: north.status === 'fulfilled' ? north.value : null,
+      south: south.status === 'fulfilled' ? south.value : null,
+    };
   }
 
   async getSector(market = 'a_share'): Promise<SectorResult | null> {

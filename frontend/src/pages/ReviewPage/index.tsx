@@ -12,11 +12,10 @@ import ReviewTable from './ReviewTable';
 import StockReviewPanel from './StockReviewPanel';
 import TradeJournal from './TradeJournal';
 import ReviewNotes from './ReviewNotes';
-import StockComparison from './StockComparison';
 import ReviewCalendar from './ReviewCalendar';
 import './style.less';
 
-type TabKey = 'overview' | 'stocks' | 'compare' | 'journal' | 'notes' | 'calendar';
+type TabKey = 'overview' | 'stocks' | 'journal' | 'notes' | 'calendar';
 
 export default function ReviewPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -24,6 +23,19 @@ export default function ReviewPage() {
   const [marketData, setMarketData] = useState<{
     sentiment: SentimentResult | null;
     sectorRanking: { gainers: SectorRotationItem[]; losers: SectorRotationItem[] };
+    marketTurnover: { total: number; sh: number; sz: number } | null;
+    moneyFlow: {
+      time: string;
+      mainNetFlow: number;
+      smallNetFlow: number;
+      mediumNetFlow: number;
+      largeNetFlow: number;
+      superNetFlow: number;
+    } | null;
+    hsgtFlow: {
+      north: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+      south: { dealAmt: number; netDealAmt: number | null; date: string } | null;
+    } | null;
   } | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [stockDetail, setStockDetail] = useState<StockReviewDetail | null>(null);
@@ -83,7 +95,6 @@ export default function ReviewPage() {
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: '复盘总览' },
     { key: 'stocks', label: '个股复盘' },
-    { key: 'compare', label: '对比分析' },
     { key: 'journal', label: '交易日志' },
     { key: 'notes', label: '复盘笔记' },
     { key: 'calendar', label: '复盘日历' },
@@ -127,15 +138,6 @@ export default function ReviewPage() {
           <div className="rv-overview">
             <MarketOverview data={marketData} loading={loading} />
             <SectorRanking data={marketData?.sectorRanking ?? null} loading={loading} />
-            <div className="rv-overview__watchlist">
-              <h3 className="rv-section-title">自选股快览</h3>
-              <ReviewTable
-                items={reviewItems}
-                loading={loading}
-                onSelect={handleSelectStock}
-                compact
-              />
-            </div>
           </div>
         )}
 
@@ -151,10 +153,6 @@ export default function ReviewPage() {
               />
             )}
           </div>
-        )}
-
-        {activeTab === 'compare' && (
-          <StockComparison watchlistSymbols={reviewItems.map((i) => i.symbol)} />
         )}
 
         {activeTab === 'journal' && <TradeJournal />}

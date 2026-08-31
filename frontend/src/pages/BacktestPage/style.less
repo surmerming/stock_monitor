@@ -35,7 +35,10 @@
     background: none; border-radius: 6px; font-size: 13px; color: @text; cursor: pointer;
     margin-bottom: 2px;
     &:hover { background: @bg; }
-    &--active { background: fade(@primary, 10%); color: @primary; font-weight: 600; }
+    &--active {
+      background: fade(@primary, 10%); color: @primary; font-weight: 600;
+      &:hover { background: fade(@primary, 10%); color: @primary; }
+    }
   }
 }
 

@@ -154,90 +154,6 @@ export class ReviewService {
     private readonly akShareService: AkShareService,
   ) {}
 
-  async getComparison(symbols: string[], range = '3mo') {
-    const periodMap: Record<string, string> = {
-      '1mo': 'daily',
-      '3mo': 'daily',
-      '6mo': 'daily',
-      '1y': 'weekly',
-    };
-    const period = periodMap[range] || 'daily';
-
-    const results = await Promise.all(
-      symbols.slice(0, 5).map(async (rawSymbol) => {
-        const { akshare: symbol, display } = this.stockService.normalizeSymbol(rawSymbol);
-        try {
-          const chartResult = await this.akShareService.getChart(symbol, period);
-          if (!chartResult?.quotes?.length) return null;
-
-          const bars = chartResult.quotes
-            .filter((q: ChartQuote) => q.close != null)
-            .map((q: ChartQuote) => ({
-              date: q.date || '',
-              close: q.close,
-              volume: q.volume ?? 0,
-            }));
-
-          if (bars.length === 0) return null;
-          const basePrice = bars[0].close;
-
-          return {
-            symbol: display,
-            name: getCnName(symbol, display),
-            data: bars.map((b: any) => ({
-              date: b.date,
-              close: b.close,
-              relativeStrength: basePrice > 0 ? ((b.close - basePrice) / basePrice) * 100 : 0,
-            })),
-          };
-        } catch {
-          return null;
-        }
-      }),
-    );
-
-    const series = results.filter((r): r is NonNullable<typeof r> => r !== null);
-
-    const correlation: { a: string; b: string; corr: number }[] = [];
-    for (let i = 0; i < series.length; i++) {
-      for (let j = i + 1; j < series.length; j++) {
-        const aData = series[i].data;
-        const bData = series[j].data;
-        const dateMap = new Map<string, number>(
-          bData.map((d: any) => [d.date, d.relativeStrength]),
-        );
-        const pairs: [number, number][] = [];
-        for (const a of aData) {
-          const bVal = dateMap.get(a.date);
-          if (bVal != null) pairs.push([a.relativeStrength, bVal]);
-        }
-        const corr = this.pearsonCorrelation(pairs);
-        correlation.push({ a: series[i].symbol, b: series[j].symbol, corr });
-      }
-    }
-
-    return { series, correlation };
-  }
-
-  private pearsonCorrelation(pairs: [number, number][]): number {
-    const n = pairs.length;
-    if (n < 5) return 0;
-    let sumX = 0,
-      sumY = 0,
-      sumXY = 0,
-      sumX2 = 0,
-      sumY2 = 0;
-    for (const [x, y] of pairs) {
-      sumX += x;
-      sumY += y;
-      sumXY += x * y;
-      sumX2 += x * x;
-      sumY2 += y * y;
-    }
-    const denom = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
-    return denom > 0 ? (n * sumXY - sumX * sumY) / denom : 0;
-  }
-
   private getCached<T>(key: string): T | null {
     const entry = this.cache.get(key);
     if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
@@ -384,13 +300,27 @@ export class ReviewService {
     const cached = this.getCached<any>('market_overview');
     if (cached) return cached;
 
-    const [sentimentResult, sectorResult] = await Promise.allSettled([
-      this.sentimentService.getSentiment(),
-      this.sectorService.getRotation('us'),
-    ]);
+    const [sentimentResult, sectorResult, turnoverResult, flowResult, hsgtResult] =
+      await Promise.allSettled([
+        this.sentimentService.getSentiment(),
+        // 用 A股行业 ETF 计算板块轮动（腾讯K线，本机网络可靠）；美股 ETF K线易超时导致排行空
+        this.sectorService.getRotation('A股'),
+        this.akShareService.getQuotesBatch(['sh000001', 'sz399001']),
+        this.akShareService.getMarketMoneyFlow(),
+        this.akShareService.getHsgtFlow(),
+      ]);
 
     const sentiment = sentimentResult.status === 'fulfilled' ? sentimentResult.value : null;
     const sectors = sectorResult.status === 'fulfilled' ? sectorResult.value : [];
+
+    let marketTurnover: { total: number; sh: number; sz: number } | null = null;
+    if (turnoverResult.status === 'fulfilled') {
+      const sh = turnoverResult.value.find((q) => q.symbol === 'sh000001')?.data?.turnover ?? 0;
+      const sz = turnoverResult.value.find((q) => q.symbol === 'sz399001')?.data?.turnover ?? 0;
+      if (sh + sz > 0) marketTurnover = { total: sh + sz, sh, sz };
+    }
+    const moneyFlow = flowResult.status === 'fulfilled' ? flowResult.value : null;
+    const hsgtFlow = hsgtResult.status === 'fulfilled' ? hsgtResult.value : null;
 
     const sortedSectors = [...sectors].sort((a, b) => b.change1d - a.change1d);
     const topGainers = sortedSectors.slice(0, 10);
@@ -402,6 +332,9 @@ export class ReviewService {
         gainers: topGainers,
         losers: topLosers,
       },
+      marketTurnover,
+      moneyFlow,
+      hsgtFlow,
     };
 
     this.setCache('market_overview', result);
@@ -491,7 +424,7 @@ export class ReviewService {
       volume: quote.volume,
       turnover: quote.turnover ?? 0,
       turnoverRate: quote.turnover_rate ?? null,
-      volumeRatio: null,
+      volumeRatio: (indicators.volMa5Ratio as number | null) ?? quote.volume_ratio ?? null,
       avgVolume: null,
       volMa5Ratio: indicators.volMa5Ratio as number | null,
       netFlow: flow?.summary?.netFlow ?? 0,

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AkShareService, QuoteResult } from '../akshare/akshare.service';
+import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
 import { getCnName } from '../common/cn-names';
 
 export interface ScannerItem {
@@ -14,42 +14,32 @@ export interface ScannerItem {
   avgVolume3m: number | null;
 }
 
+export interface LimitUpItem extends ScannerItem {
+  limitUpDays: number; // 连板天数（含今日，1=首板）
+  limitRate: number; // 涨停幅度（10/20/5）
+}
+
+export interface LimitUpStats {
+  total: number; // 涨停家数
+  lianban: number; // 连板家数（≥2板）
+  maxLianban: number; // 最高连板
+}
+
+export interface LimitUpResult {
+  stats: LimitUpStats;
+  items: LimitUpItem[];
+}
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
 }
 
 const CACHE_TTL = 2 * 60 * 1000;
-
-const US_TOP_STOCKS = [
-  'AAPL',
-  'MSFT',
-  'NVDA',
-  'GOOGL',
-  'AMZN',
-  'META',
-  'TSLA',
-  'BRK-B',
-  'JPM',
-  'V',
-  'UNH',
-  'MA',
-  'JNJ',
-  'PG',
-  'HD',
-  'AVGO',
-  'COST',
-  'MRK',
-  'ABBV',
-  'CRM',
-  'AMD',
-  'NFLX',
-  'PEP',
-  'KO',
-  'TMO',
-  'ADBE',
-  'LIN',
-];
+// 连板统计需批量拉取K线，成本高，单独使用更长的缓存
+const LIMIT_UP_CACHE_TTL = 10 * 60 * 1000;
+// 全市场快照缓存（涨幅/跌幅/活跃/热搜榜共享）
+const SNAPSHOT_CACHE_TTL = 60 * 1000;
 
 @Injectable()
 export class ScannerService {
@@ -58,9 +48,9 @@ export class ScannerService {
 
   constructor(private readonly akShareService: AkShareService) {}
 
-  private getCached<T>(key: string): T | null {
+  private getCached<T>(key: string, ttlMs = CACHE_TTL): T | null {
     const entry = this.cache.get(key);
-    if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+    if (entry && Date.now() - entry.timestamp < ttlMs) {
       return entry.data as T;
     }
     return null;
@@ -84,18 +74,27 @@ export class ScannerService {
     };
   }
 
+  /**
+   * A股全市场快照（涨幅/跌幅/活跃/热搜榜共享，避免重复拉取全市场列表）
+   */
+  private async getAShareSnapshot(): Promise<QuoteResult[]> {
+    const cached = this.getCached<QuoteResult[]>('a_share_snapshot', SNAPSHOT_CACHE_TTL);
+    if (cached) return cached;
+    const list = await this.akShareService.getMarketStockList('a_share');
+    this.setCache('a_share_snapshot', list);
+    return list;
+  }
+
   async getGainers(count = 25): Promise<ScannerItem[]> {
     const cached = this.getCached<ScannerItem[]>('gainers');
     if (cached) return cached;
 
     try {
-      const sectorResult = await this.akShareService.getSector('a_share');
-      const sectors = sectorResult?.sectors || [];
-      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
-
-      quotes.sort((a, b) => b.change_percent - a.change_percent);
-      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+      const snapshot = await this.getAShareSnapshot();
+      const items = [...snapshot]
+        .sort((a, b) => b.change_percent - a.change_percent)
+        .slice(0, count)
+        .map((q) => this.transformQuote(q));
 
       this.setCache('gainers', items);
       this.logger.debug(`Fetched ${items.length} gainers`);
@@ -111,11 +110,11 @@ export class ScannerService {
     if (cached) return cached;
 
     try {
-      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
-
-      quotes.sort((a, b) => a.change_percent - b.change_percent);
-      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+      const snapshot = await this.getAShareSnapshot();
+      const items = [...snapshot]
+        .sort((a, b) => a.change_percent - b.change_percent)
+        .slice(0, count)
+        .map((q) => this.transformQuote(q));
 
       this.setCache('losers', items);
       this.logger.debug(`Fetched ${items.length} losers`);
@@ -131,11 +130,11 @@ export class ScannerService {
     if (cached) return cached;
 
     try {
-      const results = await this.akShareService.getQuotesBatch(US_TOP_STOCKS);
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
-
-      quotes.sort((a, b) => b.volume - a.volume);
-      const items = quotes.slice(0, count).map((q) => this.transformQuote(q));
+      const snapshot = await this.getAShareSnapshot();
+      const items = [...snapshot]
+        .sort((a, b) => (b.turnover || 0) - (a.turnover || 0))
+        .slice(0, count)
+        .map((q) => this.transformQuote(q));
 
       this.setCache('active', items);
       this.logger.debug(`Fetched ${items.length} most active`);
@@ -150,18 +149,20 @@ export class ScannerService {
     const cached = this.getCached<{ region: string; symbols: string[] }[]>('trending');
     if (cached) return cached;
 
-    const regions = ['US', 'HK'];
-    const results: { region: string; symbols: string[] }[] = [];
-
-    const usSymbols = US_TOP_STOCKS;
-    const hkSymbols = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
-
-    results.push({ region: 'US', symbols: usSymbols });
-    results.push({ region: 'HK', symbols: hkSymbols });
-
-    this.setCache('trending', results);
-    this.logger.debug(`Fetched trending for ${regions.join(', ')}`);
-    return results;
+    // 热搜无直接数据源，以换手率（人气/关注度代理）取A股Top
+    try {
+      const snapshot = await this.getAShareSnapshot();
+      const symbols = [...snapshot]
+        .sort((a, b) => (b.turnover_rate || 0) - (a.turnover_rate || 0))
+        .slice(0, 25)
+        .map((q) => q.symbol);
+      const results = [{ region: 'CN', symbols }];
+      this.setCache('trending', results);
+      return results;
+    } catch (err) {
+      this.logger.error(`Failed to fetch trending: ${err.message}`);
+      return this.getCached<{ region: string; symbols: string[] }[]>('trending') ?? [];
+    }
   }
 
   async getTrendingWithQuotes(): Promise<
@@ -174,7 +175,7 @@ export class ScannerService {
     if (cached) return cached;
 
     const trending = await this.getTrending();
-    const regionNames: Record<string, string> = { US: '美股', HK: '港股' };
+    const regionNames: Record<string, string> = { CN: 'A股', US: '美股', HK: '港股' };
     const allSymbols = trending.flatMap((t) => t.symbols);
 
     if (allSymbols.length === 0) return [];
@@ -203,6 +204,123 @@ export class ScannerService {
     } catch (err) {
       this.logger.error(`Failed to fetch trending quotes: ${err.message}`);
       return [];
+    }
+  }
+
+  /**
+   * A股涨停幅度：创业板(300/301)/科创板(688) 一律 20%，其余主板（含ST）10%
+   * 注：主板ST现行为10%，创业板/科创板ST为20%（经腾讯行情涨停价字段实测确认）
+   */
+  private limitRateFor(symbol: string): number {
+    const code = symbol.replace(/^(SH|SZ)/, '');
+    if (code.startsWith('688') || code.startsWith('300') || code.startsWith('301')) return 20;
+    return 10;
+  }
+
+  /**
+   * 判断单日是否涨停：收盘价达到名义涨停价（昨收×(1+rate) 四舍五入到分）
+   */
+  private isLimitUpBar(bars: ChartQuote[], i: number, rate: number): boolean {
+    if (i < 1) return false;
+    const prevClose = bars[i - 1].close;
+    if (!prevClose) return false;
+    const limitPrice = Math.round(prevClose * (1 + rate / 100) * 100) / 100;
+    return bars[i].close >= limitPrice - 0.001;
+  }
+
+  /**
+   * 涨停板：全市场筛选当日涨停个股，并用日K统计连续涨停天数
+   */
+  async getLimitUp(): Promise<LimitUpResult> {
+    const cached = this.getCached<LimitUpResult>('limitup', LIMIT_UP_CACHE_TTL);
+    if (cached) return cached;
+
+    const empty: LimitUpResult = {
+      stats: { total: 0, lianban: 0, maxLianban: 0 },
+      items: [],
+    };
+
+    try {
+      const list = await this.akShareService.getMarketStockList('a_share');
+
+      // 预筛（名义涨幅容差0.5放宽），再用腾讯行情涨停价精确校验（现价>=涨停价才算涨停）
+      const prefiltered = list.filter((q) => {
+        const rate = this.limitRateFor(q.symbol);
+        return q.change_percent >= rate - 0.5;
+      });
+      const limitPrices = await this.akShareService.getTencentLimitPrices(
+        prefiltered.map((q) => q.symbol),
+      );
+      const candidates = prefiltered.filter((q) => {
+        const limitPrice = limitPrices.get(q.symbol.toUpperCase());
+        if (limitPrice != null) return q.current_price >= limitPrice - 0.001;
+        // 拿不到涨停价时退回涨幅容差判断
+        return q.change_percent >= this.limitRateFor(q.symbol) - 0.25;
+      });
+
+      this.logger.log(`Limit-up candidates: ${candidates.length}`);
+
+      // 并批拉取日K，统计连板数
+      const items: LimitUpItem[] = [];
+      const batchSize = 20;
+      for (let i = 0; i < candidates.length; i += batchSize) {
+        const batch = candidates.slice(i, i + batchSize);
+        const settled = await Promise.allSettled(
+          batch.map(async (q) => {
+            const rate = this.limitRateFor(q.symbol);
+            const days = await this.countConsecutiveLimitUp(q.symbol, rate);
+            return { q, rate, days };
+          }),
+        );
+        for (const s of settled) {
+          if (s.status !== 'fulfilled') continue;
+          const { q, rate, days } = s.value;
+          items.push({
+            ...this.transformQuote(q),
+            limitUpDays: days,
+            limitRate: rate,
+          });
+        }
+      }
+
+      items.sort((a, b) => b.limitUpDays - a.limitUpDays || b.changePercent - a.changePercent);
+
+      const result: LimitUpResult = {
+        stats: {
+          total: items.length,
+          lianban: items.filter((it) => it.limitUpDays >= 2).length,
+          maxLianban: items.reduce((max, it) => Math.max(max, it.limitUpDays), 0),
+        },
+        items,
+      };
+
+      this.setCache('limitup', result);
+      return result;
+    } catch (err) {
+      this.logger.error(`Failed to fetch limit-up: ${err.message}`);
+      return this.getCached<LimitUpResult>('limitup', Infinity) ?? empty;
+    }
+  }
+
+  /**
+   * 从最新交易日起倒序统计连续涨停天数
+   */
+  private async countConsecutiveLimitUp(symbol: string, rate: number): Promise<number> {
+    try {
+      const chart = await this.akShareService.getChart(symbol, 'daily');
+      const bars = (chart?.quotes ?? [])
+        .filter((b) => b.close > 0)
+        .sort((a, b) => (a.date < b.date ? -1 : 1));
+      if (bars.length < 2) return 1;
+
+      let days = 0;
+      for (let i = bars.length - 1; i >= 1; i--) {
+        if (this.isLimitUpBar(bars, i, rate)) days++;
+        else break;
+      }
+      return Math.max(days, 1); // 已通过涨停价校验，至少为首板
+    } catch {
+      return 1;
     }
   }
 }

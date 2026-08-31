@@ -12,6 +12,9 @@ async function bootstrap() {
     app.useStaticAssets((0, path_1.resolve)(process.cwd(), '..', 'daily_review'), {
         prefix: '/daily_review',
     });
+    app.useStaticAssets((0, path_1.resolve)(process.cwd(), '..', 'comment_attachments'), {
+        prefix: '/comment_attachments',
+    });
     await app.listen(4444);
 }
 bootstrap();

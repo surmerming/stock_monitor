@@ -165,7 +165,7 @@ export const OPERATORS: { key: ScreenerFilter['operator']; label: string }[] = [
   { key: 'between', label: '介于' },
 ];
 
-export const SCREENER_MARKETS = ['全部', '美股', '港股'];
+export const SCREENER_MARKETS = ['全部', 'A股', '美股', '港股'];
 
 export const SCREENER_SORT_OPTIONS = [
   { key: 'marketCap', label: '市值' },

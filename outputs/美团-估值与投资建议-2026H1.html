@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美团（3690.HK）深度分析 + 估值报告</title>
+<style>
+:root{--bg:#f5f8fc;--card-bg:#fff;--text:#1a1a1a;--muted:#666;--border:#dce8f7;--accent:#2563eb;--accent-light:#eaf2ff;
+--pos:#d93025;--neg:#1e8e3e;--warn:#b45309;--ok:#1e8e3e;--okbg:#e6f4ea;--warnbg:#fef3c7;--nabg:#fce8e6;
+--sc-opt:#1e8e3e;--sc-neu:#b45309;--sc-pes:#d93025;--shadow:0 1px 3px rgba(0,0,0,.06);--shadow-lg:0 4px 14px rgba(37,99,235,.12);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.65;font-size:14px;padding:24px}
+.container{max-width:1120px;margin:0 auto}
+.header{background:linear-gradient(120deg,#3b82f6,#06b6d4);color:#fff;padding:30px 28px;border-radius:14px;margin-bottom:22px;box-shadow:var(--shadow-lg)}
+.header h1{font-size:25px;margin-bottom:6px;font-weight:800}
+.header .sub{font-size:13.5px;opacity:.92;margin-bottom:14px}
+.header .meta{display:flex;flex-wrap:wrap;gap:18px;font-size:13px}
+.header .meta b{font-weight:600;margin-right:5px}
+.tag-new{display:inline-block;background:#fff;color:#2563eb;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:22px}
+.summary-card{background:var(--card-bg);padding:15px 17px;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.summary-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.summary-card .value{font-size:20px;font-weight:800}
+.summary-card .unit{font-size:12px;color:var(--muted);margin-left:3px;font-weight:400}
+.section{background:var(--card-bg);border-radius:12px;padding:22px;margin-bottom:18px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.section-title{font-size:18px;font-weight:800;margin-bottom:14px;padding-bottom:9px;border-bottom:2px solid var(--accent);display:flex;align-items:center;gap:8px}
+.step-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.step-card{background:var(--accent-light);border-radius:10px;padding:15px 17px;border:1px solid var(--border)}
+.step-card h4{font-size:15px;margin-bottom:8px;color:var(--accent)}
+.step-card ul{padding-left:18px}
+.step-card li{margin-bottom:6px;font-size:13px}
+.model-card{border-left:4px solid var(--accent);padding-left:15px;margin-bottom:22px}
+.model-card h3{font-size:16px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.model-desc{font-size:13px;color:var(--muted);margin-bottom:10px}
+.applicability-tag{display:inline-block;padding:3px 10px;border-radius:5px;font-size:12px;font-weight:700}
+.applicability-ok{background:var(--okbg);color:var(--ok)}
+.applicability-warning{background:var(--warnbg);color:var(--warn)}
+.applicability-na{background:var(--nabg);color:var(--pos)}
+.applicability-note{background:var(--accent-light);padding:10px 14px;border-radius:7px;font-size:13px;margin-top:10px}
+.applicability-note.warning{background:var(--warnbg)}
+.applicability-note.na{background:var(--nabg)}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--accent-light);font-weight:700}
+.scenario-table th{text-align:center}
+.scenario-header-pessimistic{color:var(--sc-pes)}.scenario-header-neutral{color:var(--sc-neu)}.scenario-header-optimistic{color:var(--sc-opt)}
+.scenario-value-pessimistic{color:var(--sc-pes);font-weight:700}.scenario-value-neutral{color:var(--sc-neu);font-weight:800}.scenario-value-optimistic{color:var(--sc-opt);font-weight:700}
+.text-center{text-align:center}.text-bold{font-weight:800}.text-muted{color:var(--muted)}
+.assumption-box{background:var(--bg);padding:11px 15px;border-radius:7px;font-size:12px;color:var(--muted);margin-top:9px;border:1px dashed var(--border)}
+.assumption-box strong{color:var(--text)}
+.conclusion-box{background:linear-gradient(135deg,var(--accent-light),#fff);padding:22px;border-radius:12px;border:1px solid var(--accent);margin-bottom:18px}
+.conclusion-box h3{font-size:18px;margin-bottom:10px;color:var(--accent)}
+.conclusion-range{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:11px;margin:14px 0}
+.range-card{background:#fff;padding:13px 15px;border-radius:9px;border:1px solid var(--border);text-align:center}
+.range-card .range-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.range-card .range-value{font-size:19px;font-weight:800}
+.range-card.pessimistic{border-left:4px solid var(--sc-pes)}.range-card.pessimistic .range-value{color:var(--sc-pes)}
+.range-card.low .range-value{color:var(--sc-neu)}.range-card.neutral .range-value{color:var(--accent)}
+.range-card.optimistic{border-left:4px solid var(--sc-opt)}.range-card.optimistic .range-value{color:var(--sc-opt)}
+.recommendation{padding:15px 18px;background:#fff;border-radius:9px;border-left:4px solid var(--accent);margin-top:14px;font-size:13.5px}
+.recommendation strong{color:var(--accent)}
+.source-list{list-style:none;padding:0;font-size:12.5px;color:var(--muted)}.source-list li{padding:5px 0;border-bottom:1px dashed var(--border)}
+.disclaimer{background:var(--bg);padding:15px 18px;border-radius:9px;font-size:12px;color:var(--muted);border:1px solid var(--border);margin-top:20px;text-align:center}
+.sensitivity-table th,.sensitivity-table td{text-align:center;font-size:12px;padding:6px 8px}.sensitivity-table th{background:var(--accent-light)}.sensitivity-table .axis-label{background:#fff;font-weight:700}
+@media(max-width:768px){.step-grid{grid-template-columns:1fr}body{padding:12px}}
+</style></head>
+<body><div class="container">
+
+<div class="header">
+ <h1>美团（3690.HK）深度分析 + 估值报告 <span class="tag-new">个股分析 × 四模型估值</span></h1>
+ <div class="sub">individual-stock-analysis 五步框架 + stock-valuation DCF/DDM/股东盈余/相对估值 交叉验证</div>
+ <div class="meta">
+  <span><b>市场：</b>港股</span><span><b>报告日期：</b>2026-08-29</span>
+  <span><b>当前股价：</b>HK$ 77.50</span><span><b>货币：</b>HKD / RMB</span>
+ </div>
+</div>
+
+<div class="summary-cards">
+  <div class="summary-card"><div class="label">当前股价</div><div class="value">HK$ 77.50</div><div class="unit">2026-08-28 收盘</div></div>
+  <div class="summary-card"><div class="label">总市值</div><div class="value">HK$ 4,786亿</div><div class="unit">≈¥4,403亿</div></div>
+  <div class="summary-card"><div class="label">市销率 PS(TTM)</div><div class="value">1.06x</div><div class="unit">港股行情 1.14x</div></div>
+  <div class="summary-card"><div class="label">净现金/股</div><div class="value">HK$ 14.0</div><div class="unit">≈18% 安全垫 → 硬缓冲</div></div>
+  <div class="summary-card"><div class="label">52周区间</div><div class="value">63.65–122.90</div><div class="unit">现价处下 1/4</div></div>
+  <div class="summary-card"><div class="label">年初至今</div><div class="value">-25.7%</div><div class="unit">近一年低位</div></div>
+</div>
+
+<div class="section">
+ <div class="section-title"><span>🧭</span>第一部分 · 个股分析五步法（individual-stock-analysis）</div>
+ 
+<div class="step-grid">
+<div class="step-card"><h4>① 宏观与情绪</h4>
+<ul>
+<li><b>周期阶段</b>：复苏+宽松。2026H1 GDP +4.7%，货币政策"适度宽松"（央行 8月 1万亿买断式逆回购），财政加码。</li>
+<li><b>制造业 PMI</b>：8月约 49.4%（荣枯线下方微幅），服务业 PMI 50.3% 扩张；结构分化、内需偏弱。</li>
+<li><b>市场情绪</b>：A股 8月融资余额回升、两市成交一度&gt;2.5万亿（修复）；但<b>中概/港股互联网板块极度悲观</b>——美团 YTD -25.7%、处 52周低位，属"别人恐惧"区。</li>
+<li><b>仓位上限判定</b>：整体非衰退/非狂热 → 权益可参与，<b>允许仓位上限 ~60%</b>；个股-specific 悲观恰是估值机会，非避险信号。流程继续。</li>
+</ul></div>
+<div class="step-card"><h4>② 行业赛道</h4>
+<ul>
+<li><b>赛道</b>：本地生活 / 即时零售（外卖+闪购+到店+酒旅）。</li>
+<li><b>相对强度</b>：板块受阿里(淘宝闪购)、京东(外卖)竞争挤压，2025-2026H1 股价趋势<b>向下</b>；但 2026Q2 起补贴退坡、竞争"理性化"，利润率环比修复。</li>
+<li><b>拥挤度</b>：低（股价近 52周低位，非热门）。</li>
+<li><b>催化</b>：平台经济"破卷向善"监管（骑手红灯停表）、行业共同减补贴 → 单均 UE 改善、利润修复。</li>
+</ul></div>
+<div class="step-card"><h4>③ 基本面子弹</h4>
+<ul>
+<li><b>ROE</b>：2024 +15.0%（优异）；2025 −14.5%（周期坑）；2027E 常态 ~12%（恢复中）→ <b>当前不达标，列入观察</b>。</li>
+<li><b>毛利率</b>：H1'26 31.2%（同比 -3.8pp、环比 +2.7pp）→ <b>✅ 过 30% 线</b>。</li>
+<li><b>经营现金流/净利润</b>：2024 OCF 571 &gt; 净利润 358（&gt;1x ✅）；2025 受竞争扰动转负 → 失真。</li>
+<li><b>护城河</b>：双边网络效应 + 即时配送密度经济 + 品牌，极深 ✅。</li>
+<li><b>增长点</b>：即时零售(闪购)、海外 Keeta、AI 履约自动化。</li>
+<li><b>管理层</b>：无重大违规/非标审计；持续回购，风险低 ✅。</li>
+<li><b>硬性 2/3 通过（常态口径）</b>，保留在估值池，等盈利修复确认。</li>
+</ul></div>
+<div class="step-card"><h4>④ 估值与技术位</h4>
+<ul>
+<li><b>PE</b>：报表为负；前瞻 2027E PE≈{MKT_CAP_RMB/ FWD['2027E']['adj_np']:.1f}x（基于 211亿预期净利）。</li>
+<li><b>PS(TTM)</b>：{PS_TTM:.2f}x，处历史低位。</li>
+<li><b>PB</b>：3.05x，近多年低位。</li>
+<li><b>PEG</b>：前瞻 ~0.8（若 2027-30 复合增速 25%）→ 偏低估。</li>
+<li><b>技术面</b>：价 77.5 &lt; 30日均价 90，处下行通道但脱离 6月低点 63.65；MACD 弱修复；量能一般；处 52周下 1/4 支撑区 → <b>满足 1-2/4 条，共振偏弱</b>。</li>
+<li><b>综合</b>：价格<b>合理偏低</b>，但技术未确认 → 分批建仓。</li>
+</ul></div>
+</div>
+
+</div>
+
+<div class="section">
+ <div class="section-title"><span>📊</span>关键财务数据</div>
+ 
+<table class="data-table"><thead><tr><th>指标</th><th>2023</th><th>2024</th><th>2025</th><th>2026E</th><th>2027E</th></tr></thead><tbody>
+<tr><td>营业收入(亿RMB)</td><td>2767.4</td><td>3375.9</td><td>3648.5</td><td>3993</td><td>4461</td></tr>
+<tr><td>经调整净利润(亿RMB)</td><td>232.5</td><td>437.7</td><td>-186.5</td><td>-51</td><td>211</td></tr>
+<tr><td>经营现金流(亿RMB)</td><td>447.2</td><td>571.0</td><td>-138.3</td><td colspan="2" class="text-muted">2026H1 +27亿(修复中)</td></tr>
+<tr><td>毛利率</td><td>~33%</td><td>38.4%</td><td>30.4%</td><td colspan="2" class="text-muted">H1'26 31.2%</td></tr>
+</tbody></table>
+<div class="assumption-box"><strong>数据说明：</strong>2021-2025 来自港交所业绩公告（HKEX）及东财海外研究；2026E-2027E 为券商一致预期（国君海通/SPDBI/中金/etnet 综合）。✅财报原文；💡多源估算；❓缺失用保守假设。股价/市值/PS 为 2026-08-28 行情。</div>
+
+</div>
+
+<div class="section">
+ <div class="section-title"><span>🧮</span>第二部分 · 四种估值模型（stock-valuation）</div>
+ 
+<div class="model-card">
+ <h3><span>① DCF 自由现金流贴现</span><span class="applicability-tag applicability-warning">⚠️ 部分适用</span></h3>
+ <div class="model-desc">两阶段（前5年详测+永续）。FCF 以"经调整净利润"为代理（平台轻资产、 capex 低、营运资本终将常态化）。单位：HK$/股。</div>
+ <table class="scenario-table"><thead><tr>
+      <th>模型</th><th class="scenario-header-pessimistic">悲观</th>
+      <th class="scenario-header-neutral">标准</th>
+      <th class="scenario-header-optimistic">乐观</th><th>适用性</th></tr></thead><tbody><tr><td>DCF（含净现金）</td><td class="scenario-value-pessimistic">HK$ 45</td><td class="scenario-value-neutral">HK$ 108</td><td class="scenario-value-optimistic">HK$ 206</td><td>⚠️ 终值主导、对 r/g 极敏感</td></tr></tbody></table>
+ <div class="applicability-note warning"><strong>适用性说明：</strong>美团 FCF 近年剧烈波动（2024 +571亿 → 2025 −138亿），且<b>净现金 ¥796亿（≈HK$14/股，约 18% 安全垫）</b>使 DCF 终值/净现金主导、数值区间极宽。本模型仅作方向参考，实操以相对估值+SOTP+净现金缓冲为主锚。</div>
+ <div class="assumption-box"><strong>DCF 敏感性（标准 FCF 轨迹 HK$/股，r↓→价值↑，g↑→价值↑）：</strong>
+ <table class="sensitivity-table"><thead><tr><th class="axis-label">r\g</th><th>2%</th><th>3%</th><th>4%</th><th>5%</th></tr></thead><tbody>
+ <tr><td class="axis-label">8%</td><td>129.0</td><td>149.0</td><td>180.0</td><td>230.0</td></tr><tr><td class="axis-label">9%</td><td>111.0</td><td>125.0</td><td>145.0</td><td>174.0</td></tr><tr><td class="axis-label">10%</td><td>98.0</td><td>108.0</td><td>121.0</td><td>140.0</td></tr><tr><td class="axis-label">11%</td><td>87.0</td><td>95.0</td><td>105.0</td><td>117.0</td></tr>
+ </tbody></table></div>
+</div>
+
+<div class="model-card">
+ <h3><span>② DDM 股利贴现模型</span><span class="applicability-tag applicability-na">❌ 不适用</span></h3>
+ <div class="model-desc">戈登增长模型 V = D₁/(r−g)。</div>
+ <div class="applicability-note na"><strong>❌ 不适用原因：</strong>美团<b>自上市以来从未派发现金股利</b>（派息率 0%），且以<b>回购</b>替代分红（2024-2026 持续回购）。DDM 仅计现金分红，对"不分红+回购型"公司天然失效（如腾讯案例）。故直接标注不适用，改用股东盈余/相对估值评估其再投资价值。</div>
+</div>
+
+<div class="model-card">
+ <h3><span>③ 股东盈余模型（巴菲特）</span><span class="applicability-tag applicability-ok">✅ 适用</span></h3>
+ <div class="model-desc">股东盈余 ≈ 净利润 + 折旧摊销 − 维持性 capex；平台轻资产，≈经调整净利润。价值 = 盈余×倍数 + 净现金。</div>
+ <table class="scenario-table"><thead><tr>
+      <th>模型</th><th class="scenario-header-pessimistic">悲观</th>
+      <th class="scenario-header-neutral">标准</th>
+      <th class="scenario-header-optimistic">乐观</th><th>适用性</th></tr></thead><tbody><tr><td>股东盈余（倍数 15/20/25x）</td><td class="scenario-value-pessimistic">HK$ 54</td><td class="scenario-value-neutral">HK$ 102</td><td class="scenario-value-optimistic">HK$ 168</td><td>✅ 现金牛+强护城河</td></tr></tbody></table>
+ <div class="applicability-note"><strong>假设：</strong>常态盈余基数 pess 150 / std 250 / opt 350 亿（对应 2027-28E 经调整净利恢复路径）；倍数 15x(类公用事业)/20x(成熟龙头)/25x(强护城河+增长)；维持性 capex 已隐含于"经调整净利≈股东盈余"近似。</div>
+</div>
+
+<div class="model-card">
+ <h3><span>④ 相对估值法（PS + SOTP）</span><span class="applicability-tag applicability-ok">✅ 适用（主锚）</span></h3>
+ <div class="model-desc">盈利波动大 → 主用 <b>PS（市销率）</b>；多元化（盈利主业+亏损新业务）→ 追加 <b>SOTP 分部估值</b>。</div>
+ <p><b>4.1 可比公司 PS / PE（2026-08-28）</b></p>
+ <table><thead><tr><th>公司</th><th>PS(TTM)</th><th>PE(TTM)</th><th>备注</th></tr></thead><tbody>
+ <tr><td>阿里巴巴-W</td><td>1.88x</td><td>26.8x</td><td>平台型，云+AI</td></tr>
+ <tr><td>京东集团-SW</td><td>0.20x</td><td>17.4x</td><td>自营直营，毛利薄</td></tr>
+ <tr><td>拼多多</td><td>~1.0x</td><td>~9-12x</td><td>高净利率</td></tr>
+ <tr><td><b>美团-W</b></td><td><b>1.06x</b></td><td>负</td><td><b>处同业低位</b></td></tr>
+ </tbody></table>
+ <p><b>4.2 前瞻 PS 估值</b>（基于 2027E 收入 ¥4,461亿）</p>
+ <table class="scenario-table"><thead><tr>
+      <th>模型</th><th class="scenario-header-pessimistic">悲观</th>
+      <th class="scenario-header-neutral">标准</th>
+      <th class="scenario-header-optimistic">乐观</th><th>适用性</th></tr></thead><tbody><tr><td>相对 PS（前瞻 1.0/1.3/1.6x）</td><td class="scenario-value-pessimistic">HK$ 79</td><td class="scenario-value-neutral">HK$ 102</td><td class="scenario-value-optimistic">HK$ 126</td><td>✅ 主锚之一</td></tr></tbody></table>
+ <p><b>4.3 SOTP 分部估值</b>（核心本地商业按经营利润倍数 + 新业务按 PS + 净现金）</p>
+ <table class="scenario-table"><thead><tr>
+      <th>模型</th><th class="scenario-header-pessimistic">悲观</th>
+      <th class="scenario-header-neutral">标准</th>
+      <th class="scenario-header-optimistic">乐观</th><th>适用性</th></tr></thead><tbody><tr><td>SOTP（核心 12/16/20x + 新业务 0.5/1.0/1.5x PS）</td><td class="scenario-value-pessimistic">HK$ 59</td><td class="scenario-value-neutral">HK$ 81</td><td class="scenario-value-optimistic">HK$ 103</td><td>✅ 公平主锚</td></tr></tbody></table>
+ <div class="applicability-note"><strong>口径校正：</strong>纯 PE/股东盈余会把新业务亏损全额计入且不对其单独定价，<b>系统性低估</b>美团这类"盈利主业+亏损新业务"混合体。SOTP 将新业务亏损回加、单独按 PS 定价，是最公平口径。当前 PS 1.06x 处历史低位，已隐含极度悲观。</div>
+</div>
+
+</div>
+
+<div class="section">
+ <div class="section-title"><span>📋</span>四模型估值汇总表（HK$/股）</div>
+ <table class="scenario-table"><thead><tr>
+      <th>模型</th><th class="scenario-header-pessimistic">悲观</th>
+      <th class="scenario-header-neutral">标准</th>
+      <th class="scenario-header-optimistic">乐观</th><th>适用性</th></tr></thead><tbody><tr><td><b>DCF（含净现金）</b></td><td class="scenario-value-pessimistic">45</td><td class="scenario-value-neutral">108</td><td class="scenario-value-optimistic">206</td><td>⚠️</td></tr><tr><td><b>股东盈余</b></td><td class="scenario-value-pessimistic">54</td><td class="scenario-value-neutral">102</td><td class="scenario-value-optimistic">168</td><td>✅</td></tr><tr><td><b>相对 PS</b></td><td class="scenario-value-pessimistic">79</td><td class="scenario-value-neutral">102</td><td class="scenario-value-optimistic">126</td><td>✅</td></tr><tr><td><b>SOTP</b></td><td class="scenario-value-pessimistic">59</td><td class="scenario-value-neutral">81</td><td class="scenario-value-optimistic">103</td><td>✅</td></tr><tr><td><b>当前市价</b></td><td colspan="3" class="text-center text-bold">HK$ 77.50</td><td>—</td></tr></tbody></table>
+</div>
+
+<div class="conclusion-box">
+ <h3>📌 综合估值结论与投资意见</h3>
+ 
+<p>四模型交叉验证显示：<b>当前 HK$ 77.50 处于"合理偏低 / 具备深度价值特征"区间</b>。</p>
+<div class="conclusion-range">
+  <div class="range-card pessimistic"><div class="range-label">🔴 底部支撑（净现金硬底）</div><div class="range-value">HK$ 14</div><div class="range-desc">清算净值/股，约18%安全垫</div></div>
+  <div class="range-card low"><div class="range-label">🟡 悲观情景</div><div class="range-value">HK$ 45–79</div><div class="range-desc">多家模型下限交汇</div></div>
+  <div class="range-card neutral"><div class="range-label">🟢 合理中枢（标准）</div><div class="range-value">HK$ 81–108</div><div class="range-desc">相对/SOTP/股东盈余交汇</div></div>
+  <div class="range-card optimistic"><div class="range-label">🔵 乐观上限</div><div class="range-value">HK$ 103–206</div><div class="range-desc">需盈利超预期+宏观改善</div></div>
+</div>
+<div class="recommendation">
+  <strong>投资建议：分批建仓（长期价值型）｜评级：增持 / 逢低吸纳</strong><br>
+  • <b>核心判断</b>：现价处 52周下 1/4、PS(TTM) 1.06x 历史低位、前瞻 2027E PE≈21x，且净现金 HK$14/股（≈18% 安全垫）提供硬缓冲——典型"别人恐惧"的深度价值区，前提是相信现金不会被持续亏损耗尽（Q2'26 已扭亏 +¥25亿经调整净利，验证拐点）。<br>
+  • <b>买入区间</b>：HK$70–85 分 2–3 批建仓；若回落至 HK$63–70（52周低点附近）可加仓。<br>
+  • <b>首次仓位</b>：≤组合 15–20%（单只上限内）。<br>
+  • <b>止损</b>：跌破 HK$60（破 52周低点且净现金安全垫被侵蚀）或基本面再度恶化（单季大额亏损、竞争重燃）则减仓；移动止盈回撤 12–15%。<br>
+  • <b>加仓</b>：价跌 10% 且 Q2/Q3 盈利持续改善则加一次，总加仓≤2次。<br>
+  • <b>催化剂</b>：2026H2 补贴退坡兑现利润、2027E 净利恢复至 +200亿+ 、海外 Keeta 减亏。<br>
+  • <b>主要风险</b>：外卖/即时零售价格战重燃、新业务持续亏损、监管（骑手/平台）成本、宏观消费疲软。
+</div>
+
+</div>
+
+<div class="section">
+ <div class="section-title"><span>🔗</span>数据来源</div>
+ <ul class="source-list">
+<li>✅ 美团 2025 年度业绩公告（港交所 HKEX，2026-03-26）：收入 ¥3,649亿、经调整净亏损 ¥186亿、OCF −¥138亿。</li>
+<li>✅ 美团 2026 中期业绩公告（PDF，截至 2026-06-30）：H1 收入 ¥1,957亿、Q2 经调整溢利净额 +¥25亿、净现金 ¥796亿。</li>
+<li>✅ 行情数据（东方财富/雪球/港交所，2026-08-28）：HK$77.50、市值 HK$4,786亿、PS(TTM) 1.14x、52周 63.65–122.90。</li>
+<li>💡 券商预期（etnet/国君海通/SPDBI/中金，2026-06）：2026E 经调整净利 −51亿、2027E +211亿、2028E +327亿；目标价中位数 ~HK$115（区间 HK$76–138）。</li>
+<li>💡 宏观（新华社/统计局，2026-08）：H1 GDP +4.7%、货币政策适度宽松、制造业 PMI ~49.4%。</li>
+</ul>
+</div>
+
+<div class="disclaimer">
+ ⚠️ <strong>免责声明：</strong>本报告仅为基于公开数据的分析与估值，不构成任何投资建议。估值对参数高度敏感，DCF 终值/净现金主导、区间极宽，实际投资决策需结合更多因素综合判断。投资有风险，决策需谨慎。<br>
+ 报告生成时间：2026-08-29 · 由 individual-stock-analysis + stock-valuation skill 生成
+</div>
+
+</div></body></html>

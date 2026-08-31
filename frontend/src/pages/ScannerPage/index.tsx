@@ -22,7 +22,23 @@ interface TrendingGroup {
   items?: ScannerItem[];
 }
 
-type ScannerTabKey = 'gainers' | 'losers' | 'active' | 'trending';
+interface LimitUpItem extends ScannerItem {
+  limitUpDays: number;
+  limitRate: number;
+}
+
+interface LimitUpStats {
+  total: number;
+  lianban: number;
+  maxLianban: number;
+}
+
+interface LimitUpResponse {
+  stats: LimitUpStats;
+  items: LimitUpItem[];
+}
+
+type ScannerTabKey = 'gainers' | 'losers' | 'active' | 'trending' | 'limitup';
 
 interface ScreenerTableProps {
   data: ScannerItem[] | null;
@@ -33,6 +49,12 @@ interface ScreenerTableProps {
 
 interface TrendingViewProps {
   data: TrendingGroup[] | null;
+  loading: boolean;
+  onAdd: (symbol: string) => void;
+}
+
+interface LimitUpViewProps {
+  data: LimitUpResponse | null;
   loading: boolean;
   onAdd: (symbol: string) => void;
 }
@@ -107,6 +129,12 @@ export default function ScannerPage() {
         {activeTab === 'trending' ? (
           <TrendingView
             data={data as TrendingGroup[] | null}
+            loading={loading}
+            onAdd={handleAddToWatchlist}
+          />
+        ) : activeTab === 'limitup' ? (
+          <LimitUpView
+            data={data as LimitUpResponse | null}
             loading={loading}
             onAdd={handleAddToWatchlist}
           />
@@ -190,6 +218,85 @@ function ScreenerTable({ data, loading, tab, onAdd }: ScreenerTableProps) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function LimitUpView({ data, loading, onAdd }: LimitUpViewProps) {
+  const navigate = useNavigate();
+  if (loading && !data) {
+    return <div className="scanner-page__loading">加载中...</div>;
+  }
+  if (!data || !data.items || data.items.length === 0) {
+    return <div className="scanner-page__empty">今日暂无涨停个股</div>;
+  }
+
+  const { stats, items } = data;
+
+  return (
+    <div className="limitup-view">
+      <div className="limitup-view__stats">
+        <span className="limitup-view__stat">
+          涨停 <b>{stats.total}</b> 家
+        </span>
+        <span className="limitup-view__stat">
+          连板 <b>{stats.lianban}</b> 家
+        </span>
+        <span className="limitup-view__stat">
+          最高 <b>{stats.maxLianban}</b> 连板
+        </span>
+      </div>
+      <div className="scanner-table">
+        <div className="scanner-table__head">
+          <span className="scanner-table__col scanner-table__col--rank">#</span>
+          <span className="scanner-table__col scanner-table__col--symbol">代码</span>
+          <span className="scanner-table__col scanner-table__col--name">名称</span>
+          <span className="scanner-table__col scanner-table__col--price">价格</span>
+          <span className="scanner-table__col scanner-table__col--change">涨跌幅</span>
+          <span className="scanner-table__col scanner-table__col--limit">连板</span>
+          <span className="scanner-table__col scanner-table__col--cap">市值</span>
+          <span className="scanner-table__col scanner-table__col--action" />
+        </div>
+        {items.map((item, i) => (
+          <div
+            key={item.symbol}
+            className="scanner-table__row scanner-table__row--up"
+            onClick={() => navigate(`/stock/${encodeURIComponent(item.symbol)}`)}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="scanner-table__col scanner-table__col--rank">{i + 1}</span>
+            <span className="scanner-table__col scanner-table__col--symbol">{item.symbol}</span>
+            <span className="scanner-table__col scanner-table__col--name" title={item.name}>
+              {item.name}
+            </span>
+            <span className="scanner-table__col scanner-table__col--price">
+              {(item.price ?? 0).toFixed(2)}
+            </span>
+            <span className="scanner-table__col scanner-table__col--change scanner-table__up">
+              +{(item.changePercent ?? 0).toFixed(2)}%
+            </span>
+            <span className="scanner-table__col scanner-table__col--limit">
+              <span
+                className={`limitup-view__badge ${item.limitUpDays >= 3 ? 'limitup-view__badge--hot' : ''}`}
+              >
+                {item.limitUpDays >= 2 ? `${item.limitUpDays}连板` : '首板'}
+              </span>
+            </span>
+            <span className="scanner-table__col scanner-table__col--cap">
+              {formatMarketCap(item.marketCap)}
+            </span>
+            <span className="scanner-table__col scanner-table__col--action">
+              <button
+                className="scanner-table__add-btn"
+                onClick={() => onAdd(item.symbol)}
+                title="加入自选"
+              >
+                +
+              </button>
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

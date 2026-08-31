@@ -36,10 +36,9 @@ let DetailService = DetailService_1 = class DetailService {
         const period = intervalMap[interval] || 'daily';
         const isYearly = interval === '1y';
         try {
-            const chartResult = await this.akShareService.getChart(symbol, period);
-            if (!chartResult) {
-                throw new Error(`No chart data for ${symbol}`);
-            }
+            const rawQuotes = interval === '1m' || interval === '5m'
+                ? ((await this.akShareService.getIntradayChart(symbol, interval === '1m' ? 1 : 5)) ?? [])
+                : ((await this.akShareService.getChart(symbol, period))?.quotes ?? []);
             const quote = await this.akShareService.getQuote(symbol);
             const meta = {
                 symbol: symbol,
@@ -56,13 +55,14 @@ let DetailService = DetailService_1 = class DetailService {
                 fiftyTwoWeekLow: null,
                 timezone: 'Asia/Shanghai',
             };
-            let quotes = chartResult.quotes.map((q) => ({
-                date: new Date(q.date).getTime() / 1000,
+            let quotes = rawQuotes.map((q) => ({
+                date: q.date,
                 open: q.open,
                 high: q.high,
                 low: q.low,
                 close: q.close,
                 volume: q.volume,
+                turnover: q.turnover ?? null,
             }));
             if (isYearly) {
                 quotes = this.aggregateToYearly(quotes);
@@ -79,8 +79,9 @@ let DetailService = DetailService_1 = class DetailService {
         for (const q of monthlyQuotes) {
             if (q.close == null)
                 continue;
-            const d = new Date(q.date * 1000);
-            const year = d.getFullYear();
+            const year = parseInt(q.date.slice(0, 4), 10);
+            if (!Number.isFinite(year))
+                continue;
             const existing = yearMap.get(year);
             if (!existing) {
                 yearMap.set(year, { ...q });
@@ -92,18 +93,10 @@ let DetailService = DetailService_1 = class DetailService {
                     existing.low = q.low;
                 existing.close = q.close;
                 existing.volume = (existing.volume ?? 0) + (q.volume ?? 0);
+                existing.date = q.date;
             }
         }
-        return [...yearMap.entries()]
-            .sort(([a], [b]) => a - b)
-            .map(([year, q]) => ({
-            date: new Date(year, 0, 1).getTime() / 1000,
-            open: q.open,
-            high: q.high,
-            low: q.low,
-            close: q.close,
-            volume: q.volume,
-        }));
+        return [...yearMap.entries()].sort(([a], [b]) => a - b).map(([, q]) => q);
     }
     async getDetail(rawSymbol) {
         const { akshare: symbol, market } = this.stockService.normalizeSymbol(rawSymbol);
@@ -131,7 +124,7 @@ let DetailService = DetailService_1 = class DetailService {
                     marketState: null,
                     regularMarketPrice: quote.current_price,
                     regularMarketChange: quote.change,
-                    regularMarketChangePercent: quote.change_percent,
+                    regularMarketChangePercent: quote.change_percent / 100,
                     regularMarketDayHigh: quote.day_high,
                     regularMarketDayLow: quote.day_low,
                     regularMarketVolume: quote.volume,

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { StockReviewDetail } from '../../types';
 import { formatVolume, formatTurnover, formatMarketCap } from '../../utils/format';
 import { createChart, ColorType, CandlestickSeries, HistogramSeries } from 'lightweight-charts';
@@ -182,31 +182,52 @@ function FlowTimeline({ timeline }: { timeline: StockReviewDetail['moneyFlow'] }
   );
 }
 
+function DrawerShell({ children, onClose }: { children: ReactNode; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <>
+      <div className="rv-drawer__mask" onClick={onClose} />
+      <aside className="rv-drawer">{children}</aside>
+    </>
+  );
+}
+
 export default function StockReviewPanel({ symbol, detail, loading, onClose }: Props) {
   if (loading) {
     return (
-      <div className="rv-detail">
-        <div className="rv-detail__header">
-          <span>加载 {symbol} 复盘数据中...</span>
-          <button className="rv-detail__close" onClick={onClose}>
-            ✕
-          </button>
+      <DrawerShell onClose={onClose}>
+        <div className="rv-detail">
+          <div className="rv-detail__header">
+            <span>加载 {symbol} 复盘数据中...</span>
+            <button className="rv-detail__close" onClick={onClose}>
+              ✕
+            </button>
+          </div>
+          <div className="rv-skeleton" style={{ height: 400 }} />
         </div>
-        <div className="rv-skeleton" style={{ height: 400 }} />
-      </div>
+      </DrawerShell>
     );
   }
 
   if (!detail) {
     return (
-      <div className="rv-detail">
-        <div className="rv-detail__header">
-          <span>{symbol} 数据不可用</span>
-          <button className="rv-detail__close" onClick={onClose}>
-            ✕
-          </button>
+      <DrawerShell onClose={onClose}>
+        <div className="rv-detail">
+          <div className="rv-detail__header">
+            <span>{symbol} 数据不可用</span>
+            <button className="rv-detail__close" onClick={onClose}>
+              ✕
+            </button>
+          </div>
         </div>
-      </div>
+      </DrawerShell>
     );
   }
 
@@ -214,193 +235,195 @@ export default function StockReviewPanel({ symbol, detail, loading, onClose }: P
   const isUp = q.change >= 0;
 
   return (
-    <div className="rv-detail">
-      <div className="rv-detail__header">
-        <div className="rv-detail__header-info">
-          <span className="rv-detail__name">{detail.name}</span>
-          <span className="rv-detail__symbol">{detail.symbol}</span>
-          <span className={`rv-detail__price ${isUp ? 'up' : 'down'}`}>
-            {q.price.toFixed(2)}
-            <span className="rv-detail__change">
-              {isUp ? '+' : ''}
-              {q.change.toFixed(2)} ({isUp ? '+' : ''}
-              {q.changePercent.toFixed(2)}%)
-            </span>
-          </span>
-        </div>
-        <button className="rv-detail__close" onClick={onClose}>
-          ✕
-        </button>
-      </div>
-
-      <div className="rv-detail__body">
-        {/* Score Section */}
-        <ScoreRadar score={detail.score} />
-
-        {/* Quote Grid */}
-        <div className="rv-detail__quote-grid">
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">开盘</span>
-            <span className="rv-detail__quote-val">{q.open.toFixed(2)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">最高</span>
-            <span className="rv-detail__quote-val up">{q.high.toFixed(2)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">最低</span>
-            <span className="rv-detail__quote-val down">{q.low.toFixed(2)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">昨收</span>
-            <span className="rv-detail__quote-val">{q.prevClose.toFixed(2)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">成交量</span>
-            <span className="rv-detail__quote-val">{formatVolume(q.volume)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">成交额</span>
-            <span className="rv-detail__quote-val">{formatTurnover(q.turnover)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">量比</span>
-            <span className="rv-detail__quote-val">{q.volumeRatio?.toFixed(2) ?? '—'}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">换手率</span>
-            <span className="rv-detail__quote-val">
-              {q.turnoverRate ? `${q.turnoverRate.toFixed(2)}%` : '—'}
+    <DrawerShell onClose={onClose}>
+      <div className="rv-detail">
+        <div className="rv-detail__header">
+          <div className="rv-detail__header-info">
+            <span className="rv-detail__name">{detail.name}</span>
+            <span className="rv-detail__symbol">{detail.symbol}</span>
+            <span className={`rv-detail__price ${isUp ? 'up' : 'down'}`}>
+              {q.price.toFixed(2)}
+              <span className="rv-detail__change">
+                {isUp ? '+' : ''}
+                {q.change.toFixed(2)} ({isUp ? '+' : ''}
+                {q.changePercent.toFixed(2)}%)
+              </span>
             </span>
           </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">市值</span>
-            <span className="rv-detail__quote-val">{formatMarketCap(q.marketCap)}</span>
-          </div>
-          <div className="rv-detail__quote-item">
-            <span className="rv-detail__quote-label">PE</span>
-            <span className="rv-detail__quote-val">{q.pe?.toFixed(2) ?? '—'}</span>
-          </div>
+          <button className="rv-detail__close" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
-        {/* Technical Indicators */}
-        <div className="rv-detail__technicals">
-          <h4 className="rv-detail__sub-title">技术指标</h4>
-          <div className="rv-detail__tech-grid">
-            <div className="rv-detail__tech-card">
-              <div className="rv-detail__tech-name">均线排列</div>
-              <div
-                className={`rv-detail__tech-val rv-detail__tech-val--${detail.maStatus.alignment}`}
-              >
-                {detail.maStatus.alignment === 'bullish'
-                  ? '多头排列'
-                  : detail.maStatus.alignment === 'bearish'
-                    ? '空头排列'
-                    : '多空交织'}
-              </div>
-              <div className="rv-detail__tech-detail">
-                MA5: {detail.maStatus.ma5 ?? '—'} | MA10: {detail.maStatus.ma10 ?? '—'} | MA20:{' '}
-                {detail.maStatus.ma20 ?? '—'}
-              </div>
+        <div className="rv-detail__body">
+          {/* Score Section */}
+          <ScoreRadar score={detail.score} />
+
+          {/* Quote Grid */}
+          <div className="rv-detail__quote-grid">
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">开盘</span>
+              <span className="rv-detail__quote-val">{q.open.toFixed(2)}</span>
             </div>
-            <div className="rv-detail__tech-card">
-              <div className="rv-detail__tech-name">MACD</div>
-              <div
-                className={`rv-detail__tech-val ${detail.technicals.macd.signal === '金叉' || detail.technicals.macd.signal === '多头' ? 'rv-detail__tech-val--bullish' : detail.technicals.macd.signal === '死叉' || detail.technicals.macd.signal === '空头' ? 'rv-detail__tech-val--bearish' : ''}`}
-              >
-                {detail.technicals.macd.signal}
-              </div>
-              <div className="rv-detail__tech-detail">
-                DIF: {detail.technicals.macd.dif?.toFixed(2) ?? '—'} | DEA:{' '}
-                {detail.technicals.macd.dea?.toFixed(2) ?? '—'}
-              </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">最高</span>
+              <span className="rv-detail__quote-val up">{q.high.toFixed(2)}</span>
             </div>
-            <div className="rv-detail__tech-card">
-              <div className="rv-detail__tech-name">KDJ</div>
-              <div
-                className={`rv-detail__tech-val ${detail.technicals.kdj.signal === '金叉' || detail.technicals.kdj.signal === '超卖' ? 'rv-detail__tech-val--bullish' : detail.technicals.kdj.signal === '死叉' || detail.technicals.kdj.signal === '超买' ? 'rv-detail__tech-val--bearish' : ''}`}
-              >
-                {detail.technicals.kdj.signal}
-              </div>
-              <div className="rv-detail__tech-detail">
-                K: {detail.technicals.kdj.k?.toFixed(1) ?? '—'} | D:{' '}
-                {detail.technicals.kdj.d?.toFixed(1) ?? '—'} | J:{' '}
-                {detail.technicals.kdj.j?.toFixed(1) ?? '—'}
-              </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">最低</span>
+              <span className="rv-detail__quote-val down">{q.low.toFixed(2)}</span>
             </div>
-            <div className="rv-detail__tech-card">
-              <div className="rv-detail__tech-name">布林带</div>
-              <div className="rv-detail__tech-val">
-                {detail.technicals.boll.position != null
-                  ? `${detail.technicals.boll.position.toFixed(0)}%`
-                  : '—'}
-              </div>
-              <div className="rv-detail__tech-detail">
-                带宽: {detail.technicals.boll.width?.toFixed(2) ?? '—'}%
-              </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">昨收</span>
+              <span className="rv-detail__quote-val">{q.prevClose.toFixed(2)}</span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">成交量</span>
+              <span className="rv-detail__quote-val">{formatVolume(q.volume)}</span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">成交额</span>
+              <span className="rv-detail__quote-val">{formatTurnover(q.turnover)}</span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">量比</span>
+              <span className="rv-detail__quote-val">{q.volumeRatio?.toFixed(2) ?? '—'}</span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">换手率</span>
+              <span className="rv-detail__quote-val">
+                {q.turnoverRate ? `${q.turnoverRate.toFixed(2)}%` : '—'}
+              </span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">市值</span>
+              <span className="rv-detail__quote-val">{formatMarketCap(q.marketCap)}</span>
+            </div>
+            <div className="rv-detail__quote-item">
+              <span className="rv-detail__quote-label">PE</span>
+              <span className="rv-detail__quote-val">{q.pe?.toFixed(2) ?? '—'}</span>
             </div>
           </div>
-        </div>
 
-        {/* Anomalies & Patterns */}
-        {(detail.anomalies.length > 0 || detail.patterns.length > 0) && (
-          <div className="rv-detail__signals">
-            <h4 className="rv-detail__sub-title">信号与异动</h4>
-            <div className="rv-detail__signal-tags">
-              {detail.anomalies.map((a, i) => (
-                <span
-                  key={`a-${i}`}
-                  className={`rv-tag ${a.direction === 'bullish' ? 'rv-tag--bull' : a.direction === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
-                  title={a.description}
+          {/* Technical Indicators */}
+          <div className="rv-detail__technicals">
+            <h4 className="rv-detail__sub-title">技术指标</h4>
+            <div className="rv-detail__tech-grid">
+              <div className="rv-detail__tech-card">
+                <div className="rv-detail__tech-name">均线排列</div>
+                <div
+                  className={`rv-detail__tech-val rv-detail__tech-val--${detail.maStatus.alignment}`}
                 >
-                  {a.label}
-                </span>
-              ))}
-              {detail.patterns.slice(0, 5).map((p, i) => (
-                <span
-                  key={`p-${i}`}
-                  className={`rv-tag ${p.direction === 'bullish' ? 'rv-tag--bull' : p.direction === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
-                  title={p.description}
-                >
-                  {p.label}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Support & Resistance */}
-        {detail.supports.length > 0 && (
-          <div className="rv-detail__levels">
-            <h4 className="rv-detail__sub-title">支撑与阻力</h4>
-            <div className="rv-detail__levels-grid">
-              {detail.supports.slice(0, 6).map((s, i) => (
-                <div key={i} className={`rv-detail__level rv-detail__level--${s.type}`}>
-                  <span className="rv-detail__level-type">
-                    {s.type === 'support' ? '支撑' : '阻力'}
-                  </span>
-                  <span className="rv-detail__level-price">{s.price}</span>
-                  <span className="rv-detail__level-strength">强度 {s.strength}</span>
+                  {detail.maStatus.alignment === 'bullish'
+                    ? '多头排列'
+                    : detail.maStatus.alignment === 'bearish'
+                      ? '空头排列'
+                      : '多空交织'}
                 </div>
-              ))}
+                <div className="rv-detail__tech-detail">
+                  MA5: {detail.maStatus.ma5 ?? '—'} | MA10: {detail.maStatus.ma10 ?? '—'} | MA20:{' '}
+                  {detail.maStatus.ma20 ?? '—'}
+                </div>
+              </div>
+              <div className="rv-detail__tech-card">
+                <div className="rv-detail__tech-name">MACD</div>
+                <div
+                  className={`rv-detail__tech-val ${detail.technicals.macd.signal === '金叉' || detail.technicals.macd.signal === '多头' ? 'rv-detail__tech-val--bullish' : detail.technicals.macd.signal === '死叉' || detail.technicals.macd.signal === '空头' ? 'rv-detail__tech-val--bearish' : ''}`}
+                >
+                  {detail.technicals.macd.signal}
+                </div>
+                <div className="rv-detail__tech-detail">
+                  DIF: {detail.technicals.macd.dif?.toFixed(2) ?? '—'} | DEA:{' '}
+                  {detail.technicals.macd.dea?.toFixed(2) ?? '—'}
+                </div>
+              </div>
+              <div className="rv-detail__tech-card">
+                <div className="rv-detail__tech-name">KDJ</div>
+                <div
+                  className={`rv-detail__tech-val ${detail.technicals.kdj.signal === '金叉' || detail.technicals.kdj.signal === '超卖' ? 'rv-detail__tech-val--bullish' : detail.technicals.kdj.signal === '死叉' || detail.technicals.kdj.signal === '超买' ? 'rv-detail__tech-val--bearish' : ''}`}
+                >
+                  {detail.technicals.kdj.signal}
+                </div>
+                <div className="rv-detail__tech-detail">
+                  K: {detail.technicals.kdj.k?.toFixed(1) ?? '—'} | D:{' '}
+                  {detail.technicals.kdj.d?.toFixed(1) ?? '—'} | J:{' '}
+                  {detail.technicals.kdj.j?.toFixed(1) ?? '—'}
+                </div>
+              </div>
+              <div className="rv-detail__tech-card">
+                <div className="rv-detail__tech-name">布林带</div>
+                <div className="rv-detail__tech-val">
+                  {detail.technicals.boll.position != null
+                    ? `${detail.technicals.boll.position.toFixed(0)}%`
+                    : '—'}
+                </div>
+                <div className="rv-detail__tech-detail">
+                  带宽: {detail.technicals.boll.width?.toFixed(2) ?? '—'}%
+                </div>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Chart */}
-        <div className="rv-detail__chart-section">
-          <h4 className="rv-detail__sub-title">K线走势 (近120日)</h4>
-          <MiniChart bars={detail.chartBars} />
+          {/* Anomalies & Patterns */}
+          {(detail.anomalies.length > 0 || detail.patterns.length > 0) && (
+            <div className="rv-detail__signals">
+              <h4 className="rv-detail__sub-title">信号与异动</h4>
+              <div className="rv-detail__signal-tags">
+                {detail.anomalies.map((a, i) => (
+                  <span
+                    key={`a-${i}`}
+                    className={`rv-tag ${a.direction === 'bullish' ? 'rv-tag--bull' : a.direction === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
+                    title={a.description}
+                  >
+                    {a.label}
+                  </span>
+                ))}
+                {detail.patterns.slice(0, 5).map((p, i) => (
+                  <span
+                    key={`p-${i}`}
+                    className={`rv-tag ${p.direction === 'bullish' ? 'rv-tag--bull' : p.direction === 'bearish' ? 'rv-tag--bear' : 'rv-tag--neutral'}`}
+                    title={p.description}
+                  >
+                    {p.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Support & Resistance */}
+          {detail.supports.length > 0 && (
+            <div className="rv-detail__levels">
+              <h4 className="rv-detail__sub-title">支撑与阻力</h4>
+              <div className="rv-detail__levels-grid">
+                {detail.supports.slice(0, 6).map((s, i) => (
+                  <div key={i} className={`rv-detail__level rv-detail__level--${s.type}`}>
+                    <span className="rv-detail__level-type">
+                      {s.type === 'support' ? '支撑' : '阻力'}
+                    </span>
+                    <span className="rv-detail__level-price">{s.price}</span>
+                    <span className="rv-detail__level-strength">强度 {s.strength}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Chart */}
+          <div className="rv-detail__chart-section">
+            <h4 className="rv-detail__sub-title">K线走势 (近120日)</h4>
+            <MiniChart bars={detail.chartBars} />
+          </div>
+
+          {/* Money Flow Timeline */}
+          <FlowTimeline timeline={detail.moneyFlow} />
+
+          {/* Volume-Price Analysis */}
+          {detail.volumePrice && detail.volumePrice.length > 0 && (
+            <VolumePriceChart data={detail.volumePrice} />
+          )}
         </div>
-
-        {/* Money Flow Timeline */}
-        <FlowTimeline timeline={detail.moneyFlow} />
-
-        {/* Volume-Price Analysis */}
-        {detail.volumePrice && detail.volumePrice.length > 0 && (
-          <VolumePriceChart data={detail.volumePrice} />
-        )}
       </div>
-    </div>
+    </DrawerShell>
   );
 }

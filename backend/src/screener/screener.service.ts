@@ -64,7 +64,7 @@ const LOCAL_FIELD_MAP: Record<string, (q: QuoteResult) => number | null> = {
   volume: (q) => q.volume,
   avgVolume3m: () => null,
   peTTM: (q) => q.pe_ratio || null,
-  pbRatio: () => null,
+  pbRatio: (q) => q.pb_ratio || null,
   psRatio: () => null,
   marketCap: (q) => q.market_cap || null,
   dividendYield: () => null,
@@ -113,13 +113,22 @@ const HK_TOP_STOCKS = ['HK2800', 'HK3067', 'HK3033', 'HK2828', 'HK3188'];
 
 const CN_TOP_STOCKS = ['SH600519', 'SH000858', 'SZ000858', 'SH601318', 'SZ000001'];
 
+const MARKET_SCOPE: Record<string, ('a_share' | 'hk' | 'us')[]> = {
+  A股: ['a_share'],
+  港股: ['hk'],
+  美股: ['us'],
+};
+
+// 技术指标需逐只拉取K线，对全市场候选池设置上限以防扫描失控
+const MAX_TECH_UNIVERSE = 800;
+
 @Injectable()
 export class ScreenerService {
   private readonly logger = new Logger(ScreenerService.name);
-  private universeCache: { data: QuoteResult[]; timestamp: number } | null = null;
+  private universeCache: { key: string; data: QuoteResult[]; timestamp: number } | null = null;
   private technicalCache = new Map<string, { data: TechnicalValues; timestamp: number }>();
   private readonly TECH_CACHE_TTL = 5 * 60 * 1000;
-  private readonly UNIVERSE_TTL = 3 * 60 * 1000;
+  private readonly UNIVERSE_TTL = 10 * 60 * 1000;
 
   constructor(
     @InjectRepository(ScreenerStrategy)
@@ -127,17 +136,39 @@ export class ScreenerService {
     private readonly akShareService: AkShareService,
   ) {}
 
-  private async getStockUniverse(): Promise<QuoteResult[]> {
-    if (this.universeCache && Date.now() - this.universeCache.timestamp < this.UNIVERSE_TTL) {
+  private async getStockUniverse(market = '全部'): Promise<QuoteResult[]> {
+    const cacheKey = MARKET_SCOPE[market] ? market : '全部';
+    if (
+      this.universeCache &&
+      this.universeCache.key === cacheKey &&
+      Date.now() - this.universeCache.timestamp < this.UNIVERSE_TTL
+    ) {
       return this.universeCache.data;
     }
 
-    const allSymbols = [...US_TOP_STOCKS, ...HK_TOP_STOCKS, ...CN_TOP_STOCKS];
-    const results = await this.akShareService.getQuotesBatch(allSymbols);
-    const quotes = results.filter((r) => r.data).map((r) => r.data!);
+    const targets = MARKET_SCOPE[cacheKey] ?? ['a_share', 'hk', 'us'];
+    const fallbackSymbols = (m: 'a_share' | 'hk' | 'us') =>
+      m === 'a_share' ? CN_TOP_STOCKS : m === 'hk' ? HK_TOP_STOCKS : US_TOP_STOCKS;
 
-    this.universeCache = { data: quotes, timestamp: Date.now() };
-    this.logger.debug(`Stock universe: ${quotes.length} symbols`);
+    const lists = await Promise.all(
+      targets.map(async (m) => {
+        try {
+          const list = await this.akShareService.getMarketStockList(m);
+          if (list.length) return list;
+          this.logger.warn(`Market stock list empty for ${m}, falling back to fixed pool`);
+        } catch (e: any) {
+          this.logger.warn(
+            `Market stock list failed for ${m}: ${e.message}, falling back to fixed pool`,
+          );
+        }
+        const results = await this.akShareService.getQuotesBatch(fallbackSymbols(m));
+        return results.filter((r) => r.data).map((r) => r.data!);
+      }),
+    );
+
+    const quotes = lists.flat();
+    this.universeCache = { key: cacheKey, data: quotes, timestamp: Date.now() };
+    this.logger.log(`Stock universe [${cacheKey}]: ${quotes.length} symbols`);
     return quotes;
   }
 
@@ -176,7 +207,7 @@ export class ScreenerService {
       volume: q.volume,
       marketCap: q.market_cap || null,
       peTTM: q.pe_ratio || null,
-      pbRatio: null,
+      pbRatio: q.pb_ratio || null,
       psRatio: null,
       dividendYield: null,
       avgVolume3m: null,
@@ -248,7 +279,7 @@ export class ScreenerService {
     const hasTech = techFilters.length > 0;
     const sortIsTech = TECHNICAL_FIELDS.has(query.sortField || '');
 
-    const universe = await this.getStockUniverse();
+    const universe = await this.getStockUniverse(query.market || '全部');
     let filtered = [...universe];
 
     if (query.market && query.market !== '全部') {
@@ -274,6 +305,17 @@ export class ScreenerService {
         total,
         items: filtered.slice(offset, offset + size).map((q) => this.transformQuote(q)),
       };
+    }
+
+    // 量级保护：技术指标需逐只拉K线，超限时先按基础字段排序取头部
+    if (filtered.length > MAX_TECH_UNIVERSE) {
+      const capSort = LOCAL_FIELD_MAP[query.sortField || 'marketCap'];
+      if (capSort && !sortIsTech) {
+        const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
+        filtered.sort((a, b) => ((capSort(a) ?? 0) - (capSort(b) ?? 0)) * dir);
+      }
+      this.logger.warn(`Technical scan universe capped ${filtered.length} -> ${MAX_TECH_UNIVERSE}`);
+      filtered = filtered.slice(0, MAX_TECH_UNIVERSE);
     }
 
     const techMap = await this.batchComputeTechnical(filtered.map((it) => it.symbol));

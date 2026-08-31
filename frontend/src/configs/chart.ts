@@ -20,11 +20,11 @@ export const MA_PERIODS: MAConfig[] = [
   { period: 10, color: '#5b8def', label: 'MA10' },
   { period: 20, color: '#e8364e', label: 'MA20' },
   { period: 60, color: '#00a86b', label: 'MA60' },
+  { period: 120, color: '#9b59f0', label: 'MA120' },
+  { period: 250, color: '#8d6e63', label: 'MA250' },
 ];
 
 export const CHART_RANGES = [
-  { key: '1d', label: '分时', interval: '1m' },
-  { key: '5d', label: '5日', interval: '5m' },
   { key: 'daily', label: '日K', interval: '1d' },
   { key: 'weekly', label: '周K', interval: '1wk' },
   { key: 'monthly', label: '月K', interval: '1mo' },
