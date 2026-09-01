@@ -266,7 +266,7 @@ export class ReviewService {
           volume: raw.volume,
           turnover: raw.turnover ?? 0,
           turnoverRate: raw.turnover_rate ?? null,
-          volumeRatio: null,
+          volumeRatio: raw.volume_ratio ?? null,
           marketCap: raw.market_cap ?? null,
           pe: raw.pe_ratio ?? null,
         },
@@ -424,7 +424,8 @@ export class ReviewService {
       volume: quote.volume,
       turnover: quote.turnover ?? 0,
       turnoverRate: quote.turnover_rate ?? null,
-      volumeRatio: (indicators.volMa5Ratio as number | null) ?? quote.volume_ratio ?? null,
+      // 量比用东财 f50 实时口径（与详情页一致）；volMa5Ratio 是"今日量/5日均量"，两者口径不同
+      volumeRatio: quote.volume_ratio ?? null,
       avgVolume: null,
       volMa5Ratio: indicators.volMa5Ratio as number | null,
       netFlow: flow?.summary?.netFlow ?? 0,

@@ -789,7 +789,8 @@ export class AkShareService {
         typeof response.data === 'string'
           ? JSON.parse(response.data.replace(new RegExp(`^${variable}=`), ''))
           : response.data;
-      const days: unknown[] = payload?.data?.[symbol]?.day ?? [];
+      // 腾讯 qfq K线返回 key 是 qfqday（港/美），非 qfq 时才是 day
+      const days: unknown[] = payload?.data?.[symbol]?.qfqday ?? payload?.data?.[symbol]?.day ?? [];
       const historical = days
         .slice(0, -1)
         .map((day: any) => this.safeFloat(day?.[5], Number.NaN))

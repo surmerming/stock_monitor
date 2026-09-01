@@ -412,21 +412,32 @@ export class PatternService {
     return signals;
   }
 
+  /**
+   * 识别支撑/阻力位，必须结合现价解读：
+   * 1) 取最近约一年K线的摆动高低点，按 1.5% 容差聚类；
+   * 2) 以现价分类——现价之上为阻力、之下为支撑，并过滤偏离现价 ±25% 的陈旧位；
+   * 3) 单边行情下某一侧缺失时，用近期 20/60 日极值补位，保证支撑和阻力都至少有一个；
+   * 4) 强度按触碰次数归一化；按距现价远近排序，最近的支撑/阻力排最前。
+   */
   private findSupportResistance(bars: Bar[]): SupportResistance[] {
     const n = bars.length;
-    const levels: SupportResistance[] = [];
+    if (n < 10) return [];
+    const lastPrice = bars[n - 1].close;
+    if (!(lastPrice > 0)) return [];
+
     const tolerance = 0.015;
+    const maxDistance = 0.25;
 
-    const pivots: { price: number; type: 'high' | 'low' }[] = [];
-
-    for (let i = 2; i < n - 2; i++) {
+    const pivots: { price: number }[] = [];
+    const start = Math.max(2, n - 250);
+    for (let i = start; i < n - 2; i++) {
       if (
         bars[i].high > bars[i - 1].high &&
         bars[i].high > bars[i - 2].high &&
         bars[i].high > bars[i + 1].high &&
         bars[i].high > bars[i + 2].high
       ) {
-        pivots.push({ price: bars[i].high, type: 'high' });
+        pivots.push({ price: bars[i].high });
       }
       if (
         bars[i].low < bars[i - 1].low &&
@@ -434,16 +445,11 @@ export class PatternService {
         bars[i].low < bars[i + 1].low &&
         bars[i].low < bars[i + 2].low
       ) {
-        pivots.push({ price: bars[i].low, type: 'low' });
+        pivots.push({ price: bars[i].low });
       }
     }
 
-    const clusters: {
-      price: number;
-      type: 'support' | 'resistance';
-      count: number;
-    }[] = [];
-
+    const clusters: { price: number; count: number }[] = [];
     for (const pivot of pivots) {
       let merged = false;
       for (const cluster of clusters) {
@@ -455,27 +461,53 @@ export class PatternService {
         }
       }
       if (!merged) {
-        clusters.push({
-          price: pivot.price,
-          type: pivot.type === 'high' ? 'resistance' : 'support',
-          count: 1,
-        });
+        clusters.push({ price: pivot.price, count: 1 });
       }
     }
 
-    const lastPrice = bars[n - 1].close;
-    for (const c of clusters) {
-      if (c.count >= 2) {
-        levels.push({
-          price: +c.price.toFixed(2),
-          type: c.price > lastPrice ? 'resistance' : 'support',
-          strength: Math.min(100, c.count * 25),
-          touchCount: c.count,
-        });
+    // 结合现价分类，过滤远离现价的陈旧位（如一年前的低点对现价已无意义）
+    const levels: SupportResistance[] = clusters
+      .filter((c) => c.count >= 2)
+      .map((c) => ({
+        price: +c.price.toFixed(2),
+        type: (c.price > lastPrice ? 'resistance' : 'support') as 'resistance' | 'support',
+        strength: 0,
+        touchCount: c.count,
+      }))
+      .filter((l) => Math.abs(l.price - lastPrice) / lastPrice <= maxDistance);
+
+    // 单边行情补位：缺阻力用近期高点、缺支撑用近期低点
+    if (!levels.some((l) => l.type === 'resistance')) {
+      for (const win of [20, 60]) {
+        const high = Math.max(...bars.slice(-win).map((b) => b.high));
+        if (high > lastPrice && !levels.some((l) => Math.abs(l.price - high) / high < tolerance)) {
+          levels.push({
+            price: +high.toFixed(2),
+            type: 'resistance',
+            strength: 0,
+            touchCount: 1,
+          });
+        }
       }
     }
+    if (!levels.some((l) => l.type === 'support')) {
+      for (const win of [20, 60]) {
+        const low = Math.min(...bars.slice(-win).map((b) => b.low));
+        if (low < lastPrice && !levels.some((l) => Math.abs(l.price - low) / low < tolerance)) {
+          levels.push({ price: +low.toFixed(2), type: 'support', strength: 0, touchCount: 1 });
+        }
+      }
+    }
+    if (!levels.length) return [];
 
-    levels.sort((a, b) => b.strength - a.strength);
+    // 强度按触碰次数归一化，最强簇 100，其余递减
+    const maxTouch = Math.max(...levels.map((l) => l.touchCount));
+    for (const l of levels) {
+      l.strength = Math.round(30 + (70 * (l.touchCount - 1)) / Math.max(1, maxTouch - 1));
+    }
+
+    // 按距现价远近排序：最近的有效阻力/支撑排最前
+    levels.sort((a, b) => Math.abs(a.price - lastPrice) - Math.abs(b.price - lastPrice));
     return levels.slice(0, 10);
   }
 
