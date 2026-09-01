@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="ZsDstFHCdr18ZOJ69AkhZb">
+<head data-page-node-id="Znl1ew41oQ5TXdEbUjCsPS">
+<meta charset="UTF-8" data-page-node-id="fvevSH8HJPouYzC9XoNao9">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="cbFKxbUfUCNt206VZSSpjR">
+<title>每日复盘 — 2026年8月31日（周一·收盘版）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{--bg:#f5f6f8;--c:#fff;--t:#2c3e50;--t2:#7f8c8d;--b:#e8ecf1;--r:#e74c3c;--g:#27ae60;--bl:#3498db;--o:#f39c12;--p:#8e44ad}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--t);line-height:1.75;padding:24px}
+.wrap{max-width:1120px;margin:0 auto}
+.hd{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);color:#fff;border-radius:12px;padding:32px 36px;margin-bottom:20px}
+.hd h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hd .meta{font-size:14px;opacity:.75;display:flex;gap:20px;flex-wrap:wrap}
+.hd .line{height:3px;width:60px;background:var(--o);margin-top:16px;border-radius:2px}
+.tldr{background:linear-gradient(135deg,#fff8e1,#fff3cd);border:2px solid var(--o);border-radius:10px;padding:18px 24px;margin-bottom:20px}
+.tldr h3{font-size:16px;font-weight:700;color:#e67e22;margin-bottom:8px}
+.tldr p{font-size:14px;color:#7d6608;margin:0;line-height:1.6}
+.s{background:var(--c);border-radius:10px;padding:24px 28px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.s h2{font-size:18px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--b);display:flex;align-items:center;gap:8px}
+.s h3{font-size:15px;font-weight:600;margin:18px 0 10px;color:#34495e;padding-left:8px;border-left:3px solid var(--bl)}
+.s h4{font-size:14px;font-weight:600;margin:12px 0 8px;color:#555}
+.s p,.s li{font-size:13.5px;margin-bottom:5px}
+.s ul,.s ol{padding-left:20px;margin:8px 0}
+.s li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0 16px}
+th{background:#f0f3f7;font-weight:600;color:#555;padding:9px 6px;text-align:center;white-space:nowrap}
+td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--b);font-size:12px}
+tr:hover{background:#fafbfc}
+td:first-child,th:first-child{text-align:left;padding-left:10px}
+.up{color:var(--r);font-weight:600}.dn{color:var(--g);font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.bu{background:#fdecea;color:var(--r)}.bd{background:#eafaf1;color:var(--g)}.bi{background:#eaf2f8;color:var(--bl)}.bw{background:#fef5e7;color:var(--o)}.bp{background:#f4ecf7;color:var(--p)}
+.news{background:#f8f9fa;border-left:3px solid var(--bl);padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0;font-size:13px}
+.news.imp{border-left-color:var(--r);background:#fff5f5}.news.warn{border-left-color:var(--o);background:#fffdf5}
+.fx{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
+.sc{background:#f8f9fb;border-radius:8px;padding:14px 16px;text-align:center;border:1px solid var(--b)}
+.sc .lb{font-size:12px;color:var(--t2);margin-bottom:4px}
+.sc .vl{font-size:20px;font-weight:700}
+.sc .sb{font-size:11px;color:var(--t2);margin-top:2px}
+.chart{width:100%;height:380px;margin:16px 0}
+.dv{border-top:1px dashed var(--b);margin:16px 0}
+.fn{font-size:12px;color:var(--t2);margin-top:12px;text-align:center}
+.hl{background:#f0f7ff;border:1px solid #bbd8f7;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.al{background:#fff5f5;border:1px solid #f5c6cb;border-radius:8px;padding:14px 18px;margin:12px 0;font-size:13px}
+.pl{background:#f0fff4;border:1px solid #c3e6cb;border-radius:8px;padding:16px 20px;margin:10px 0;font-size:13px}
+.pl h4{font-size:14px;margin-bottom:8px;color:#155724}.pl li{margin-bottom:6px}
+.stk{background:#fafbfc;border:1px solid var(--b);border-radius:8px;padding:16px 18px;margin:14px 0}
+.stk h4{font-size:14px;margin-bottom:10px}
+.ir{display:flex;flex-wrap:wrap;gap:8px 16px;margin:6px 0;font-size:12px}
+.ft{width:100%;font-size:11px;margin:8px 0}.ft th{font-size:11px;padding:6px 4px}.ft td{font-size:11px;padding:5px 4px}
+hr.sty{border:0;height:1px;background:linear-gradient(to right,transparent,var(--b),transparent);margin:16px 0}
+.mk{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:6px;vertical-align:middle}
+.ma{background:#e74c3c;color:#fff}.mh{background:#f39c12;color:#fff}.mu{background:#3498db;color:#fff}
+.tg{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;margin:0 2px}
+.tg-r{background:#fdecea;color:#e74c3c}.tg-g{background:#eafaf1;color:#27ae60}.tg-b{background:#eaf2f8;color:#3498db}
+</style>
+</head>
+<body data-page-node-id="9VSvt4siKCsQIBdP4JShN2">
+<div class="wrap" data-page-node-id="1ijWl7L18oKPDHODENezfv">
+<div class="hd" data-page-node-id="ALXcYqai9YA55jmieVEP2h">
+<h1 data-page-node-id="DqJlABXj2WfyYbG7bBmq4R">📊 每日复盘 — 2026年8月31日（周一·收盘版）</h1>
+<div class="meta" data-page-node-id="RB6veG1pjuTSNmBf8IaosB">
+<span data-page-node-id="JfrKObrLMPjwym8xQyyj0K">📅 A股/港股 8/31 收盘 | 美股 8/31 收盘</span>
+<span data-page-node-id="BsNVlNTIUz4zeGbV3kbZnh">🕐 生成：2026-09-01 06:00 CST</span>
+<span data-page-node-id="8EaN7KuJTVjZBfEn7odpcv">🟢 低开高走全线收涨 | 科创50+1.34%领涨 | 短剧概念掀涨停潮 | 浪潮信息涨停+9.99% | 31只持仓全覆盖</span>
+</div>
+<div class="line" data-page-node-id="UtExHROb3WqUqYZO5Wy2cO"></div>
+</div>
+
+<div class="tldr" data-page-node-id="6B1EYYekh3HK57A2fKSNy3">
+<h3 data-page-node-id="T0dYmlj65hr357qDH11TLJ">🔑 今日速览（TL;DR）</h3>
+<p data-page-node-id="Wg9wLcdKtAUrVe6qXQxFXi"><strong data-page-node-id="8M8GpMBzN7lqBUlvx27tlK">8月收官日三大指数低开高走、全线收涨，且收盘价即为全天最高点——V型反转，多头强势。</strong>上证<span class="up" data-page-node-id="5m4JqJ8gol81U87FZyO2zg">+0.86%</span>（3986.30）、深成<span class="up" data-page-node-id="CDxYbcx529kKPdzswEqtzj">+0.44%</span>（14015.00）、创业板<span class="up" data-page-node-id="RrzFLVIRAgE8z9wrtRZ6Vs">+0.42%</span>（3438.68）、科创50<span class="up" data-page-node-id="uVhCIr8boG3SXyM6pUxh5a">+1.34%</span>（1684.39）领涨。全市场<span class="up" data-page-node-id="HQGGBndtwFPvqFIy3nBB9v">3181只上涨（57.37%）</span>、2218只下跌，涨停89只/跌停13只（近7:1），两市成交<span class="up" data-page-node-id="1Dgp26rwwjwtifeXna2DHx">2.13万亿</span>，主力资金<span class="up" data-page-node-id="p1wCRi87n2cDreqwgbBt2N">净流入25.13亿</span>。<br data-page-node-id="2dd8F2HSmWORs4rZ31SEf8"><br data-page-node-id="cM15owYZyqoFDQJ5b6r12y">
+<strong data-page-node-id="6leoWwPyzPMPC6Vk1oPJVz">💡 核心发现：</strong>(1) <strong data-page-node-id="uL9OvzUvlz7e4VebkFFz8h">AI应用主线全面爆发</strong>——短剧概念掀涨停潮（中文在线、芒果超媒20cm涨停），传媒<span class="up" data-page-node-id="J03shbfbh7k1sZUAFfwMy6">+3.80%</span>净流入55.31亿、计算机<span class="up" data-page-node-id="eqqhfKKaBeXqAhsMVUf5Uc">+2.20%</span>、电子<span class="up" data-page-node-id="UBclKQLrykRCJwGiVUpiGe">+1.97%</span>净流入52.57亿、半导体<span class="up" data-page-node-id="nA69tDmmAmn3CSrUu1mRXL">+1.93%</span>；(2) <strong data-page-node-id="DrYXvXpML5aTgPSSxDZBWN">领跌的是防御/顺周期而非成长</strong>——有色金属<span class="dn" data-page-node-id="jWefN2Eyn2wYevHPy9OjVJ">-1.39%</span>净流出46.74亿、房地产<span class="dn" data-page-node-id="yv1DyoR1GMg9UUebF7eKVx">-1.38%</span>高开低走、医药生物<span class="dn" data-page-node-id="N1uaqvtTWjdRvJkQ5lKdQ3">-1.35%</span>净流出46.52亿；(3) 组合亮点：浪潮信息<span class="up" data-page-node-id="XPY8OtPCOcrh0gAHFOOh2G">+9.99%涨停</span>（液冷服务器）、特斯拉<span class="up" data-page-node-id="40xImRm4UKciTv9l9pIYEi">+5.51%</span>、美光<span class="up" data-page-node-id="jI7S3LszuwlWoaZP1JR4fc">+2.77%</span>；拖累：融创中国<span class="dn" data-page-node-id="yEL0hGUK8QIj952YGd1Lhe">-8.89%</span>、Sea<span class="dn" data-page-node-id="ZHCDH9HSAn2ybPAi6YwHqD">-4.93%</span>；(4) 美股三大指数小幅收跌（道指-0.70%、纳指-0.12%、标普-0.33%），但<strong data-page-node-id="MYIaXDc0HlJ4DA8nknU8y9">费半+0.57%逆势收涨</strong>，特斯拉+5.51%领涨七巨头；(5) 美伊冲突重燃推高油价（布油+3.11%破90美元），美债10年期4.75%创20个月新高，9月加息概率近60%。<br data-page-node-id="XjnnRMEYEdrQZPg0JypvjD"><br data-page-node-id="z85YyRw8OlY1HuQeRfI1WB">
+<strong data-page-node-id="q6YLjC5p4nc8q7itZt2XEN">判断：8月收官低开高走、成长风格占优，赚钱效应明显修复。但增量资金仍观望（成交2.13万亿未放量），核心变量仍是9/4非农 + 9月FOMC。AI算力/应用是当前最强主线，防御红利（黄金/地产/医药）阶段性跑输。</strong></p>
+</div>
+
+<!-- ============ 一、大盘环境诊断 ============ -->
+<div class="s" data-page-node-id="O9KS0mmApl5enq60HZzNDK">
+<h2 data-page-node-id="UFwOH8RsEV8cY4gWt1yBVA">📈 一、大盘环境诊断（定仓位）</h2>
+
+<h3 data-page-node-id="UM3nfdWyzMqeVADAD87t5j">1. A股指数趋势 — 低开高走，收盘全线飘红（收盘价＝全天最高）</h3>
+<div class="fx" data-page-node-id="hLiNgnmvMgDpSbEwWMqpPg">
+<div class="sc" data-page-node-id="S1kFFblu7bfqhpTmnQySxL"><div class="lb" data-page-node-id="0MVOc7HamCLtwPts2ehl8U">上证指数</div><div class="vl up" data-page-node-id="uSzv98O2zqFaZwhmaHHD6d">3,986.30</div><div class="sb" data-page-node-id="NzvfihtZEO3MeeO6b7dAEL"><span class="up" data-page-node-id="frkwnijySJpNL1J58pJpFJ">+0.86%</span> | +34.12点·成交10143亿</div></div>
+<div class="sc" data-page-node-id="oWzIOsorCxY2cxyEqBMFwz"><div class="lb" data-page-node-id="QYLFxsOQmWGx59peVsle0n">深证成指</div><div class="vl up" data-page-node-id="EFZHuUaxM1wAN4Q8TNElXo">14,015.00</div><div class="sb" data-page-node-id="jbC8ImwvvnwuabtY97hJ87"><span class="up" data-page-node-id="dTUiQdMrZ5iRxhInATk9ay">+0.44%</span> | +61.93点·成交11167亿</div></div>
+<div class="sc" data-page-node-id="fWUhkmhECt9MvKOekfeDIC"><div class="lb" data-page-node-id="e7gwzqw3ZUvaKZ5EUHIr50">创业板指</div><div class="vl up" data-page-node-id="vat0LeTubyfaUIDcKUFZUc">3,438.68</div><div class="sb" data-page-node-id="dlmmTFAy7xckFon9cnNKzh"><span class="up" data-page-node-id="QodhOb5xUGIQXvorabX6wm">+0.42%</span> | +14.28点·成交5282亿</div></div>
+<div class="sc" data-page-node-id="DeYGf7kqN4ZDvtS1jhCU6t"><div class="lb" data-page-node-id="NF1v55cgkdq0e26S8pOyAX">科创50 🔴</div><div class="vl up" data-page-node-id="FHVMEaVZ1yiWCU4RhEOimv">1,684.39</div><div class="sb" data-page-node-id="nbgHINVrvJRgkgR786XY7F"><span class="up" data-page-node-id="XXJB6d1eEhVQSfVZYjh4i5">+1.34%</span> | +22.24点·领涨</div></div>
+</div>
+<p data-page-node-id="HoPYNjAcTNWLa9KDioastF"><strong data-page-node-id="tm48rW7kgFmlYVSDiz3zx5">关键信号：今日是典型的"低开高走V型反转"。</strong>三大指数早盘受隔夜美股下跌+美伊冲突升级影响低开（科创50一度低开2.34%），午间收盘前开启持续反弹，午后集体拉升，<strong data-page-node-id="7K6VVbgK9XAABQsE93c3G1">收盘价全部收在全天最高点</strong>——这是极强的多头信号，说明下方承接有力、资金主动做多。科创50从低开-2.34%一路反弹至收涨+1.34%，全天振幅超3.6%，是全场最强指数。<strong data-page-node-id="da9CbgHGrEqzdLPdWuwDyc">8月收官成绩单：</strong>沪指月涨超4%，科创50月涨2.96%，科创综指月涨8.78%，中证2000月涨超13%，仅恒指月跌1.23%。</p>
+
+<h3 data-page-node-id="rcFrqRUeJDKowWfcfeAcv3">2. 风格指数分化 — 小盘成长弹性更大，风险偏好回升</h3>
+<div class="fx" data-page-node-id="AQFbexTj0gACqScHTGaeV7">
+<div class="sc" data-page-node-id="FH5xVmhbIGevd3iDABxutJ"><div class="lb" data-page-node-id="cxgcqwjABIXVqDvfDFlgiL">沪深300（大盘）</div><div class="vl up" data-page-node-id="HjlFtbaxfdddLEiZ0mRdav">4,625.09</div><div class="sb" data-page-node-id="MgzT5pMPtEDg7az8tTlqTl"><span class="up" data-page-node-id="nmEd6Tla6Y05SH6WIzjDpn">+0.35%</span> | +15.91点·成交5834亿</div></div>
+<div class="sc" data-page-node-id="xIvoG4sA23yL0a8MftFBdr"><div class="lb" data-page-node-id="b4elRGLjFE19utrl8sJJX7">中证500（中盘）</div><div class="vl up" data-page-node-id="2U9zdTLw89zRVUnlBkokvM">7,952.10</div><div class="sb" data-page-node-id="O5FyJNysLaQgT5nDJn2B3I"><span class="up" data-page-node-id="IM7HCxrhDMuHBWw2rW0FBY">+0.72%</span> | +56.65点·成交3914亿</div></div>
+<div class="sc" data-page-node-id="kySvG2fhu5Zhv89s4FR03B"><div class="lb" data-page-node-id="ourHUMneVQHJyUb3qloWCp">中证1000（小盘）</div><div class="vl up" data-page-node-id="PAgtSTDm5JGwRB67z4hIXH">7,770.42</div><div class="sb" data-page-node-id="In5WENwz9OL0KjckHsLlrD"><span class="up" data-page-node-id="xcBe1ELCWZMJNgBu0DtdLF">+0.85%</span> | +65.39点·弹性最大</div></div>
+<div class="sc" data-page-node-id="eoYAmtHLQV94zkXCT3DMI6"><div class="lb" data-page-node-id="MsPJDgiEkQNUqi3g341m05">上证50（超大盘）</div><div class="vl up" data-page-node-id="whT53Lsjl8o9hGnMx5jhQf">2,936.88</div><div class="sb" data-page-node-id="zFhEMdCscenv7Rzn3Bqa9k"><span class="up" data-page-node-id="oFTGviUsJSTDjKgI9dsHHb">+0.46%</span> | +13.55点</div></div>
+</div>
+<p data-page-node-id="xOUbZih3QYq7C5oeABZih8"><strong data-page-node-id="7aMZYZaAwiKHMJTm0AJwj0">关键信号：小盘 &gt; 中盘 &gt; 大盘。</strong>中证1000（+0.85%）&gt; 中证500（+0.72%）&gt; 上证50（+0.46%）&gt; 沪深300（+0.35%），呈现典型的<strong data-page-node-id="x7BQxHCqmF1AyxBqgfxCmI">风险偏好回升、成长弹性占优</strong>格局。这与"防御红利占优"的避险叙事完全相反——资金正从防御（黄金/地产/医药）转向进攻（AI算力/传媒/半导体）。对持仓的含义：<strong data-page-node-id="tciJEHigQPNx0HzUPVxfC2">AI算力与科技成长仓位是本轮主线，防御底仓（银行/白酒）今日跑输。</strong></p>
+
+<h3 data-page-node-id="qQ6afALwR7Zj79sBeKEqbH">3. 量能表现 — 普涨格局，赚钱效应修复</h3>
+<div class="fx" data-page-node-id="G7q2hhTrFDIuIMNdfOrfFe">
+<div class="sc" data-page-node-id="OHDwldE4vkzMe5GyDErG0Q"><div class="lb" data-page-node-id="ezCIvcslDEGuWr3zr1KShK">两市总成交额</div><div class="vl up" data-page-node-id="GUmwSHfxakURQrjODhC6JV">2.13万亿</div><div class="sb" data-page-node-id="4b6A7oaDhHXBOymvAxQR1O"><span class="up" data-page-node-id="qfJPQjmw9YRJiWtge8GxuY">+</span> | 8月仅4日不足2万亿</div></div>
+<div class="sc" data-page-node-id="APSFAYAvf4sKa4BuEOXR9G"><div class="lb" data-page-node-id="58qfNMxjRcwantA0V4mNet">上涨家数 红</div><div class="vl up" data-page-node-id="jXCRVz71wpOnKgKxxIZZbd">3,181只</div><div class="sb" data-page-node-id="nC5OzwYWircAIYrPwFBoXZ"><span class="up" data-page-node-id="GsXyFy2YBt7kzdAM4bGXj7">+</span> | 占比57.37%·普涨</div></div>
+<div class="sc" data-page-node-id="J2IPX4zKK7WMXsrgTScGJc"><div class="lb" data-page-node-id="2TbktDUdPtXqB950VeEZWM">涨停/跌停</div><div class="vl up" data-page-node-id="L8FVKwM9tFZZBuZoaBenD6">89 / 13</div><div class="sb" data-page-node-id="x3pP81DiW2ntVhPzHiII9J"><span class="up" data-page-node-id="ijIbncLVMhvfOnCiBHCNbF">+</span> | 封板率71.2%</div></div>
+<div class="sc" data-page-node-id="OrfHzvuzvs7iTwYGcLFQPa"><div class="lb" data-page-node-id="Iz2zAHrGEW65KSxJ7k67NF">主力资金</div><div class="vl up" data-page-node-id="2rVSDqjRiAtq7z1g3vTCD9">+25.13亿</div><div class="sb" data-page-node-id="TiU4qO3vUObaEIes1Bd7ix"><span class="up" data-page-node-id="xx7WV6DdS0tSAV7txTfofu">+</span> | 全天净流入</div></div>
+</div>
+<p data-page-node-id="3ObCj0hUMmYfjmzexeF6R1"><strong data-page-node-id="hRaCrqPM9ZJSDUaSidy8vh">普涨＝赚钱效应修复。</strong>上涨3181只 vs 下跌2218只（57.37%上涨），涨停89只 vs 跌停13只（近7:1），封板率71.2%——市场宽度明显改善。两市成交2.13万亿，8月仅4个交易日不足2万亿，量能维持在健康水平但未显著放量，说明<strong data-page-node-id="dE2Bcfd9mZdpYRddV1nDnM">增量资金仍在观望</strong>。主力资金全天净流入25.13亿：创业板净流入7.17亿、沪深300成份股净流入19.93亿；科创板净流出42.42亿（科创板内部剧烈分化——半导体涨但创新药、光伏大跌）。</p>
+
+<h3 data-page-node-id="puCDBMJcQDo1sO0Gg6XlC9">4. 港股大盘 — 恒指微跌，恒生科技逆势翻红</h3>
+<div class="fx" data-page-node-id="jQWS4L9oHjAOgHVY7FwoaY">
+<div class="sc" data-page-node-id="lz69Nkr9XJekyWHHkNwtTT"><div class="lb" data-page-node-id="B4NqqyAL5XIc34SBuhG5vJ">恒生指数</div><div class="vl dn" data-page-node-id="QHUBRcaa4vYBGhZsamYrK5">25,566.99</div><div class="sb" data-page-node-id="y2tDQN9N0W8H7Pc4nGfT3N"><span class="dn" data-page-node-id="D27N6koYNAA7S8Gh5DUYBS">-0.07%</span> | 8月累计-1.23%</div></div>
+<div class="sc" data-page-node-id="anDrzbOZE3hv7TdJGRFx9Y"><div class="lb" data-page-node-id="br9tzrdqxEg1CEhAeERsPH">恒生科技指数</div><div class="vl up" data-page-node-id="rMIEjvcT4b1RXFxy8w3xiK">4,619.87</div><div class="sb" data-page-node-id="yinW7k5hePcGTVAYw2oMZC"><span class="up" data-page-node-id="E2Pm7nC9cxcPB1OY6XP4oC">+0.32%</span> | 8月累计-4.34%</div></div>
+<div class="sc" data-page-node-id="w7e7cIX6wGdxoTUxC8yN6I"><div class="lb" data-page-node-id="APGJJacBV0BMS7B1PrXy6l">国企指数</div><div class="vl up" data-page-node-id="eFKjtXpFTjAlC66m6OUiIG">8,513.18</div><div class="sb" data-page-node-id="yBzwOA4nkCg27sUfZlZ5Gt"><span class="up" data-page-node-id="cA44yHKd9gCdO8m37WXnw2">+0.27%</span> | +22.79点</div></div>
+<div class="sc" data-page-node-id="A7jBfwK4e82YGcQ1GTVJCp"><div class="lb" data-page-node-id="XEpDGsCJG9rxC2b90p8Fa1">南向资金 🟢</div><div class="vl up" data-page-node-id="WcoltUgMiFce43awuX2opo">+21.39亿</div><div class="sb" data-page-node-id="QDH2yxXkCebgOwbNZGCsyo"><span class="up" data-page-node-id="3fiLm2x0mXFTdJCzUcqHRt">+</span> | 沪+20.58亿 深+0.81亿</div></div>
+</div>
+<p data-page-node-id="qV7qrmjuEiH1JZOdFaxyva"><strong data-page-node-id="BhJ4CntBDsENgdN53sSpVF">港股窄幅震荡、8月收官微跌。</strong>恒指-0.07%收25566.99（8月累计-1.23%），恒生科技逆势+0.32%、国企指数+0.27%。AI应用股午后爆发：MiniMax<span class="up" data-page-node-id="L9CMKrQSBAJFCrotNkxYQI">+16%</span>（上半年收入1.2亿美元+283%）、智谱<span class="up" data-page-node-id="ZMJwCCEEkD3HCoA5XuOANv">+9%</span>（MSCI新纳入+盘后中报）。内银股走强，内房股普跌（绿城-17%、融创-8.89%）。<strong data-page-node-id="R43o3XtZCphQuRfCuoT8qu">南向净买入21.39亿</strong>，重点加仓腾讯（+4.11亿）、建滔积层板（+5.69亿）、中芯国际（+5461万），逢高抛售内银（建行-10.3亿、工行-5.78亿）。</p>
+
+<h3 data-page-node-id="zEhbxnrgfTLeJc2dNYIMIu">5. 美股大盘（8/31收盘）</h3>
+<div class="fx" data-page-node-id="KgLTrEeLycPC8P1oGizezH">
+<div class="sc" data-page-node-id="3ZlTUpONSFxmaak4O2V0zC"><div class="lb" data-page-node-id="hLUZ8HIuze7qCnb5gppS13">道琼斯</div><div class="vl dn" data-page-node-id="zdSZVwcCvlWrKd5y4KeRGw">53,185.90</div><div class="sb" data-page-node-id="5hrrbwqWU1BrAX35V7JxSL"><span class="dn" data-page-node-id="y097yIeMZYC1AwTBML7pgZ">-0.70%</span> | -374.09点</div></div>
+<div class="sc" data-page-node-id="x01qhyJWzKWEuHMUmLK4lC"><div class="lb" data-page-node-id="zhL6YjbL924c41Rw32g1qz">纳斯达克</div><div class="vl dn" data-page-node-id="lL5Dl8q9iQmzfz2qLP2cjD">26,370.89</div><div class="sb" data-page-node-id="bRgZXbF9BTk4xmBETki1uq"><span class="dn" data-page-node-id="1F8l2oPM7chN46sJ4YASTs">-0.12%</span> | -31.53点</div></div>
+<div class="sc" data-page-node-id="OukBP4VWRdVjt4XpuDXD7C"><div class="lb" data-page-node-id="C3TfzLqx3QoL4N5hI5THSb">标普500</div><div class="vl dn" data-page-node-id="Eu5BXG7JjDNe3jzdRFRb8Z">7,686.14</div><div class="sb" data-page-node-id="6kd8B73DVKoe5cwMqg3j1B"><span class="dn" data-page-node-id="vGNkJDmMAr3I9PWcM6nKKl">-0.33%</span> | -25.62点</div></div>
+<div class="sc" data-page-node-id="MXr9mlPfUJxDF0qHNzYTAW"><div class="lb" data-page-node-id="1qstIfQDxnbhPWpOx3C7t7">费城半导体</div><div class="vl up" data-page-node-id="TOenczBoAQBzRvdErFGdeE">11,535.05</div><div class="sb" data-page-node-id="4AR3QNzNiAAJp1wFUC8BPz"><span class="up" data-page-node-id="41eHJFYiZEjrXsDSMneInz">+0.57%</span> | +65.39点·逆势收涨</div></div>
+</div>
+<p data-page-node-id="t0DrFHnJTjiTZWpyA1EjW5"><strong data-page-node-id="vYGbQSf7pJTza9fCgLyJYf">三大指数小幅收跌，但费半逆势收涨。</strong>道指-0.70%、纳指-0.12%、标普-0.33%，跌幅均有限；<strong data-page-node-id="a2VG22JSKgcer8SRfl8Owl">费城半导体+0.57%逆势收涨</strong>（盘中一度涨超1%），存储芯片走强。七巨头分化：特斯拉<span class="up" data-page-node-id="Fcdb1MWoD8MI1LOENq67jV">+5.51%</span>领涨（港澳推出廉价版Model 3，起售20.5万港元）、美光<span class="up" data-page-node-id="vCczbGl9IGzQVzAj6Qr0hQ">+2.77%</span>、英伟达<span class="up" data-page-node-id="spWTlHtVpe5mvDHhn9vuna">+1.48%</span>；谷歌<span class="dn" data-page-node-id="hh6ZHLAyH0B17SrbYHPKBP">-2.18%</span>、苹果<span class="dn" data-page-node-id="mBcdZgqG08ooBXcWoCcLvk">-0.89%</span>领跌。中概股金龙指数跌超1%。<strong data-page-node-id="jcXRnvjFQJZgO4k8WeZh67">压制因素：</strong>美伊冲突推高油价+美债10年期4.75%（20个月新高）+9月加息概率近60%。</p>
+
+<h3 data-page-node-id="BMbvo6TVKM1yYie89XamRh">6. 全球宏观联动</h3>
+<div class="fx" data-page-node-id="NnxIrbBvcg9wOw5Ve084n0">
+<div class="sc" data-page-node-id="WkDqYoYRRznXfsG6XtFUbr"><div class="lb" data-page-node-id="rrHjoisrE2eGEL0RylziSb">纽约黄金 🔴</div><div class="vl dn" data-page-node-id="9iJ6IrEiLtLRZP5lSoPDUC">$4,499.96</div><div class="sb" data-page-node-id="Xs5EyR7VO0U0JZjFougCHp"><span class="dn" data-page-node-id="ndclY3LEdmHIzDxspglXMK">-0.66%</span> | 加息预期压制</div></div>
+<div class="sc" data-page-node-id="XGacHim20Ilx4FBIjQMTS4"><div class="lb" data-page-node-id="W6t5pu4H7u9aAzo7LTvvqD">布伦特原油 🔴</div><div class="vl up" data-page-node-id="ZxDFJqHCcL7OCUEbgXUUTk">$90.84</div><div class="sb" data-page-node-id="hBf0USvQgHjety3xrxQBo5"><span class="up" data-page-node-id="OwSshwkSqz8ZjHhsj7oFvW">+3.11%</span> | 美伊冲突重燃</div></div>
+<div class="sc" data-page-node-id="r3xEMITmDM6uFjIZdSJXt6"><div class="lb" data-page-node-id="9VpUBw7vVpXYEcLhBn9DC3">WTI原油</div><div class="vl up" data-page-node-id="GaYruDaLvbVs0d44zXe4pr">$86.35</div><div class="sb" data-page-node-id="91FSCRj30lfigfg3A01Fp5"><span class="up" data-page-node-id="w9wJk4CbiXvLLFrRPTh34k">+3.53%</span> | 地缘溢价</div></div>
+<div class="sc" data-page-node-id="0E1Wm6HzaEY7e5RtWQLvNA"><div class="lb" data-page-node-id="s15wODERccTb2SIgeEc2gs">离岸人民币 CNH</div><div class="vl up" data-page-node-id="mXH4Z4yEBShNmGS8dE0b5v">6.7183</div><div class="sb" data-page-node-id="DOIw22RSBdPo2uL1pWUobp"><span class="up" data-page-node-id="XtOo8UASkNu19FXCJmuaCt">+</span> | 升值·支撑港股</div></div>
+</div>
+<div class="fx" data-page-node-id="Ig2mcDOa0yFQM0YuVonZR6">
+<div class="sc" data-page-node-id="f8cGAt3D4P0cM4NRBRERWI"><div class="lb" data-page-node-id="UrRThER3jW1DpCL8lpzgVV">美债10年期 🔴</div><div class="vl up" data-page-node-id="lqtepIujAra5cKDDkmSiHN">4.75%</div><div class="sb" data-page-node-id="nr3BI4w4eeiCbNfR4Oe9u2"><span class="up" data-page-node-id="SfQKXGs7b89glaKe2ixIHE">+</span> | 20个月新高</div></div>
+<div class="sc" data-page-node-id="jbYtDKh5CHFjyHqIF2lcnj"><div class="lb" data-page-node-id="vBavc9uQkmG1qKLr9J1YGR">9月加息概率</div><div class="vl up" data-page-node-id="PH86HLExzpGXrZBAQ4nFYS">近60%</div><div class="sb" data-page-node-id="1j6bM3OT7iwnJ9MlzAYxCO"><span class="up" data-page-node-id="lLhOUZDVIvFS1Mg3SGmMhF">+</span> | 一周前41.4%</div></div>
+<div class="sc" data-page-node-id="frpMvvugY3m1JIkcckFhh9"><div class="lb" data-page-node-id="iKOQerSTtdNiRbBlWPKdwR">美元指数 DXY</div><div class="vl dn" data-page-node-id="hb76byUzq83tjZ1IoWEMp7">99.43</div><div class="sb" data-page-node-id="NEhvVBhMaMntEWW45xS56v"><span class="dn" data-page-node-id="hl2AhAwpwHrMbNnB28srGf">-0.25%</span> | 小幅走弱</div></div>
+<div class="sc" data-page-node-id="gsLJpotaDeRE4w9zQNDRfS"><div class="lb" data-page-node-id="NgXBPULtgUv7JVsDbK4Yqb">美元兑港币</div><div class="vl up" data-page-node-id="iqLH221C1PEUs2ofJVJOou">7.75</div><div class="sb" data-page-node-id="gMkDWBlGQl0mD2Yo4Eu39u"><span class="up" data-page-node-id="2EBkmm6vbD6plqMFBkcAjL">+</span> | 联系汇率区间</div></div>
+</div>
+<p data-page-node-id="xoWu9KRYDG9dlnzOpwp5Ae"><strong data-page-node-id="O0jGEcAlCxYBioahrBCEBE">宏观传导链：美伊冲突重燃→油价飙升（布油+3.11%破90美元）→通胀预期升温→美债收益率20个月新高（4.75%）→加息预期升温（近60%）→压制黄金与高估值资产。</strong>但注意一个<strong data-page-node-id="l8aDZXhF6Qf43FaxpaPwTk">关键背离</strong>：A股今日并未跟随"油价涨→成长跌"的逻辑，反而走出"低开高走+科技领涨"，说明<strong data-page-node-id="uYfnxRT1POTYx18o1ScBPx">国内AI产业周期（短剧/AIGC/算力订单）的驱动力已强于海外利率压制</strong>。离岸人民币升值至6.7183，对港股与外资流入构成边际支撑。</p>
+</div>
+
+<!-- 指数走势 ECharts -->
+<div class="s" data-page-node-id="Q53LrQ7UCYxM2zh2mS5GcI"><h2 data-page-node-id="TCVRULKmnma5ZWIzWxsanv">📊 A股核心指数近10日走势</h2>
+<div id="chart_idx" class="chart" data-page-node-id="TE6hom5FRZlB6EOj4ULx2C"></div>
+</div>
+
+<!-- ============ 二、板块与资金流向 ============ -->
+<div class="s" data-page-node-id="HdOCi98VEJgarLSecI7U0R">
+<h2 data-page-node-id="MZAKjr6iCYnJUCOsdsFWCN">💰 二、板块与资金流向（定方向）</h2>
+
+<h3 data-page-node-id="pj7NQo2fXsXvhsCuw9yrxr">1. A股热点板块 — AI应用/算力领涨，贵金属/地产/医药领跌</h3>
+<table data-page-node-id="YOD72iDHI8syQ4De52dycc">
+<tr data-page-node-id="9SCo6a62H0OFtyTTOTrcgn"><th data-page-node-id="7LYCY3vNwtfKggAE0hHFUo">方向</th><th data-page-node-id="9acjcVEDlYuBXrFVbJdiZ7">板块</th><th data-page-node-id="MJQdxo187DT5GGQJGoolGi">涨跌幅</th><th data-page-node-id="uNTrE6jeG61q2ibvc8CUA5">领涨/领跌股</th><th data-page-node-id="yUINRSFdCTXqU72uOK3noO">驱动逻辑</th></tr>
+<tr data-page-node-id="coDIm342TLVCFSGBwpytsA"><td data-page-node-id="YPRnHRm904Pdmhi0kxLpf1"><span class="badge bu" data-page-node-id="3Upa24VpZAWXeuxofwfCEI">领涨</span></td><td data-page-node-id="bYYUGiXVrnlJ2XWo6NpDec">传媒/短剧/AIGC</td><td class="up" data-page-node-id="TlfT2WaaC82J9ZSKFd82Ax">+3.80%</td><td data-page-node-id="NrWiCTCRa0yEsXM1ygGEfh">中文在线、芒果超媒20cm涨停</td><td data-page-node-id="FG2J0rQXeQ9xS44902jMtJ">《后西游记》AI长剧定档；资金净流入55.31亿居首</td></tr>
+<tr data-page-node-id="kYaiGPxc9NrJrIV7pUVvQK"><td data-page-node-id="kwHK2cVqvHzPtIw95Y04GN"><span class="badge bu" data-page-node-id="NQhNpXAON1UBeCzifD6YtD">领涨</span></td><td data-page-node-id="lnqw5wSwr65FdFzZTdgnsT">计算机/IT服务</td><td class="up" data-page-node-id="SOFqiMj25mIJdzCyKQZrnR">+2.20%</td><td data-page-node-id="VmymdEOZPuynOFKyodnGjJ">IT服务+2.84%</td><td data-page-node-id="ueAASZwCcBt25t7ZkB9ARt">AI应用落地，算力需求外溢</td></tr>
+<tr data-page-node-id="AGCMHCUbmI8Vt8AKKCRRGz"><td data-page-node-id="5koFKJ0C9yR6wOK9e5i0Yt"><span class="badge bu" data-page-node-id="3uEFWd4Rh9eeLCj66FfvuT">领涨</span></td><td data-page-node-id="y8vq5pp6gSUI2XgiZtMxua">电子/半导体</td><td class="up" data-page-node-id="QSLbDFbise8CbsSEu3YXvo">+1.97%</td><td data-page-node-id="9dkMieokUDbt2vU3xtJeEJ">力芯微+18.21%、炬芯+13.09%、瑞芯微涨停</td><td data-page-node-id="qkQgnZvCF0hP0wbYCM4O4K">AI算力芯片+3.58%、模拟芯片+3.69%；资金净流入52.57亿</td></tr>
+<tr data-page-node-id="OOv35NsNd06WsiIaagM001"><td data-page-node-id="ukn6I2YYNhOZKOHjbCYQdV"><span class="badge bu" data-page-node-id="SPimLi5E8FwD4EWHViq7ca">领涨</span></td><td data-page-node-id="cTEsH4rpSDNxbA06o1IhSW">液冷服务器</td><td class="up" data-page-node-id="mU4f9jEwrnXJlSYuY5TtQf">+3.10%</td><td data-page-node-id="ZsPBZetzYT7YS3p2eEDuLJ">浪潮信息、金富科技涨停</td><td data-page-node-id="xDwEDhjjDGDhvObGSerxzM">AI服务器订单排到12月底</td></tr>
+<tr data-page-node-id="OIZC0zitkNB6kuVs0c9tR4"><td data-page-node-id="biuPybO4pRK4Pc0FJ0E24p"><span class="badge bu" data-page-node-id="pCdMn5uf53Gb8qlBdVAHPi">领涨</span></td><td data-page-node-id="mrrTfhhDHnrNfveLVx6Psb">国有大型银行</td><td class="up" data-page-node-id="3TWOyXondrWxBic5VRbmCQ">+2.94%</td><td data-page-node-id="TcZ6keGc7XOLkcHY1uKzgf">中国银行领涨</td><td data-page-node-id="5RtpTUcbdywplUAV2sdP7c">中报亮眼+高股息，防御资金仍在</td></tr>
+<tr data-page-node-id="qVErgqSgt1kDhR12skC4bQ"><td data-page-node-id="RnEwSfeHZEIPGOl4xI88lc"><span class="badge bu" data-page-node-id="SME5podaPSoPfBPbHjP5nt">领涨</span></td><td data-page-node-id="40DKNb5flAZfg1gmBnCDh8">消费电子/元件/激光雷达</td><td class="up" data-page-node-id="MvuqRBe4CPAobMoI0Z8LHH">涨幅居前</td><td data-page-node-id="n0c03esz3kutpzWXbzgGC0">大族激光等多股涨停</td><td data-page-node-id="JanDr9OfxASMZgfaOpszO8">午后电脑硬件、电子元器件集体活跃</td></tr>
+<tr data-page-node-id="lVeFSlRGlfigTGwwPM9o2O"><td data-page-node-id="vq5PECJGZshddG94VZqbMR"><span class="badge bd" data-page-node-id="DQFKu8mXyVgMY55Ng42Cih">领跌</span></td><td data-page-node-id="3C7FNBOMY2pktbqxAc1wxx">有色金属/贵金属</td><td class="dn" data-page-node-id="FQubW4JwWahVrzb1de03Fv">-1.39%</td><td data-page-node-id="qNrz0ELPepAVq1si0rkiSF">湖南白银跌近7%</td><td data-page-node-id="bxsdcCIqsau1E19bpcXHKQ">加息预期压制；资金净流出46.74亿居首</td></tr>
+<tr data-page-node-id="mD3G61ObGDld9tZ4MOgprs"><td data-page-node-id="ggs6H1OlsQOtIR56u7psHB"><span class="badge bd" data-page-node-id="Wh7qMQEqu1hgr4nsnHF3mF">领跌</span></td><td data-page-node-id="lBVrxxeGgWmxCtXQDWN42Q">房地产</td><td class="dn" data-page-node-id="8LycNzAK5MnapQuOQfSRQ2">-1.38%</td><td data-page-node-id="AWbXcd5E3cCKoEEA2f45b1">招商蛇口、深深房A跌逾5%</td><td data-page-node-id="XdouSiML3sbVFCYbq95WIS">高开低走，房贷新政（期限≤40年）利好兑现即出货</td></tr>
+<tr data-page-node-id="wE9bKbSHtxIXHNAecAW2jo"><td data-page-node-id="ZL53MF8OUXFmp2EO5JBpeA"><span class="badge bd" data-page-node-id="HfmtPn7VOcWUNJI4nUydyL">领跌</span></td><td data-page-node-id="rovFrHRFJRHOhC89bOjgeN">医药生物/创新药</td><td class="dn" data-page-node-id="OJ9HHQPrABE1Zc80C2r6yP">-1.35%</td><td data-page-node-id="NpeN7zaCFe5VtnccbrUFLQ">键凯科技-16.36%、康希诺-9%</td><td data-page-node-id="s95pmftIbudEer7BHAItQd">资金净流出46.52亿；前期涨幅过高</td></tr>
+<tr data-page-node-id="8aDedMG8Pu9XimLANRAYFM"><td data-page-node-id="hDV1P7lBiLOxO1kJYcxvSX"><span class="badge bd" data-page-node-id="ReZBBNbRd1sFsIFOqGYGb5">领跌</span></td><td data-page-node-id="VtQz9q8kz9DFCB7OShruQz">光伏设备/白酒/种植业</td><td class="dn" data-page-node-id="BN2r5UYIpB7WPCQUK62ngw">跌幅居前</td><td data-page-node-id="5TtR9sYd7h3teUeNnFhwCe">中信博-9%、阿特斯-7%</td><td data-page-node-id="nhYSXhFDvrfevD9FV6M5vd">产能过剩+消费疲软+题材退潮</td></tr>
+</table>
+
+<h3 data-page-node-id="ZhDPRj9A7Okzc0KS8sGofB">2. 资金流向 — 主力净流入25.13亿，资金明确"卖防御、买AI"</h3>
+<div class="hl" data-page-node-id="jMg585Z3aLpH4wofC1iOsv">
+<p data-page-node-id="EtqQLphRCqeEB3ISb5WNJc"><strong data-page-node-id="TmLQG37tZRevTScH3DtR3u">8月31日主力资金全天净流入25.13亿元。</strong>其中创业板净流入7.17亿、沪深300成份股净流入19.93亿；科创板净流出42.42亿（内部分化：半导体涨、创新药与光伏跌）。</p>
+<p data-page-node-id="aJwF6MvIVydiH9yBKgNROG"><strong data-page-node-id="A1pVBUziQmwwtrcRTREcGB">行业资金流（申万一级）：13个行业净流入，18个行业净流出。</strong></p>
+<p data-page-node-id="NiUOGR8DA0P6108cCy4RDR">📈 <strong data-page-node-id="T6vHiqNJ0XgnnuocVZ7fpq">净流入前二：</strong>传媒 <span class="up" data-page-node-id="IfszkfM12w9FlwUXHvoXKv">+55.31亿</span>（行业涨3.80%）、电子 <span class="up" data-page-node-id="1XZMGL3FUfFf09DDpsofFx">+52.57亿</span>（行业涨1.97%）。</p>
+<p data-page-node-id="ThuEt2hfnNNvDax9k899Wd">📉 <strong data-page-node-id="eOqvcMIYjTlp94Yp7jJYJi">净流出前二：</strong>有色金属 <span class="dn" data-page-node-id="xkH4I0Qx7NN7YQaLL4q582">-46.74亿</span>（行业跌1.39%）、医药生物 <span class="dn" data-page-node-id="TcqnXTqzhvjrpMNRt0EyJ0">-46.52亿</span>（行业跌1.35%）。</p>
+<p data-page-node-id="DYDIEgRTnmsIiPmK3UZLFC"><strong data-page-node-id="ORBawlkzE4AE8VvisCnPLr">⚠️ 关键信号：</strong>资金流呈现极其清晰的<strong data-page-node-id="6USeNITiI1CnryCzcYz4jI">"卖防御、买AI"</strong>特征——钱从有色/医药/地产流出，集中涌向传媒（AI应用）、电子（AI算力）。这与7/28"美伊停火+油价暴跌+避险退潮"的格局一致，说明<strong data-page-node-id="nJlFkPvBBG9S57AO1HXUe0">当前市场主线是AI产业周期，而非地缘避险</strong>。</p>
+</div>
+
+<h3 data-page-node-id="GVDn0LpIQ6shTAHRpN0sYi">3. 港股板块与资金 — AI应用爆发，南向加仓科网</h3>
+<p data-page-node-id="FkuLuHKXbWxN83fxZBps3O"><strong data-page-node-id="gUJH0AoHZRMq0EcWV8fQwb">南向净买入21.39亿港元</strong>（沪+20.58亿、深+0.81亿），连续净流入。重点加仓：腾讯（+4.11亿，混元Hy4开源）、建滔积层板（+5.69亿）、长飞光纤（+3.57亿）、中芯国际（+5461万）、阿里（+2806万）；逢高抛售内银：建行-10.3亿、工行-5.78亿。AI应用股午后拉升（MiniMax+16%、智谱+9%），科网股活跃（美团+1.68%、京东+1.54%），内银走强，内房普跌（绿城-17%、融创-8.89%）。</p>
+
+<h3 data-page-node-id="nDjzx28Y5NVXkFdgrthD8h">4. 美股板块（8/31收盘）— 费半逆势收涨，七巨头分化</h3>
+<p data-page-node-id="fS1m0P5euGAprUletGHfLS"><strong data-page-node-id="9bDYkfZCRDtMn6Vg28bOpC">费城半导体+0.57%逆势收涨</strong>，存储芯片走强。特斯拉<span class="up" data-page-node-id="kzU7NRDXAwLnXpHFHRAefq">+5.51%</span>领涨七巨头（港澳廉价Model 3）、美光<span class="up" data-page-node-id="NZ0VTY5M65F5G59HdP9czP">+2.77%</span>、英伟达<span class="up" data-page-node-id="MKkOIFQDSdUgoqSt9pVdHZ">+1.48%</span>。谷歌<span class="dn" data-page-node-id="KiSjy5nQ7WVMyiH3eEreAa">-2.18%</span>、苹果<span class="dn" data-page-node-id="ItBXa8WippGR33NnHX5Jcb">-0.89%</span>领跌。石油板块普涨（油价飙升）。中概股金龙指数跌超1%（Sea <span class="dn" data-page-node-id="cwOS8m1UpIFV7Rsi1vcvAT">-4.93%</span>）。</p>
+
+<h3 data-page-node-id="QJlUKrpxncaTHFWZRhHkMD">5. 板块持续性判断</h3>
+<table data-page-node-id="zA9ZkFDnsZSr9PjvAZsY73">
+<tr data-page-node-id="hBoug2VnzfLz6tQPWLHY4Z"><th data-page-node-id="Y50sGnAChfm0P6RTz4LV0C">板块</th><th data-page-node-id="NwZ73hYvOwLPcwdYkO6pBS">持续性评估</th><th data-page-node-id="MI2rz1IlGypUHRZ4DBziCh">判断依据</th></tr>
+<tr data-page-node-id="UMR1VjeSmzC1h9j2KDut2B"><td data-page-node-id="ugMlqdYijLT9qRUOfEEzXl"><span class="badge bu" data-page-node-id="nEy2Ofp4YELwJlDdVUH3cQ">AI应用/传媒/短剧</span></td><td data-page-node-id="bAOCJVNTHtYBLRtSiPuZmC">⭐⭐⭐ 最强主线</td><td data-page-node-id="DwA7LSOUwoWwcegpHcWVL1">资金净流入55.31亿居首，《后西游记》AI长剧定档催化，中文在线/芒果超媒20cm涨停，涨停梯队14只传媒股</td></tr>
+<tr data-page-node-id="kGL6xENDml9A66r9czoZAJ"><td data-page-node-id="dHG0Ij6488C6SqlM6SaAVE"><span class="badge bu" data-page-node-id="LYBHeAxttEdnlO6l6M3CPH">AI算力/半导体/液冷</span></td><td data-page-node-id="E1Cmg3gk5WVJJv9NlJw3yq">⭐⭐⭐ 景气主线</td><td data-page-node-id="GxdfexJQ8uqFxcP8kmdoU5">电子净流入52.57亿，半导体+1.93%，浪潮信息涨停+液冷订单排到12月底，费半+0.57%共振</td></tr>
+<tr data-page-node-id="BG7lCHMWeM3QES9hElUrUG"><td data-page-node-id="0EP1gJiWflfSR4RAWXO1hX"><span class="badge bu" data-page-node-id="60bLDwqybz5eWAykKi5UlX">计算机/IT服务</span></td><td data-page-node-id="hlT4RJPjt7qAGT5dwir7Mi">⭐⭐ AI扩散</td><td data-page-node-id="y2kkazl8ZQGnULvEHDBHl7">+2.20%，AI应用向软件端扩散，持续性看订单兑现</td></tr>
+<tr data-page-node-id="dXgC0oPRQiOVzqsRVGnq3M"><td data-page-node-id="zE4KxFrUtrUFC9BbEP07nm"><span class="badge bu" data-page-node-id="i8HmGjJy7b18J47yiULBeE">银行/红利</span></td><td data-page-node-id="zO2VesjkHHJ5kFqJ7sXJhJ">⭐⭐ 防御底仓</td><td data-page-node-id="K7bVSNg138Z1Gx3jDmTxaq">国有大行+2.94%，但今日跑输成长，属"压舱石"而非进攻主线</td></tr>
+<tr data-page-node-id="ICPiG8erFTWboKi31EdWou"><td data-page-node-id="VNBYJGheTsSwxWicaO7u11"><span class="badge bd" data-page-node-id="ForMJ3sxFJ1bRIzCz9RT2n">贵金属/有色</span></td><td data-page-node-id="G2Q5Ppckfp6vKfGM4HYK3a">⭐ 资金流出</td><td data-page-node-id="DO2KujbuTmX6tU9HwrrsHN">净流出46.74亿，加息预期压制，湖南白银跌近7%，短期难反转</td></tr>
+<tr data-page-node-id="9fhVotRHH3YEvAJdH4ARjV"><td data-page-node-id="8rNmBTSiPAYaoJJODI6dD5"><span class="badge bd" data-page-node-id="eAYYR1e0VARYt6iWEVDM0b">房地产</span></td><td data-page-node-id="X62GZYIU1I0f5CCHISjTj2">⭐ 利好兑现</td><td data-page-node-id="zYTJnrhv2hvsCOA5442qFv">高开低走-1.38%，房贷新政（期限≤40年）短期收缩新房供给，政策底≠市场底</td></tr>
+<tr data-page-node-id="cEJZc5smquQo0EQgwLoAEp"><td data-page-node-id="kQQRMPWEGD7CHZOI2r4PNv"><span class="badge bd" data-page-node-id="8uGfhto3bmVBQuxONk5JsK">医药/创新药</span></td><td data-page-node-id="twCe1sAXPP2Ag9BUc4XU7D">⭐ 调整中</td><td data-page-node-id="d1BQxwWSAV1RXL7XXOSMCl">净流出46.52亿，键凯科技-16.36%，前期涨幅过高</td></tr>
+</table>
+
+<h3 data-page-node-id="wmENQAxbee6zWqJInqmknq">6. 融资融券与市场情绪</h3>
+<div class="fx" data-page-node-id="DEjEhvUJcjrFtoKzFekyyx">
+<div class="sc" data-page-node-id="48yvOLlf6fTIQorib8DXPk"><div class="lb" data-page-node-id="xFze6IDxdCVP5GkigN3XIX">市场风格</div><div class="vl" data-page-node-id="VI4WVC49UKZCYLfEDDE0JH">成长占优</div><div class="sb" data-page-node-id="nm1e291OinQOWKa9pDJpD4">小盘&gt;中盘&gt;大盘</div></div>
+<div class="sc" data-page-node-id="oFH4M5QHD3Y1kRx0brGfNa"><div class="lb" data-page-node-id="ye5tAGjq9uAMrYpkVZCPCM">赚钱效应</div><div class="vl up" data-page-node-id="pGft4L8atcxZIAFjCKXKdt">修复</div><div class="sb" data-page-node-id="4Ej5nt6ZZSHm1WK9UI6ECi">涨停89 vs 跌停13</div></div>
+<div class="sc" data-page-node-id="ucqsVr23WvWIYqFI3thMPm"><div class="lb" data-page-node-id="8vChD3H3RP4riiCgEgt9cQ">主力资金</div><div class="vl up" data-page-node-id="NfBuq6wUfPtqyF4voLqxSD">+25.13亿</div><div class="sb" data-page-node-id="ZYWHanAKX8CCsaGxSSdE8M">卖防御、买AI</div></div>
+<div class="sc" data-page-node-id="r9xujJaBA9eaMZELudCsEe"><div class="lb" data-page-node-id="OiwiBD6pmDH9UeLf9eb0CL">南向资金</div><div class="vl up" data-page-node-id="jH9Q0LwwysLttRzId19zgR">+21.39亿</div><div class="sb" data-page-node-id="EbnrsJhGxzVmlNxyDH1lBV">加仓科网/AI</div></div>
+</div>
+<p data-page-node-id="4DaePqVkDxoAIyEJnVitzO"><strong data-page-node-id="bGuyQzRjOS04ibIOhxJxxR">情绪面：赚钱效应修复但未见狂热。</strong>涨停89只、封板率71.2%属健康水平，未出现百股涨停的过热信号；成交2.13万亿未显著放量，说明是<strong data-page-node-id="OtF6tc1v0Gg87agTyFyffq">存量资金调仓（卖防御买AI）而非增量入场</strong>。这种结构下，主线（AI）会持续走强，但非主线板块会持续失血。</p>
+</div>
+
+<!-- ============ 三、欧奈尔选股模块 ============ -->
+<div class="s" data-page-node-id="JNWfOkH3XXM1Teshwk4zJM">
+<h2 data-page-node-id="LaWfx2Jl1te2anu1PK6OPi">🎯 三、欧奈尔选股模块（发现新机会）</h2>
+<p data-page-node-id="q7Jc6IW1oRQ9iv9hayjqeQ">本模块依据欧奈尔 CAN SLIM 体系，在"定仓位（模块一）"与"定方向（模块二）"结论之上，主动搜寻尚未进入持仓、具备超级牛股潜力的新标的。今日大盘<strong data-page-node-id="ofJv2nb7baMygqEZ2Ac3Ek">低开高走、收盘价＝全天最高，8月沪指累计涨超4%、科创综指月涨8.78%</strong>，趋势层面已重回上行；但9/4非农与9月FOMC两大变量未落地，且成交未显著放量，故按纪律<strong data-page-node-id="3dUiAv4uMgUjfH2HFgZ7SO">M开关＝谨慎开启（半开）</strong>——<strong data-page-node-id="INAuTSbCENtqYISnqhZw69">可积累"新机会观察池"并做小仓位试探，但不做重仓追高</strong>，等信号共振再加仓。</p>
+
+<h3 data-page-node-id="sw9omMLzbyNmNfOAxtLZag">1. 欧奈尔 CAN SLIM 七维硬指标（本模块选股框架）</h3>
+<table data-page-node-id="kU5Y1ByIphJUYoI33BixmL">
+<tr data-page-node-id="MEBJ3uKBCbZywjSEgWbr5G"><th data-page-node-id="LPmIPpN0zrSR4MiY1o2UFa">因子</th><th data-page-node-id="QZgHuMQjgzfOeQRwvGNMP4">硬标准</th><th data-page-node-id="GsB7BHVCzVlqsbt0QuTlWM">本模块用法</th></tr>
+<tr data-page-node-id="KyzS8l1yE4lOCEc8PcLQK3"><td data-page-node-id="gGMhKWL6tJIAzAD9qG25SR">C 当季EPS</td><td data-page-node-id="QG6ZFb0dyS4sQ5WGopvX5K">同比 ≥25%</td><td data-page-node-id="4CpVjrPC612fNGEZ1CpcVC">最新财报季业绩超预期，剔除一次性暴增</td></tr>
+<tr data-page-node-id="ZZL7A0kDgM5USgDtRtr0Qg"><td data-page-node-id="7visjXUF6UiGpT50BdbeHi">A 年收益</td><td data-page-node-id="AClGZY6i4HYfPFUtI7D8mM">近3-5年稳增长 + ROE≥17%</td><td data-page-node-id="LIIke3iLJMxGkXCi4isizk">持续高增长，避业绩断层</td></tr>
+<tr data-page-node-id="El1iHzMCLFJKaWZG3KYEyn"><td data-page-node-id="79JBn3NmVsBbuVUjzxrHoT">N 新高买点</td><td data-page-node-id="UmQbs8NAU9FmmPR73enKPM"><strong data-page-node-id="rP2OYCBiyCmxSRV4sqzVhj">股价创一年新高时买入</strong></td><td data-page-node-id="tthw5Nnw7XlEl8avR3nSJY">脱离稳固基底右侧突破，<strong data-page-node-id="SaHtziGxjb8rQSruOq1Qa4">不抄底下跌股</strong></td></tr>
+<tr data-page-node-id="DtbzSQjHFdBak3iMOnCz4H"><td data-page-node-id="npYhuabvLDAHcT9mcyPf3l">S 量价</td><td data-page-node-id="vJjgvAvqODpjHcres7m4ms">突破日量 ≥日均量 40-50%</td><td data-page-node-id="eSCBzgPoaqcX7V89s65C3V">机构大举买入确认</td></tr>
+<tr data-page-node-id="bmE4p95eF4meaJE2E3Y7PE"><td data-page-node-id="ui3YJOIDgJfPqeABLe4AIr">L 领军</td><td data-page-node-id="4hYoIIG4OsLs6wWr5vxcDM">RS评级 ≥80（优选≥90）</td><td data-page-node-id="ZhZaLRDupajqlH4cA7iKNX">优于市场80-90%个股，不买拖油瓶</td></tr>
+<tr data-page-node-id="mJNrUm9MpVkxidUgrVGWof"><td data-page-node-id="fbspLPigemQ59ZYeH6nTrv">I 机构</td><td data-page-node-id="j9h7WNAxGq2WGeFtWl0Q0m">若干优质机构新进/加仓</td><td data-page-node-id="uKEZKyfmrFFCiLrnINoqCx">有持续买盘，但避过度拥挤</td></tr>
+<tr data-page-node-id="b88XxdKa9ugPyeWhjl4BEK"><td data-page-node-id="zZxd3HTFy15VFp3FNayn3o">M 大盘</td><td data-page-node-id="gqkzvjiIFA3SU7v66YiL8v">确认上升趋势才开仓</td><td data-page-node-id="gt5hj224snpFGNLIf81fQD">本日 M＝半开，小仓试探为主</td></tr>
+</table>
+<p data-page-node-id="nr2WcYcQ4qXqSKdxbArE7t"><strong data-page-node-id="TyxJa2WhF4EypMD8rFkUhO">⚠️ 与「低估+高成长」模型互斥：</strong>后者专挑"历史级低位 / 抄底"，与本模块"追创新高突破"是<strong data-page-node-id="XWSKSra5ku2SEJWAl6PyEN">相反投资哲学</strong>。二者须各自独立成表，<strong data-page-node-id="OXXUyqIENkZza4uAGq8CMp">切勿将低估+高成长产出填入本模块候选观察池</strong>。</p>
+
+<h3 data-page-node-id="8d5lnQaSde1wyb1mk3squq">2. 今日候选观察池（CAN SLIM 真·新高突破屏）</h3>
+<div class="hl" data-page-node-id="3xhG9yNdFMVqcmYWg7DGf9">
+<p data-page-node-id="ObmGY9RF84VA9TmakcELWj"><strong data-page-node-id="YG2W1L1knnL8B17JDpQmRq">实测结论：今日涨停梯队中，符合"AI主线+放量突破"特征的有以下方向，但需逐一核对财报（C/A）与机构（I）后才能进池，本日仅列为"待核查线索"：</strong></p>
+<p data-page-node-id="0lBDJC4wM4YXvawh1Y6ljp">① <strong data-page-node-id="WvGU2MJXFviHuXnFwY7EN6">瑞芯微（603893）</strong>——涨停+10.00%，AIoT/端侧AI芯片，模拟芯片+3.69%、AI算力芯片+3.58%共振，属"半导体+AI"双主线交集。</p>
+<p data-page-node-id="u2Enp34CryO7okxbvOlFWN">② <strong data-page-node-id="9DbKadVTWBq3xaPqgEOFZ4">力芯微（688601）</strong>——+18.21%涨幅居首，科创板半导体，放量突破。</p>
+<p data-page-node-id="ffUofP5SFUM0pf13pHHxO3">③ <strong data-page-node-id="VGpC1wWwuNzu9tduFeWC0U">星宸科技（301536）</strong>——+12.89%，AI视觉芯片。</p>
+<p data-page-node-id="odQBAMJ82u8e57kluGhXSv">④ <strong data-page-node-id="qb8oK5xxr94c5VYcNsYQNG">中文在线 / 芒果超媒</strong>——20cm涨停，AI短剧/AIGC主线最强标的，但需甄别"题材炒作"与"业绩兑现"（芒果超媒当日遭机构+北向净卖出，见模块四）。</p>
+<p data-page-node-id="zP64JeACz2iRCi92Bx1BP5"><strong data-page-node-id="1JmsNy1VHPdAux8LeT8PGA">纪律执行：</strong>以上仅为<strong data-page-node-id="auhemAW5vo8CM4NLk2wRsZ">线索</strong>，不满足"一年新高 + RS≥80 + 当季EPS≥25%"三因子完整验证前<strong data-page-node-id="BqfSfEWcvxEGW0Ctz2tcx2">不进候选池、不开仓</strong>。下一交易日须补充：① 是否创一年新高（N）；② 最近季报EPS同比（C）；③ 机构持仓变化（I）。</p>
+</div>
+
+<h3 data-page-node-id="w8AV3PVuBnqj61QTVrDl08">3. 买入等待清单（等M开关全开 + 三因子验证）</h3>
+<div class="hl" data-page-node-id="BANxiUrjDftjkcXNaEShUd">
+<p data-page-node-id="h2wEZmgOaL3vGP1OCyYxKR"><strong data-page-node-id="R92UQ8nsFeH52LfDuwFQnV">操作纪律：</strong>当前 M＝半开。开仓前置条件（须同时满足）：① 9/4非农 + 9月FOMC 落地且偏鸽；② 新股屏出现「一年新高 + RS≥80 + 当季EPS≥25%」标的；③ 突破日放量 40-50%+；④ 两市成交放量至2.5万亿以上（确认增量入场）。届时按"10份资金、每只1份"分批建仓。"低估+高成长"候选按其自身模型纪律另行处理，不与本清单混淆。</p>
+</div>
+</div>
+
+<!-- ============ 四、个股表现与消息面 ============ -->
+<div class="s" data-page-node-id="g99WlvbNyyEarZf6jjpHs9">
+<h2 data-page-node-id="9xP4m4mv3CzXbiN6JEPjxv">📄 四、个股表现与消息面</h2>
+
+<h3 data-page-node-id="gZaFS7KcHfanbJR53G1FSe">1. A股涨跌榜复盘</h3>
+<p data-page-node-id="p3eoHNDwgr7A9x8JMzSglX"><strong data-page-node-id="8OYiE4bRoWAR50it35CH8Q">涨停梯队（8/31）：</strong>共89只封死涨停，13只跌停，36股封板未遂，整体封板率71.2%。连板高度：海鸥住工连收6个涨停板居首。封单金额前三：我爱我家4.59亿、浪潮信息4.08亿、芒果超媒3.88亿。封单力度前三：福建金森12.79%、海鸥住工8.05%、新赛股份7.63%。<strong data-page-node-id="Kmeb5hATtRoR4VuDBVhSeu">涨停行业分布：传媒14只、机械设备10只、电子9只</strong>——AI应用与电子是绝对主线。<strong data-page-node-id="IFcHg3pHf1u5HGI8Xmaeyy">跌停集中在贵金属、创新药、光伏。</strong></p>
+
+<h3 data-page-node-id="Y3cLk6UkqyleXL9CDuxpEK">2. A股龙虎榜分析</h3>
+<table data-page-node-id="boG6Oo78UDygLbfS6v043J">
+<tr data-page-node-id="w5wQ7WfWILzwNwGjpez00x"><th data-page-node-id="J3nHF6DZZncFBpFy33uChr">个股</th><th data-page-node-id="SMeNCg3Qlq5NMBF0n5z3V7">涨跌</th><th data-page-node-id="wyNmTwnLtjnm8MagvSE4cm">机构方向</th><th data-page-node-id="bu4iEd3vYPMcyHsHU362J5">北向方向</th><th data-page-node-id="NT2iXxAbKs10lzraHz9WyU">信号</th></tr>
+<tr data-page-node-id="4BhwuPywhbmUMahnsJqvxt"><td data-page-node-id="F9Xn80hfpJ9VJHrxyyq27B">中文在线</td><td class="up" data-page-node-id="dJcBbjGpJhdGt5iAREwyGx">+20.02%</td><td data-page-node-id="faAxJssdpFhrAcsp6pDvGf">机构净卖出1270.86万</td><td class="up" data-page-node-id="EhU17DcUpSqr1uQryv0nyC">北向净买入9763.86万</td><td data-page-node-id="IapDkHU5mBqe0jaB3jYXE2">北向抢筹、机构分歧</td></tr>
+<tr data-page-node-id="GovC4Z8HxOtJauBHUxrlIC"><td data-page-node-id="FfF32J72UYiSdkYDNIIEso">锦龙股份</td><td class="up" data-page-node-id="avbDFPRl0nzeeEIF7eIqRk">+10%</td><td class="up" data-page-node-id="t7xFDzgApSuu31mVB49w8n">机构净买入（居首）</td><td class="up" data-page-node-id="iS5DRVAD0cPOM0pfgZMiQ8">北向净买入5849.91万</td><td data-page-node-id="RXNt9dpKnTs0u9H8y6mX4Q">机构+北向共振</td></tr>
+<tr data-page-node-id="ndZuEFetam5wvv6tPoEFD8"><td data-page-node-id="E75zTCTCjL63MTROdaOAND">浪潮信息</td><td class="up" data-page-node-id="HbmEuniECoWEqhxSx1lbmZ">+9.99%涨停</td><td class="dn" data-page-node-id="gev15gv3endHrwExOmxs6I">机构净卖出</td><td class="dn" data-page-node-id="NUUWT1ouEtzQqw2jKBk8HN">北向净卖出2966万</td><td data-page-node-id="e4OS9YAQZOAqEndflk8peG">⚠️ 涨停但聪明钱出货，警惕</td></tr>
+<tr data-page-node-id="BdftFidWQVxMR6Zyi3qGKu"><td data-page-node-id="lF1eamy2eP1a3mLpd53R7n">天娱数科</td><td class="up" data-page-node-id="9ke76HQLCexoy4O5Iyq2Sb">+2.29%</td><td class="dn" data-page-node-id="urZCq7A00dsVAA284z7p5t">机构净卖出</td><td class="dn" data-page-node-id="EoHBDAaPFaa5gEschokBBy">北向净卖出1.13亿</td><td data-page-node-id="nAGWM8bEo6VK9hbV92Nnam">资金大幅出逃</td></tr>
+</table>
+<p data-page-node-id="7GkGMava0YByhI4bgGKp7T"><strong data-page-node-id="EzbLulAe5Szz9jI1easWG2">龙虎榜核心结论：</strong>机构整体净卖出9.57亿（净买入8股/净卖出23股），情绪偏谨慎。中文在线获北向抢筹9764万（AI短剧概念），锦龙股份获机构+北向共振买入。<strong data-page-node-id="1wbhvKv1yDFNQB7CbY1sDv">最需警惕浪潮信息</strong>——涨停+9.99%但机构+北向双双净卖出，典型"游资拉高、聪明钱出货"，次日冲高回落风险大。</p>
+
+<h3 data-page-node-id="9GLMDKHEjShBSkORBBtQCg">3. 港股个股表现</h3>
+<p data-page-node-id="FQpWsPL9SzDEBmDgKoyuoB">AI应用股午后爆发：MiniMax<span class="up" data-page-node-id="SLlQZ8BMITl3N6KH2Cy3ho">+16%</span>（上半年收入1.2亿美元+283%，B端+703%）、智谱<span class="up" data-page-node-id="3QTFPXKfJwYYh9Jt0AxNBd">+9%</span>（MSCI新纳入+盘后中报）。科网股活跃：美团<span class="up" data-page-node-id="1yHCaJO96CBbXLxZXXfpez">+1.68%</span>、京东<span class="up" data-page-node-id="QXjpRxfdGgse1nc0oknG7p">+1.54%</span>。内银走强。内房普跌：绿城<span class="dn" data-page-node-id="OhSnh5LJuFIyL1LbgPLgCG">-17%</span>、融创<span class="dn" data-page-node-id="1laWDdQMxXIH4qG5VgWhmH">-8.89%</span>。南向重点买入腾讯（+4.11亿）、建滔积层板（+5.69亿）。</p>
+
+<h3 data-page-node-id="iwwqGrP5qaJxtisK1ErVn4">4. 美股个股表现（8/31收盘）</h3>
+<p data-page-node-id="22GOIBbsggds2aOHAhyvQZ"><strong data-page-node-id="Fr78iHx7TxZwsFd4xZ13Ty">特斯拉<span class="up" data-page-node-id="fSwFANMwqNu0pH8cAZQp1p">+5.51%</span>领涨七巨头</strong>——港澳推出廉价版Model 3（起售20.5万港元），收367.95美元。美光<span class="up" data-page-node-id="FGh6OAjCqH9GmMWijGQTWm">+2.77%</span>（收958.73，存储周期+AI需求）、英伟达<span class="up" data-page-node-id="sqeG0gjGIYJd18VvT2xgCJ">+1.48%</span>（收220.78，AI算力龙头，费半共振）。谷歌<span class="dn" data-page-node-id="PVWR05CKMVlA0kS5gAqbLQ">-2.18%</span>（收335.41，估值消化）、苹果<span class="dn" data-page-node-id="etXYhEIMsJlzLXZBE2obiS">-0.89%</span>（收316.85）。中概股普跌：Sea<span class="dn" data-page-node-id="vAe3McYB98m69Vmf32H3mn">-4.93%</span>。</p>
+
+<h3 data-page-node-id="3ToMjI7ZfO3YHPjG2pmgjP">5. 消息与公告</h3>
+<div class="news imp" data-page-node-id="72EctIBWJt0l8KD3ehChiR"><strong data-page-node-id="FZ8ClkHG3iOZ0S45gzonwT">📢 美伊冲突重燃：</strong>美军8/31打击伊朗火箭发射装置，伊朗报复性袭击约旦境内美军基地。布油<span class="up" data-page-node-id="rVcwUXBBtzlrbJTjQBzx91">+3.11%</span>破90美元、WTI<span class="up" data-page-node-id="Cis8DqTEeeF3HhrfquZdW6">+3.53%</span>。地缘溢价回归→油价飙升→通胀预期→美债收益率20个月新高。</div>
+<div class="news imp" data-page-node-id="3ijULWxNEKDM23vRTApFPB"><strong data-page-node-id="0q2CGjj8LleGcKtypiSFRf">📢 美联储9月加息概率升至近60%：</strong>美联储主席沃什杰克逊霍尔鹰派讲话（"若通胀未回落至2%或需加息"），CME显示9月加息概率由一周前41.4%升至近60%。高盛泼冷水称"单凭语气难触发，预计9月按兵不动"。美债10年期升至4.75%（20个月新高）。</div>
+<div class="news imp" data-page-node-id="LZ7vr41fnDkWSEw95AuYyJ"><strong data-page-node-id="XjeIv62PTufrFsUBGXg3up">📢 房贷新政落地，地产高开低走：</strong>央行、金融监管总局联合印发《关于改革完善房地产信贷管理 推动加快构建房地产发展新模式的意见》，明确个人住房贷款期限最长不超过40年。中信建投：短期新房可售货源阶段性收缩、房企资金承压；中长期规避烂尾风险。板块<strong data-page-node-id="bqT6gS8AW5SknLRE0ZN0Ub">高开低走</strong>-1.38%，招商蛇口、深深房A跌逾5%——利好兑现即出货。</div>
+<div class="news" data-page-node-id="hdCymmDqRf8Laks63u069D"><strong data-page-node-id="baFRy78AYrxkZwA7Wkq5Ou">📢 AI短剧成为最强催化：</strong>8月31日《后西游记》正式定档，作为国内首部上星播出的AI长剧，由Seedance 2.0/2.5提供AI技术支持，采用AIGC完成画面与人物演绎、无真人演员参与，采用"边制作、边审核、边播出"模式。直接引爆短剧/AIGC/影视院线板块。</div>
+<div class="news" data-page-node-id="KKp6WV1OUByZn5VMsluTtZ"><strong data-page-node-id="csmgQJpPNkm2FgJRyEreWS">📢 腾讯开源混元Hy4：</strong>腾讯正式发布并开源混元Hy4 preview语言模型。中金看好腾讯AI投入回报率确定性增强。腾讯获南向净买入4.11亿。</div>
+<div class="news" data-page-node-id="cQQSPWh4CYfg2Yehpqghfl"><strong data-page-node-id="bw1N7gNZFYM3Yij2yQhoaY">📢 MSCI指数8月调整生效：</strong>MSCI中国指数新纳入智谱等33只标的，8/31收盘后生效。</div>
+<div class="news warn" data-page-node-id="o9WyBNhqgNcZzGBXHrFmHy"><strong data-page-node-id="DSnSvRyGXvbG34TqOTd6Ng">📢 浪潮信息涨停+9.99%：</strong>液冷服务器订单爆发（订单排到12月底），封单4.08亿。但北向净卖出2966万、机构龙虎榜净卖出，警惕拉高出货。</div>
+
+<h3 data-page-node-id="sDQxDMx6XFSNopAdrt4GKR">6. 关键事件日历</h3>
+<table data-page-node-id="P8XPmZ2WJfOVh14BulqUks">
+<tr data-page-node-id="46MnCKuByHkFwIQq6unM78"><th data-page-node-id="56xoKkvxhpN6xkvnGUqzcl">日期</th><th data-page-node-id="xLfiWfUEbyI3Hi7OFdJZkh">事件</th><th data-page-node-id="FWx6iGEiayB7n68jcwfQhf">市场</th><th data-page-node-id="Rlf2UdFEjICh4XkSAP7o7g">影响等级</th><th data-page-node-id="kRd89EWb0V6ARhby4WOWt1">对持仓的潜在影响</th></tr>
+<tr data-page-node-id="IVB0F6P1GsmKAv42HaZHKk"><td data-page-node-id="vWcWFMMKUxSsxvOgxbS0OL">9/1（周二）</td><td data-page-node-id="RtBBvfuoZ6fDpaAEBzHUDt">8月财新制造业PMI</td><td data-page-node-id="kp2jUkIbbpuHA69jWOP1vU">A股</td><td data-page-node-id="v5IGLvckfADYS7UdxhjnNW"><span class="badge bw" data-page-node-id="YBUDPGIn1DgcJUEVcjWTdF">中</span></td><td data-page-node-id="aCeEAVKJAj9sQj3pMJqxwx">验证经济修复，影响顺周期仓位（银行/白酒）</td></tr>
+<tr data-page-node-id="YKzdEceOcXhjsoFMLCBHiA"><td data-page-node-id="FvvFSyC706X13BlsGDTeQG">9/2（周三）</td><td data-page-node-id="EaclD5yhEFdVeCHWS1mKrL">燧原科技A股申购</td><td data-page-node-id="uw0Z8UHB0JC6DIuC3kFsyF">A股</td><td data-page-node-id="9yD3FeApEWWi8SNTUvUyLo"><span class="badge bw" data-page-node-id="XXWPSkrjrEMmPhE64QfFjx">中</span></td><td data-page-node-id="CmeaoRA9IJZ8fDQqaWMicB">AI芯片新股，或分流科技资金，但强化AI主线热度</td></tr>
+<tr data-page-node-id="Poxd322JBQT9FkORKbUNtG"><td data-page-node-id="UMdcP8SDLSuA1z1uVVmbuK">9/3（周四）</td><td data-page-node-id="Gtq8sZ5t8TJBm0mDSJxdLS">信诺维A股申购</td><td data-page-node-id="5sCDs5qXMUR1Ay0pPJfbGc">A股</td><td data-page-node-id="fyeJbCMzLSUe5KZb92ee1C"><span class="badge bw" data-page-node-id="WDT46VjjFKxBp8fC7KLOQO">中</span></td><td data-page-node-id="dARGbQ1XDy07DbZWxsv3U7">创新药新股，医药板块已连续调整</td></tr>
+<tr data-page-node-id="xfyV7zzTUwWPZTxS5Ribcv"><td data-page-node-id="CBZswRFwiCfQtLl1Hg7RkN">9/4（周五）</td><td data-page-node-id="fXU824DygNA31BiaBjhAZg">美国8月非农数据</td><td data-page-node-id="TALDIcKpVCM4ph0xinBuhJ">全球</td><td data-page-node-id="egwRNNDcWv2Qd5RakqjNd8"><span class="badge bu" data-page-node-id="BzCphPneURXd2pj6BIFgCZ">极高</span></td><td data-page-node-id="gloKDEX9EbQR27dRcuZD3P">决定9月加息路径，所有持仓关键变量</td></tr>
+<tr data-page-node-id="tLPFSilnp3DV8hljQAd5gJ"><td data-page-node-id="zlABaME4pXJZWqH28wHbmq">9月中</td><td data-page-node-id="2bwy1XaGfHCKxwwqkpxgGU">美联储9月FOMC会议</td><td data-page-node-id="klVqxHQIMp8lxI84JeK6is">全球</td><td data-page-node-id="QjLNAMroqItSB7HvmQaHpG"><span class="badge bu" data-page-node-id="oCmZxPNl8hqrZuIIRNNRy5">极高</span></td><td data-page-node-id="RAfe2YxykOmiKe6OchFCTO">加息概率近60%，全球资产定价关键</td></tr>
+<tr data-page-node-id="2sLIqDmymAxPz0dF0lDHac"><td data-page-node-id="Q1KKpxPmB2UYHqOMYlLa25">9月中</td><td data-page-node-id="uTneZwiiUGwphITig0oDJ0">美国8月CPI/PPI</td><td data-page-node-id="7erF9ubTgiKE631uxd3kyO">全球</td><td data-page-node-id="EGkbaDSBII4Y8uCvKfVV7z"><span class="badge bu" data-page-node-id="WZSMoOQQE2mBqldOqgt46k">高</span></td><td data-page-node-id="6i8fKP5FtwFUuzPIdKg1DN">通胀数据→加息预期→黄金/成长股</td></tr>
+<tr data-page-node-id="mfiHLk76O38ab31FL12jLC"><td data-page-node-id="BstOHxnrFWKk3kQRvMXl9S">本周</td><td data-page-node-id="oONN0GOQPLRlZQir5agIvB">美伊冲突进展</td><td data-page-node-id="1TnkOa27Q6SwdUoEYXt81U">全球</td><td data-page-node-id="buDGjZnevuUFeyQAGrKDYJ"><span class="badge bu" data-page-node-id="5gq6qZXOF9iGatCsZw8jAy">高</span></td><td data-page-node-id="80VzC8ISOuGaGFG08SnZHu">油价→通胀→美债收益率→所有资产</td></tr>
+</table>
+</div>
+
+<!-- ============ 五、个股跟踪 ============ -->
+<div class="s" data-page-node-id="s1JfSrYMpFRXVgT8kztd83">
+<h2 data-page-node-id="DuamXueLuTfRPWFL3YXOmL">🔍 五、个股跟踪</h2>
+
+<h3 data-page-node-id="3KVGiQbDdA1vgrC4owh0GO">1. A股自选股与ETF技术分析（15只·含6 ETF）</h3>
+
+<div class="stk" data-page-node-id="Be4DB6qCAQD2jDWCgBl0x4">
+<h4 data-page-node-id="uOAb3ZcbuxFeBNPwJLxWsx"><span class="mk ma" data-page-node-id="eAk9YeXx9LeoNUSyPgMWr2">A股</span> 浪潮信息 (000977) — 85.18 <span class="up" data-page-node-id="6aVdVx8u6eVFryet1O0xOk">+9.99%涨停</span></h4>
+<div class="ir" data-page-node-id="KbeKhiE4AKkrMuR5CS6nWg"><span data-page-node-id="GMs6loGXtOI97KhEe3h2DF">成交96.01亿 | PE约45</span><span data-page-node-id="SPk0gwL9LLExiHuCATsCAj">昨收77.44 | 最高85.18＝收盘</span></div>
+<p data-page-node-id="YYN5AoHSrwHZb8mhBBpmS1"><strong data-page-node-id="gugEWootNlpvv52QuBFOki">🚀 技术评估：涨停封死！</strong>AI服务器+液冷概念龙头放量涨停（96亿成交），封单4.08亿，封死85.18。驱动：液冷服务器订单排到12月底+AI算力硬件景气。<strong data-page-node-id="OzlnM3EuDidUpbVh3t7Zu5">但北向净卖出2966万、机构龙虎榜净卖出</strong>——涨停背后是游资情绪驱动，聪明钱在出货。短期阻力看前高，支撑80（今日均价区）。<strong data-page-node-id="uLGZND3rSbYBcgcE02MV8h">偏多但警惕次日冲高回落，持有为主不追高，冲高90-95减仓锁定利润。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="FEPCALNcPaJT0ZYItvh9iP">
+<h4 data-page-node-id="l9bieNLkFT3lblC1BICFP8"><span class="mk ma" data-page-node-id="cAGXziAOmHxG9EjXBqmx1R">A股</span> 兆易创新 (603986) — 406.00 <span class="up" data-page-node-id="X9hCDzrLKvFUPO27FzUtbY">+2.31%</span></h4>
+<div class="ir" data-page-node-id="9ZIVW8KmqFxUOGijvci5CU"><span data-page-node-id="6FznwOYjzDqBx9zxDsUmQB">成交126.71亿 | PE约95</span><span data-page-node-id="3UdMAQiDmXH7LbAbV2EYND">昨收396.82 | 最高406.61</span></div>
+<p data-page-node-id="fEOUN7HAiIX681FgcFstKd"><strong data-page-node-id="snN9v6BheRCz8V9MktJeWt">技术评估：</strong>存储芯片跟随半导体板块（+1.93%）上涨+2.31%，成交126.71亿。半导体今日是领涨板块而非承压板块（力芯微+18.21%、瑞芯微涨停），兆易作为存储龙头受益于国产替代+AI存储需求。PE约95仍高估，从834高点累计回撤超50%后企稳。支撑387（今日低点），阻力420。<strong data-page-node-id="UzgwsB0DCyLJbN5HBJpDAR">偏多，半导体主线转强，可持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="dz3k0rPJjLaHFtXDa4Di19">
+<h4 data-page-node-id="pCTGLyfXUNVPoeXHQ5l295"><span class="mk ma" data-page-node-id="XzyOgAodks9239iNByUb5E">A股</span> 招商银行 (600036) — 40.12 <span class="up" data-page-node-id="ogTZKikPtgEv084iK3QFUm">+1.96%</span></h4>
+<div class="ir" data-page-node-id="8qVy5aGOvMtox8mVH10vyK"><span data-page-node-id="kJWoXR8qL56qSrrZoxN8qh">成交45.45亿 | PE约7.3</span><span data-page-node-id="rFb8oQgIB10OHUiDSbkab0">昨收39.35 | 最高40.28</span></div>
+<p data-page-node-id="tPit2Novt7r6dSkAjo0SNZ"><strong data-page-node-id="RYvlfnH3pDmM0tyekFcURy">技术评估：</strong>国有大型银行板块+2.94%领涨，招商+1.96%创阶段新高。银行今日是"防御资金仍在"的证明，但涨幅跑输成长主线（中证1000 +0.85% vs 银行）。PE约7.3、高股息属性，仍是组合压舱石。支撑39.5，阻力41（前高）。<strong data-page-node-id="PrNoU6XsUaED2avOlaFaqG">偏多，防御底仓持有，不追高。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="OZkHfB3DNOenExEreJzSCS">
+<h4 data-page-node-id="dgEp2Ytcat6M90jQtrXWvP"><span class="mk ma" data-page-node-id="kOCiXIKjtLBvqTn09RQ0uv">A股</span> 贵州茅台 (600519) — 1299.52 <span class="up" data-page-node-id="7ntVLwqp3zYrE6ddf9ryoJ">+0.16%</span></h4>
+<div class="ir" data-page-node-id="eTLeolo7CqEDcQcbokQ4jy"><span data-page-node-id="HXxe0smusgz56HKljd3qhH">成交30.03亿 | PE约20</span><span data-page-node-id="3Lr4dCwYX93qWskCDnwgyx">昨收1297.40 | 最高1305</span></div>
+<p data-page-node-id="u1cp409dy6RVnOBfOl80nw"><strong data-page-node-id="O5dztJ4PSCGDERFS9jIv7P">技术评估：</strong>小幅收红+0.16%，站稳1299逼近1300整数关口。但白酒板块今日<strong data-page-node-id="88jdaF92jXlhIf5LI0m07z">跌幅居前</strong>，茅台靠个股韧性勉强收红，说明消费板块整体疲软。成交30亿相对缩量。PE约20历史低位。支撑1286（今日低点），阻力1305（今日高点）。<strong data-page-node-id="PTpL7GEBnqmN0la2RSKnsh">中性，防御底仓，但短期缺乏催化。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="1fwDusFp5pY0qnJHw6HKzx">
+<h4 data-page-node-id="QyQjFAPZQp7Rcqr4oCtrGH"><span class="mk ma" data-page-node-id="PNXJSFfvmsYa4LtAszAjT6">A股</span> 中际旭创 (300308) — 851.90 <span class="dn" data-page-node-id="IrwHrGeNpQUNHD7hafk77p">-0.75%</span></h4>
+<div class="ir" data-page-node-id="VSF9p8okzMLJUjp04w3F1J"><span data-page-node-id="NcrLPfLL9FS7FNDrpAQz54">成交189.26亿 | PE约67</span><span data-page-node-id="H2gs8OeflexSrqv4FEuj6Q">昨收858.35 | 最高863.56 | 最低830</span></div>
+<p data-page-node-id="FigaQpz8F254Y0s9hag1D9"><strong data-page-node-id="6WBTejTPYX3ZCvtGebL2Em">技术评估：</strong>CPO龙头逆势微跌-0.75%，成交189亿。盘中从830低点反弹至863.56高点后回落，收851.90——<strong data-page-node-id="ba0BuTs2xaDb45QSfy9uYt">在大盘低开高走、半导体+1.93%的背景下收跌，相对弱势明显</strong>。全球AI算力硬件景气仍在，但CPO高估值（PE约67）受加息预期压制，资金更青睐AI应用端（传媒+3.80%）。支撑830，阻力863。<strong data-page-node-id="mJCmRrCeVxjZIwHmeWKouz">中性偏空，等CPO板块资金回流。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="EHoGkabrxBwGNm16sddxuN">
+<h4 data-page-node-id="agUO7vXYyAexHgPdgoRreo"><span class="mk ma" data-page-node-id="exvVSuYnlG2F3WnsDZNFA3">A股</span> 药明康德 (603259) — 154.78 <span class="dn" data-page-node-id="KaCB9dAQImQjrjuOD02mqM">-1.66%</span></h4>
+<div class="ir" data-page-node-id="C6LUtSLPO5NipatrRaEhH7"><span data-page-node-id="9DriBClge1TTlNvUTp3NJN">成交72.83亿 | PE约18</span><span data-page-node-id="mVnf4hP9gEVrABwt3uBmjH">昨收157.40 | 最低150.22</span></div>
+<p data-page-node-id="QXKa5u6UssYQ0QnwoEfTdK"><strong data-page-node-id="ZgnFUxlv8PRPyL0U7kKO68">技术评估：</strong>医药生物板块-1.35%、资金净流出46.52亿，药明跟随调整-1.66%。盘中最低150.22后回升至154.78，下方有承接。创新药/CRO逻辑未变但前期涨幅过高，处于资金持续流出状态。支撑150，阻力157。<strong data-page-node-id="LlwywRUasuXFOLSB8vNAzN">中性偏空，等医药板块资金回流信号。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="jjSt5MiNbQnpIm0fzjtid5">
+<h4 data-page-node-id="EU23J8fblZFnLRgEn4LlUi"><span class="mk ma" data-page-node-id="6bfFp6Vwdkk1aOaGCjSsDH">A股</span> 宁德时代 (300750) — 363.55 <span class="dn" data-page-node-id="DsN9nSYW7QJXSyuSHG7PCV">-1.34%</span></h4>
+<div class="ir" data-page-node-id="2pJbpzYHGN4dmBijCKWRQk"><span data-page-node-id="GdaLdqOlAGTtbSYk5eLmFz">成交94.78亿 | PE约21</span><span data-page-node-id="oOY8ZDvgQSoEwNyD8B3dA4">昨收368.50 | 最低357.30</span></div>
+<p data-page-node-id="Iaf9Boj2AvkkvAnznxGFNe"><strong data-page-node-id="jLiGKCNmnHVeMKQ2bwujdB">技术评估：</strong>锂电龙头回调-1.34%，盘中探底357.30。<strong data-page-node-id="h9NfTFzhPYig2QU583h2gc">光伏设备板块今日跌幅居前</strong>拖累新能源整体，宁德随板块走弱。创业板指虽收涨+0.42%，但宁德作为权重股逆势下跌。PE约21合理估值。支撑357，阻力367。<strong data-page-node-id="3l6vt9wqNNXqFhvDgDlD6D">中性偏空，等新能源板块企稳。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="OrvH13tR6cQpDxBLcHCbEv">
+<h4 data-page-node-id="M2xXrZyR7WD0eH8pZEVUmV"><span class="mk ma" data-page-node-id="raOdTYt1CcJkGcSrDi1dph">A股</span> 东方财富 (300059) — 19.39 <span class="dn" data-page-node-id="nIxKOkGhxmDEEXCd1cZVU1">-0.15%</span></h4>
+<div class="ir" data-page-node-id="a95rQotX2Ib7jQJJouuSNP"><span data-page-node-id="M4ri6zrAbMl2b59Ioibbpf">成交41.05亿 | PE约23</span><span data-page-node-id="q2HYHCpIK0vBGgWiI01Scp">昨收19.42 | 最高19.47 | 最低19.06</span></div>
+<p data-page-node-id="aFCvr55HvD5dyXG3ywTFxQ"><strong data-page-node-id="MeeUmbSpaHbfAfpxBM7gMD">技术评估：</strong>券商股微跌-0.15%。今日成交2.13万亿、市场普涨，但券商未跟随放量拉升，说明资金集中在AI主线而非大金融。锦龙股份涨停（机构+北向共振）是板块亮点。支撑19.06，阻力19.47。<strong data-page-node-id="YMlFCQ3hxvDx5g1ALOEogN">中性，持有观望，等成交额放大至2.5万亿+。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="Cj4fQMq76AXk2l3dILeNKK">
+<h4 data-page-node-id="UKiN1ZjFa4rYDa2FcHYG65"><span class="mk ma" data-page-node-id="DRyYAjd251Z6s0HzBTlMPr">A股</span> 中国平安 (601318) — 55.82 <span class="dn" data-page-node-id="aO9o8CjvIE8M7bpoO3XsV1">-0.05%</span></h4>
+<div class="ir" data-page-node-id="9pntLMnqPKB1WCkH7cAYB2"><span data-page-node-id="bGI5oADdBTa9MQkmNKoDhG">成交30.52亿 | PE约7.4</span><span data-page-node-id="cYdXavEcpGOE0t9GBZvvHL">昨收55.85 | 最高56.17</span></div>
+<p data-page-node-id="H4HX4EaKxAKjrCEwZczGsH"><strong data-page-node-id="CxctDZo7DMHgsX9P5iulRO">技术评估：</strong>几乎平盘-0.05%，低估值保险股横盘。银行今日+2.94%领涨但保险未跟随，资金更偏好国有大行。PE约7.4极端低估。支撑55.68，阻力56.17。<strong data-page-node-id="jcJWUZblE3etLyPIxmeDWd">中性，低估防御底仓，缺乏短期催化。</strong></p>
+</div>
+
+<h4 style="margin-top:18px" data-page-node-id="esmEe8pyD4n1aQzBtnAV6O">A股 ETF（6只·宽基/行业）</h4>
+
+<div class="stk" data-page-node-id="FibdejWCbc2HarloAJnoB7">
+<h4 data-page-node-id="NNRBEmW8K82j4IqF9KnuRs"><span class="mk ma" data-page-node-id="zyYVkcoYVKMuyFMvTrxpAJ">A股ETF</span> 机器人ETF易方达 (159530) — 1.343 <span class="up" data-page-node-id="ADILArizwHyUnYfXAEnxg0">+1.67%</span></h4>
+<div class="ir" data-page-node-id="B5oyuXA0N4la3XGk1OXyMQ"><span data-page-node-id="akULslYx4Hh3E87DeNVUNm">成交4.70亿</span><span data-page-node-id="ZMIz5mKpPF4pySy3ls0JsH">昨收1.321 | 跟踪机器人指数</span></div>
+<p data-page-node-id="gFm7VcGPFi4MKoCfhjLlzP"><strong data-page-node-id="RjFrDKNxtKGidsg8YzNgCY">技术评估：</strong>机器人概念走强+1.67%（华为机器人+3.49%），产业趋势β。今日涨幅居31只持仓前列。支撑1.30，阻力1.35。<strong data-page-node-id="RSWn0jSG46MEBvJWmKz4xC">偏多，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="PJor3fisDxPSpvFiLzQ7z5">
+<h4 data-page-node-id="AVgN7PC0aiMMwfMZ4IMeD3"><span class="mk ma" data-page-node-id="8DI5A3k1VQrwiOSLrqoh4d">A股ETF</span> 科创50ETF东财 (589850) — 1.615 <span class="up" data-page-node-id="hEhQozw5ZB5dElVvozvy1I">+1.06%</span></h4>
+<div class="ir" data-page-node-id="DoqZ9w4XDEpBYFCXBICpcs"><span data-page-node-id="uGEAJVAKBeoVq2KTXJEWXU">成交1.05亿</span><span data-page-node-id="Oe6rXPuBe53CMVAPEE8t2q">昨收1.598 | 跟踪科创50</span></div>
+<p data-page-node-id="ysVoaQMinDasH2wh1TEpHN"><strong data-page-node-id="DDpqWYtGqvzmjcg7oByg2r">技术评估：</strong>科创50指数今日<span class="up" data-page-node-id="Y3K08niHPiWesAaamcJcWO">+1.34%</span>（低开-2.34%后V型反转），ETF跟涨+1.06%，跟踪正常（小幅折价）。科创板410股收涨占66.67%，半导体涨但创新药/光伏跌，内部分化。高弹性仓位。<strong data-page-node-id="N7RTk2fdxZMzfMCkpzAUtS">偏多，底仓持有，科创50放量突破1700可加仓。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="BXFvBn6AjZCZs0mw4QpFjK">
+<h4 data-page-node-id="ZKEBQaFL0khaVAC5x6nrrx"><span class="mk ma" data-page-node-id="wJrATjrA7NV2CpmGZ3GzPe">A股ETF</span> 恒指科技ETF博时 (159742) — 0.590 <span class="up" data-page-node-id="Roc4pIunMCwumC6G43qVgs">+0.51%</span></h4>
+<div class="ir" data-page-node-id="43k4q4EliKtGTl2bUJPwun"><span data-page-node-id="CTPRLCGq48GIy6EVb6sZLN">成交1.23亿</span><span data-page-node-id="8Ky6BAxMkH90Mb5mTmYVmq">昨收0.587 | 跟踪恒生科技</span></div>
+<p data-page-node-id="z4BiqOsKsjbppBtZZGazP1"><strong data-page-node-id="HGIy5EISGedE6nJkl9mExf">技术评估：</strong>跟踪恒生科技+0.32%，ETF收涨+0.51%（小幅溢价）。港股AI应用/科网活跃带动。跨市场配置仓位。<strong data-page-node-id="yuN20kwNxZ0OW8qNZHhyxG">中性偏多，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="1pppaejbz9hm8OvPHqWRPr">
+<h4 data-page-node-id="MJLUBU1EGmMyLmL5iXbeEY"><span class="mk ma" data-page-node-id="lo4NxlWuoxAD12h2EplIhR">A股ETF</span> 创业板ETF易方达 (159915) — 3.456 <span class="up" data-page-node-id="HOzxfKepsc6YkG5RPTfLLY">+0.38%</span></h4>
+<div class="ir" data-page-node-id="afzmIozRhRiauyuesqk9B4"><span data-page-node-id="reiELltTlZGAOWAIx4ZOqT">成交48.46亿</span><span data-page-node-id="imHG7XPjDcEJoaKiwuviJ4">昨收3.443 | 跟踪创业板指</span></div>
+<p data-page-node-id="xLN1gZHCn42DkAdzbkBvAY"><strong data-page-node-id="o7tMX2kkDMccI1P29IiJdg">技术评估：</strong>创业板指<span class="up" data-page-node-id="qTblGnFeJ3ZSLpuH2hfHt2">+0.42%</span>，ETF跟涨+0.38%，跟踪正常。创业主力资金净流入7.17亿。高弹性仓位。<strong data-page-node-id="nlcrfFvdM0cROCE5vYxfvo">中性偏多，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="g0cWC3VsUARbgqf11sN4bp">
+<h4 data-page-node-id="nsdK4oqZAXlcIFABvTwRSP"><span class="mk ma" data-page-node-id="YYsYBZZEatg1A95waXnvjP">A股ETF</span> 沪深300ETF华泰柏瑞 (510300) — 4.685 <span class="up" data-page-node-id="7V3vvTVpPWmaGA3ntLuSmG">+0.13%</span></h4>
+<div class="ir" data-page-node-id="HHTycE502BnZlHrG0rZCJC"><span data-page-node-id="J6zHd8dE98A02joPelfU4M">成交31.34亿</span><span data-page-node-id="Dm8AiuMDnlYueuk1fW3vmQ">昨收4.679 | 跟踪沪深300</span></div>
+<p data-page-node-id="UEAutvYWKo4lu0H6yFypaB"><strong data-page-node-id="tGJdDsECxGmWoPBfBgMjx3">技术评估：</strong>沪深300<span class="up" data-page-node-id="MLpwAEJiZZor4RtMAbEdeA">+0.35%</span>，ETF跟涨+0.13%（小幅折价）。沪深300成份股主力净流入19.93亿。宽基底仓，提供市场β暴露。<strong data-page-node-id="1gHYKVpddM1OMuTbFcBHHA">中性偏多，底仓持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="eQoOqVgAkcTUitG8ouJdG1">
+<h4 data-page-node-id="EhDTzOlD8m1CMvPcRFOWOm"><span class="mk ma" data-page-node-id="jtnWF4kceDQIbiTr4AfSXX">A股ETF</span> A500ETF东财 (159380) — 1.362 <span class="up" data-page-node-id="voLQw4Y8PBn9VHhXqq2GDI">0.00%</span></h4>
+<div class="ir" data-page-node-id="P7uYTMSCQgEBtZhEr1oi7E"><span data-page-node-id="rSwFp2LxmqshBuPNMDmfh2">成交0.11亿</span><span data-page-node-id="rVbv0lElCgvtNF5eqqRQDX">昨收1.362 | 跟踪中证A500</span></div>
+<p data-page-node-id="bBKnGcEQj8oqP4OOOQqWGv"><strong data-page-node-id="hEBsczB7O3wM45OL1r8cOg">技术评估：</strong>平盘，成交清淡（仅0.11亿）。核心宽基底仓。<strong data-page-node-id="F36zHoSCvJemNIaFSFODQs">中性，底仓持有。</strong></p>
+</div>
+
+<h3 data-page-node-id="J0VkKTQ0tJ7YFHQ73mSkUc">2. 港股自选股技术分析（10只）</h3>
+
+<div class="stk" data-page-node-id="m9KQDvEclb75hnElDxkJ2U">
+<h4 data-page-node-id="Wl3aZeZukmAFk8oY1tEAth"><span class="mk mh" data-page-node-id="sHGfDHLU1dq48NU807VJ19">港股</span> 美团 (03690) — 78.80 HKD <span class="up" data-page-node-id="niy7fIu5CburGCC7PmFrQN">+1.68%</span></h4>
+<div class="ir" data-page-node-id="RF2Svp90Yqr4BHc4ztXxWi"><span data-page-node-id="CzvCdvIYlyoxHeQ9vVc587">PE约35 | 成交64.32亿HKD</span><span data-page-node-id="Ez3DmLu62ipDg8yEFAQRoF">最高80.30 | 最低76.35</span></div>
+<p data-page-node-id="SHWLiV39uYIqxTDmULbpmq">科网股活跃，美团+1.68%，盘中一度冲高80.30。但南向净卖出美团11.89亿（逢高减仓），需注意。<strong data-page-node-id="wtsK9LQh5OJcnYDSArzELM">中性偏多，持有为主。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="gsXU1oOaqVOW0uNAWhdbGk">
+<h4 data-page-node-id="AZMD5aGHdUlCfFMvFLFDZD"><span class="mk mh" data-page-node-id="EtJa7IOB7UCXV4L2Pouzhp">港股</span> 京东集团 (09618) — 112.20 HKD <span class="up" data-page-node-id="LfKqEEWxOZPJhmvuDAEmhG">+1.54%</span></h4>
+<div class="ir" data-page-node-id="eP6XZu836yeAXVtNnuNNWz"><span data-page-node-id="AhNH5mIYGuTizveAphkxRL">PE约15 | 成交7.59亿HKD</span><span data-page-node-id="v7dxRGR3JTuNsjGhlBfDao">最高112.30 | 最低109.90</span></div>
+<p data-page-node-id="iKCloEc1NbpLeLctswf26S">京东+1.54%，几乎收在全天最高（112.30）。消费复苏+低估值（PE约15）。<strong data-page-node-id="x2UNv8OvLhJbbdCOtGdz4A">中性偏多，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="yF2hrpneG1WCEy19mCZ26K">
+<h4 data-page-node-id="OYHB5dGDb3a7DMx5MnAlci"><span class="mk mh" data-page-node-id="BoWQQG5yuimChxQWVmQJ7t">港股</span> 中芯国际 (00981) — 70.65 HKD <span class="up" data-page-node-id="UihcKEleonRJ2zVQuK5M5E">+0.71%</span></h4>
+<div class="ir" data-page-node-id="QNSxpkj8CG8hFeXux6Gd7T"><span data-page-node-id="hfrU7PVt5VavrwrRicIGd4">PE约55 | 成交28.90亿HKD</span><span data-page-node-id="s4YUbUV7B6LLgGCM9w4Q4Y">最高71.35 | 最低67.75</span></div>
+<p data-page-node-id="oXc9G98sGyggw5QT79wLUB">中芯国际+0.71%，南向净买入5461万。A股半导体+1.93%、费半+0.57%共振，国产替代逻辑强化。Q2全球纯晶圆代工中芯以5%份额居第三。<strong data-page-node-id="ZUVLZfqDJs8cuuoQ6bAqSN">偏多，国产替代主线。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="2FIJX3zb0SP9q1q8lZ88oz">
+<h4 data-page-node-id="mH6AjRV3K1wei2nqJwivGi"><span class="mk mh" data-page-node-id="bqKlnAsTy8D0sPmcwAZDHS">港股</span> 阿里巴巴 (09988) — 114.10 HKD <span class="up" data-page-node-id="oNfWb6SXYTTRMCvy7vdMSq">+0.18%</span></h4>
+<div class="ir" data-page-node-id="gha2a64a3ZqiZPUgGjWbAF"><span data-page-node-id="nzoymEyomUlwbjCHVxkZCx">PE约18 | 成交78.57亿HKD</span><span data-page-node-id="bvD7vTXUf8z7heXEiPwqDl">最高115.00 | 最低112.20</span></div>
+<p data-page-node-id="JxIyp4krPUXlrojWKs9z8c">阿里微涨+0.18%，南向净买入2806万。盘中冲高115后回落，上方有压力。<strong data-page-node-id="xdBLVeB2nnZeNomGAy9Ntz">中性，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="1JVH3p7S91ti6haKHo8t4j">
+<h4 data-page-node-id="qkUkw7xUex8U01pESFxMh0"><span class="mk mh" data-page-node-id="UnOPnk0FPiCR5u66PIcktI">港股</span> 联想集团 (00992) — 29.86 HKD <span class="dn" data-page-node-id="4h2PzMU0Tk1m5D5YUcBGfT">-0.33%</span></h4>
+<div class="ir" data-page-node-id="IeqzO2wOOHreC6XGOATZ3k"><span data-page-node-id="99GcBFYOFoTsDM1vQ8ZPFR">PE约15 | 成交18.03亿HKD</span><span data-page-node-id="YsDKvmFQJxNCpS2VWD62qw">最高30.14 | 最低29.10</span></div>
+<p data-page-node-id="I9CAW2htOBDDqVkLOjzdnq">联想微跌-0.33%。A股液冷服务器涨停潮（浪潮信息）本应带动AI服务器概念，但联想未跟随，说明港股AI硬件情绪弱于A股。<strong data-page-node-id="QN3vEtkC9CsDyzEcG5vNbW">中性，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="3yTN3gJFUCt39Oedj8G6S8">
+<h4 data-page-node-id="0ia0OLxWzM01FQTJ768wcK"><span class="mk mh" data-page-node-id="gjFlCmduH8EiU77KYUb4fC">港股</span> 腾讯控股 (00700) — 452.80 HKD <span class="dn" data-page-node-id="odO5Sl96vDJSmK6WVHqX3N">-0.53%</span></h4>
+<div class="ir" data-page-node-id="xoPuwp2nDF3zqwSNHam0BM"><span data-page-node-id="Eats9Up6QQZVhxsFtgykcA">PE约16 | 成交67.26亿HKD</span><span data-page-node-id="WCKA7VJGrF2YuuGs0knFFo">昨收455.20 | 最高456.20 | 最低446.00</span></div>
+<p data-page-node-id="0nGhnmafecLiqIKc4RlmqN">腾讯-0.53%至452.80，但南向净买入4.11亿（混元Hy4开源+中金看好AI回报率），连续加仓。PE约16历史低位。盘中最低446后回升，下方承接强。<strong data-page-node-id="ZB60ybm8NDb14JZMkgfGR5">偏多，核心持仓，南向持续加仓是积极信号，回踩448-450不破可加仓。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="Zk9dWG3DSTq3o1r2i2pu7O">
+<h4 data-page-node-id="N2iX7VCm6l7d2qYZBvngz0"><span class="mk mh" data-page-node-id="yGbL0D0O8bd4l0PfE5xNtD">港股</span> 理想汽车 (02015) — 47.72 HKD <span class="dn" data-page-node-id="kGry669e9VxzQxAGWtq1te">-0.54%</span></h4>
+<div class="ir" data-page-node-id="AN6SDpwfm0DUQeX6FvdG7h"><span data-page-node-id="z0bGwii6tO95h0f9TLBiH9">PE约80 | 成交5.19亿HKD</span><span data-page-node-id="MDotlAAhEoDrGv4PpbYQos">最高48.44 | 最低46.50</span></div>
+<p data-page-node-id="hMZV8pjunQin5NaiSS6lO6">理想-0.54%，汽车股走弱，PE约80估值偏高。<strong data-page-node-id="hrOo1RHy04kh3B44kv0kBJ">偏空，观望。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="ifE1nKYBMB8WvcDd5McZ2e">
+<h4 data-page-node-id="7Avk0aOUraCtG9hfgJzx9A"><span class="mk mh" data-page-node-id="VKPNohACvQqD7QqSVxenas">港股</span> 小米集团 (01810) — 27.60 HKD <span class="dn" data-page-node-id="WC06Rtj3q85nFq816tcoRP">-0.79%</span></h4>
+<div class="ir" data-page-node-id="FmAIFEjbas4l9g2aF2QFvs"><span data-page-node-id="T1KT56tgvUiWHDwGGk7iwn">PE约16 | 成交18.84亿HKD</span><span data-page-node-id="54q7I7PuXbVO9MFqrd4c5Y">最高27.96 | 最低27.42</span></div>
+<p data-page-node-id="KG5lG5xPDh19rJGrQuNo4E">小米-0.79%，中概股金龙指数跌超1%拖累。<strong data-page-node-id="qcEV7zbbGtbpsGBnnCmJDt">中性偏空，持有为主。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="cEHNv7bzXstKcB3WrNjZ8A">
+<h4 data-page-node-id="HLopypISVdEIPRJPNqhmFN"><span class="mk mh" data-page-node-id="tDOzN9BGtWYz3VYXp5plew">港股</span> 泡泡玛特 (09992) — 156.50 HKD <span class="dn" data-page-node-id="e6xYo7mjeslHYGwdODghvf">-1.39%</span></h4>
+<div class="ir" data-page-node-id="g0maippAcQgJW67HaOyLEN"><span data-page-node-id="iQYZLEVEFYDtKg1XkpxJqI">PE约60 | 成交9.39亿HKD</span><span data-page-node-id="hzEjSYVNNyBcuJrSdLt7qU">最高158.50 | 最低155.70</span></div>
+<p data-page-node-id="S4nF7UNEC5Vz2KGtkVWNIu">泡泡玛特-1.39%，IP消费回调，PE约60估值偏高。<strong data-page-node-id="IGgELd65X9KhCWO3pQvNdf">中性偏空，不追高。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="OL0P90fLRuA6S2Knr1POkJ">
+<h4 data-page-node-id="5nxzqHCJhIiHotIf2QJo15"><span class="mk mh" data-page-node-id="wjuVUXoWZzTDtok8apmblk">港股</span> 融创中国 (01918) — 0.615 HKD <span class="dn" data-page-node-id="AELAldEaxWdWrqNvx8UeH0">-8.89%暴跌</span></h4>
+<div class="ir" data-page-node-id="v45Cy8PHEmnMOv6Dt8BDCH"><span data-page-node-id="8Cxqt8lJGtXmEmqGEbPePm">PE亏损 | 成交7.53亿HKD</span><span data-page-node-id="XAVrSnHZUrZSJ6en5yhLwZ">昨收0.675 | 最高0.810 | 最低0.610</span></div>
+<p data-page-node-id="oOk8pOuIQObLYvxvpF3BW1"><strong data-page-node-id="F9pVrvFkEUoC2zr5HFRDeT">⚠️⚠️ 技术评估：暴跌-8.89%！</strong>内房股普跌（绿城-17%），融创从0.675跌至0.615，盘中最高0.810冲高后跳水，最低0.610。A股地产板块同样高开低走-1.38%——房贷新政利好兑现即出货，且利好主要惠及健康房企，融创债务风险未解。0.6是心理关口，跌破看0.5。<strong data-page-node-id="XuxGGRYLvkO1mA4zfEkWni">极度偏空，规避，跌破0.6无条件清仓。</strong></p>
+</div>
+
+<h3 data-page-node-id="IYLq5TfUK0QVj0XMCq2AzG">3. 美股自选股分析（8/31收盘）</h3>
+
+<div class="stk" data-page-node-id="Ot3zYF9yy6O4p495i6YAC9">
+<h4 data-page-node-id="R3Mye2Kbzl3k0kEjHHXXWJ"><span class="mk mu" data-page-node-id="ooFHhqutYUvl15JETsvvTx">美股</span> 特斯拉 (TSLA) — 367.95 USD <span class="up" data-page-node-id="yaSGvIR03sBCd99kSAg83S">+5.51%</span></h4>
+<div class="ir" data-page-node-id="Pgr0ovOezh8IJ0whG1hqKD"><span data-page-node-id="nrBQ2xHoCw8pXFKVk3PQ34">PE 306.6 | 市值1.45万亿</span><span data-page-node-id="vrMCW1q3ixyC5X6qZhBFYG">昨收348.75 | 52周高498.83</span></div>
+<p data-page-node-id="1PtkEzrrfqFjMGWF6U0D8m"><strong data-page-node-id="YNITLdNwIrYjr3zxqRynf3">🚀</strong> 港澳推出廉价版Model 3（起售20.5万港元）刺激，收盘<span class="up" data-page-node-id="LdV5BEWVUsAqThCfdjNJAq">+5.51%</span>领涨七巨头，较盘中（+4.63%）进一步走高。PE仍306极高。<strong data-page-node-id="5jRHJCX7KRfobN2DxYivaE">偏多但纯事件驱动，追高风险大，冲高减仓。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="diecenAnlHhMQ9gotFisAY">
+<h4 data-page-node-id="pGslij3In4bLze6cG5qaRn"><span class="mk mu" data-page-node-id="gDkP1tzYznqvi8QKuebK10">美股</span> 美光科技 (MU) — 958.73 USD <span class="up" data-page-node-id="LMfWVYboHMcTsUwKbpoxYy">+2.77%</span></h4>
+<div class="ir" data-page-node-id="jDowwp35XDSHVTYdKrRTBf"><span data-page-node-id="xLOTmRCMfD2fIxJPGkpAgC">PE 21.4 | 市值1.08万亿</span><span data-page-node-id="By0TsPHx2Itf6hDdhQ73ap">昨收932.86 | 52周高1254.85</span></div>
+<p data-page-node-id="btFi3EZb47t6k6uXIiT12t">存储芯片走强，美光收盘<span class="up" data-page-node-id="ZG8jyhrnLLDm5IC130otik">+2.77%</span>（盘中仅+0.84%，尾盘大幅拉升）。费半+0.57%共振。PE 21合理。<strong data-page-node-id="5j4owUmEAn9yjs5RktHFuk">偏多，存储周期上行+AI需求，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="r73BHCPedGwfC0vf70FnzB">
+<h4 data-page-node-id="3Cl0UTxRKCdgKBSjFuT7ho"><span class="mk mu" data-page-node-id="iN41JgVlFfSAoZNOXhdAtz">美股</span> 英伟达 (NVDA) — 220.78 USD <span class="up" data-page-node-id="1tjAV2BhfqzjqFoq19I8Dv">+1.48%</span></h4>
+<div class="ir" data-page-node-id="zDDrbZceOsnSMzRS2Vu0Fj"><span data-page-node-id="OnAyXpLwF4SPAghOFeug5B">PE 33.6 | 市值5.33万亿</span><span data-page-node-id="PmxFjUOKV5aH4G4JOlheYK">昨收217.55 | 52周高236.29</span></div>
+<p data-page-node-id="p85bm9g2pims0EoDpxdoUf">英伟达<span class="up" data-page-node-id="HvFvkEkgS0h0zdiUxhmkYC">+1.48%</span>（盘中+0.78%，收盘走高），AI算力龙头，费半+0.57%逆势收涨共振。A股AI算力芯片+3.58%呼应。PE 33.6。<strong data-page-node-id="i3oPFvYIK6pn0EVf8Erbgm">偏多，AI主线核心，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="Q3rZWy1MCGfmzBHGQD6j6S">
+<h4 data-page-node-id="SrtD8aLH0gNVFwGGXUz37D"><span class="mk mu" data-page-node-id="oCT9xwSNX1C31AvGgYCOrO">美股</span> 苹果 (AAPL) — 316.85 USD <span class="dn" data-page-node-id="1x6VNCIjIjXrszoiWnDPqP">-0.89%</span></h4>
+<div class="ir" data-page-node-id="voQF4RbYltNGsQkhx0DhkU"><span data-page-node-id="89KVXdy6ZNCOoS9IpFEMld">PE 38.2 | 市值4.62万亿</span><span data-page-node-id="ccH8CQznOUHE4V6mpnW66y">昨收319.70 | 52周高344.57</span></div>
+<p data-page-node-id="SGqnCsQ1yH7BDrC3uEzgoW">苹果-0.89%（盘中一度-1.38%，尾盘跌幅收窄）。科技七巨头分化中偏弱。PE 38偏高。<strong data-page-node-id="hIUFlzCsaGEd1MskXLP5hR">中性，持有。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="IR8ZOA539NfEz0BTlgDrmG">
+<h4 data-page-node-id="SemdrWAC2heHiekLAkDsDf"><span class="mk mu" data-page-node-id="5OnF0L5bGOMm1JA5A1QVFU">美股</span> 谷歌 (GOOG) — 335.41 USD <span class="dn" data-page-node-id="0H3CiQcRC732aUkKCB2uZJ">-2.18%</span></h4>
+<div class="ir" data-page-node-id="7P6YV7l395z17P5Q41bRAe"><span data-page-node-id="F1qs8ClgJHGx8YZV3RUSaT">PE 25.3 | 市值4.10万亿</span><span data-page-node-id="HhFihNwrKIGsIJUm0un2P5">昨收342.88 | 52周高404.25</span></div>
+<p data-page-node-id="Ka8BqgNpT7EvOJIGozXeYE">谷歌-2.18%，七巨头中跌幅最大，AI应用端估值消化。从52周高404.25已回撤17%。PE 25合理。<strong data-page-node-id="cLspvp6Rd4fVYOSPu7aZcy">中性偏空，等企稳。</strong></p>
+</div>
+
+<div class="stk" data-page-node-id="38x7aFr6kXUZt6NPte1ELH">
+<h4 data-page-node-id="64vFimqKQvyVzlcFU07ClJ"><span class="mk mu" data-page-node-id="1SPpWoYrT9uC3HnOLHZyVA">美股</span> Sea (SE) — 113.48 USD <span class="dn" data-page-node-id="xaPYmlHKhTyMUIoeevT6px">-4.93%</span></h4>
+<div class="ir" data-page-node-id="WcpYHuitO0UyYMcWNnZDGc"><span data-page-node-id="bjNavw7iv3vRJaMOROlaC5">PE 42.5 | 市值695亿</span><span data-page-node-id="xzHdEr8RJZx3Y1NWVOFEA9">昨收119.36 | 52周高199.30</span></div>
+<p data-page-node-id="FqmxiRdideSh9y92qvZOjb">Sea-4.93%（盘中-3.56%，收盘跌幅扩大），中概股金龙指数跌超1%拖累，从52周高199.30已回撤43%。<strong data-page-node-id="MTjnFlADqxKAKvZqyuQFNJ">偏空，观望，跌破110考虑减仓。</strong></p>
+</div>
+
+<h3 data-page-node-id="sZCEhheAEKIdl2hUwwavdz">4. 自选股横向对比（按当日涨跌幅排序，不分市场·共31只）</h3>
+<table data-page-node-id="WvttgNT2AAGbEs79zS2JHC">
+<tr data-page-node-id="IwE2F52mA2sYE5hS28re4O"><th data-page-node-id="RktYIR6CC8KrbMIhp60NSe">排名</th><th data-page-node-id="vNiWleH5IPWfCF1S2EqgOu">股票</th><th data-page-node-id="nbl5pb0umY0i8z2w5P3S6u">市场</th><th data-page-node-id="XO9KXubU7vNIC1eE1tvZ6r">收盘价</th><th data-page-node-id="xrHcrK8YER0dZzsACRKPb2">涨跌幅</th><th data-page-node-id="2RWVphoww9Cis5Ceddpz7h">信号</th></tr>
+<tr data-page-node-id="KEe2cklHmJMUEmTlhe4Kyt"><td data-page-node-id="oEcqvphKqQFbZOz2qhdl8c">1</td><td data-page-node-id="vMBL8MGQT1Y49rZLxJPxsC">浪潮信息 000977</td><td data-page-node-id="NpJiw2HVTlwvJdayavFsJm"><span class="mk ma" data-page-node-id="1PHg4qwHKrElx3Ng3QakYy">A</span></td><td data-page-node-id="8GYkFY5zNGULu2wp2pc6dB">¥85.18</td><td class="up" data-page-node-id="jSOU4bdaA8UZWgsZEW5A85">+9.99%</td><td data-page-node-id="QYFGWsvdNjAvskFo3V6SF8">🚀 涨停</td></tr>
+<tr data-page-node-id="9cnnz0rZ5w32nt5WgiFoIh"><td data-page-node-id="KzS3kawlonU95waEKbwfvK">2</td><td data-page-node-id="piDp1XXsUcgEPIzlGLuLWw">特斯拉 TSLA</td><td data-page-node-id="OT1oIGvWjzkZj5LBatUK34"><span class="mk mu" data-page-node-id="LIKLR3DWB8K4qL7OYJ0Fdl">美</span></td><td data-page-node-id="y6HpeABPzt0cd3OFohZICD">$367.95</td><td class="up" data-page-node-id="S6zgMtPgzAdxfykG42LLkV">+5.51%</td><td data-page-node-id="jG5q7YddA5PSg4vD2ki0gP">🟢 事件驱动</td></tr>
+<tr data-page-node-id="17U6V8nL86rS0EsLAoXMZT"><td data-page-node-id="btlnkdH2enOUs2NM1DfXnG">3</td><td data-page-node-id="kCk9sUPc1uMmFSjtSlz9QN">美光科技 MU</td><td data-page-node-id="u9JrJ2LG23TB62X3kGryFr"><span class="mk mu" data-page-node-id="FKKH5NWCleehVnudtHn1CD">美</span></td><td data-page-node-id="fkffChp7j37S7fHOJi06p1">$958.73</td><td class="up" data-page-node-id="LdjooLS4jMUZpAMiPlAcFZ">+2.77%</td><td data-page-node-id="PM3W1zLbcB5lcq352Pz52R">🟢 存储走强</td></tr>
+<tr data-page-node-id="RP594vw8W20xDBWWis32HP"><td data-page-node-id="kgIHEcAZweZCDmNEEubH8W">4</td><td data-page-node-id="ApaT7J8MDAkfWGOpuCZBQE">兆易创新 603986</td><td data-page-node-id="AvFPY0BE0NAkh71T3zqG2f"><span class="mk ma" data-page-node-id="oaYqbbEeewaWbCu7FXMOyp">A</span></td><td data-page-node-id="Hhszz6ZwsShkjxRNIRiTng">¥406.00</td><td class="up" data-page-node-id="O4P7NS7muyYOgE4QKeSDSf">+2.31%</td><td data-page-node-id="LzqXVlFsDyOQQlZuUGLJjF">🟢 半导体涨</td></tr>
+<tr data-page-node-id="UfcEkaLFy0EGIxp2q8UV2I"><td data-page-node-id="VrZxd5rR9Zc7UAES5UEFks">5</td><td data-page-node-id="6aYYpFqNizzz8NNp9txk7a">招商银行 600036</td><td data-page-node-id="iBJUuwVpyY2kAdm6UZWtI9"><span class="mk ma" data-page-node-id="c1n0BpqtUsRBkhnBRCOEdI">A</span></td><td data-page-node-id="fdkbPrkkE2Xyaso8TmWDW3">¥40.12</td><td class="up" data-page-node-id="GOGAQ101diTo5Tp01dAu31">+1.96%</td><td data-page-node-id="nG1gaEQ0jU2LDYLm7MF3nP">🟢 银行强势</td></tr>
+<tr data-page-node-id="n2AAHgA4xjH14gBQVLzSWs"><td data-page-node-id="uT67ippnZJSeSiKcus1rxh">6</td><td data-page-node-id="c1ylRvBIU7rlRT7mez9ana">美团 03690</td><td data-page-node-id="7qYVvaotBdtwm2EDyk5IE4"><span class="mk mh" data-page-node-id="b3wHTOlnIXMFDxNuFyhned">港</span></td><td data-page-node-id="jok1Qnb1lUHlOMCxMci7et">HK$78.80</td><td class="up" data-page-node-id="3oRAYkef0HZLRPRId3ZS5N">+1.68%</td><td data-page-node-id="WJZlWwvmoNT1DB67JAchBD">🟢 科网活跃</td></tr>
+<tr data-page-node-id="xLVFByjN3GtZAIkxyFFgr9"><td data-page-node-id="O5bItDgBOCMxXVZiUaRyyB">7</td><td data-page-node-id="g6vgS9k2OYewUKXMptZrFJ">机器人ETF易方达 159530</td><td data-page-node-id="V01UKFDPHc8gmFHHBTEGcU"><span class="mk ma" data-page-node-id="alBhDC90Wg7HV9a7oy8f3G">A</span></td><td data-page-node-id="s45FNFugzRsw483dLszfIl">¥1.343</td><td class="up" data-page-node-id="HWEYvyHPbPqosLTeZlalbf">+1.67%</td><td data-page-node-id="BMkfz1ejchJ8cxb524OCDL">🟢</td></tr>
+<tr data-page-node-id="GQrJFIBfmE7WvEenfj9ytS"><td data-page-node-id="x3iA9VYFvOOtQnUkbCmXcY">8</td><td data-page-node-id="PFXZWGVQGSFnlpGQ249BHW">京东集团 09618</td><td data-page-node-id="csr13mfsPDPZjA7DhDuNry"><span class="mk mh" data-page-node-id="xnwjyTI81cJx0GC8mDQh4G">港</span></td><td data-page-node-id="hhxfwEWEmfyBOU3dVBx7zJ">HK$112.20</td><td class="up" data-page-node-id="Y3qmL62jg0iGrGewGggSLG">+1.54%</td><td data-page-node-id="hKxKgUpgSku0D4eTppbamX">🟢</td></tr>
+<tr data-page-node-id="Y8bn3r70Cfy6175HWCfpnI"><td data-page-node-id="NamUIHTIcQOBbNl0CHcQP5">9</td><td data-page-node-id="clyesDSbIj8dFyt0jDqFbf">英伟达 NVDA</td><td data-page-node-id="3ZOMa8GEdr44VymbjExHGF"><span class="mk mu" data-page-node-id="apIErM91TfJNPPJps9KlfH">美</span></td><td data-page-node-id="u1UFOmEJn7ovfqoRvLc6BT">$220.78</td><td class="up" data-page-node-id="K16P6wLKV7Q4DvjHuCEVYI">+1.48%</td><td data-page-node-id="7lLqy7UH1tLAioXqTsJqNJ">🟢 AI龙头</td></tr>
+<tr data-page-node-id="oM7zpSoPpiwj8Vvs1yaoJ7"><td data-page-node-id="H9u3blXU7KsxF4epQAJGV5">10</td><td data-page-node-id="COte0ZbrJ5ujttcvoTNrpl">科创50ETF东财 589850</td><td data-page-node-id="YIaF4zTQC1P08zr46BJkJk"><span class="mk ma" data-page-node-id="WiGtDWh5RokVYAHixiIFRA">A</span></td><td data-page-node-id="gEq4ZDno3Oc1U6HsQ4i1lw">¥1.615</td><td class="up" data-page-node-id="flEKkTYLmAfgTAu9iQcCAR">+1.06%</td><td data-page-node-id="zr3kGTPwHwgv8gHsE5GmIq">🟢 跟涨指数</td></tr>
+<tr data-page-node-id="mdPnCyaVA9ImH4186CohGF"><td data-page-node-id="dCgUCdVbp1yv6CgHWmfbDE">11</td><td data-page-node-id="CK5yecdLeVyklNHnvX6QX3">中芯国际 00981</td><td data-page-node-id="nFSWMUFEjqAzTgmFwOmEnW"><span class="mk mh" data-page-node-id="s85CjjIRlOLuVmDeKd3P0q">港</span></td><td data-page-node-id="geWIX9yuGAnjs00iCHZU6k">HK$70.65</td><td class="up" data-page-node-id="SSbb936Fjtk11mx2kSmxR5">+0.71%</td><td data-page-node-id="qGT4te2fc9ImtndMT8MiGp">🟢 南向加仓</td></tr>
+<tr data-page-node-id="My9ZAIBQbxh0qVVtcCq68q"><td data-page-node-id="PYQ5wzDvjBsf6wV3Bc4ZSB">12</td><td data-page-node-id="om8jUutthES5liThjvkCE5">恒指科技ETF博时 159742</td><td data-page-node-id="5F0D1qvTbX7bioNRIwCsI3"><span class="mk ma" data-page-node-id="ZLRevgm1p5I6bCFW3sz6yB">A</span></td><td data-page-node-id="BofRrPeiN5Zl6Xe6EFgITk">¥0.590</td><td class="up" data-page-node-id="XZwl3LRVAk9M1snPnggsC1">+0.51%</td><td data-page-node-id="XgqdRyTBH00rmscx6GnZ7H">🟡</td></tr>
+<tr data-page-node-id="ULB6MVj9GIpgp2ppNyGeRu"><td data-page-node-id="ZQrXWJg9syn1gdv84B4ji2">13</td><td data-page-node-id="9r7Pe5tUMh17cKCbEEn7Tn">创业板ETF易方达 159915</td><td data-page-node-id="h0mMmRYix463vOiSACjsF2"><span class="mk ma" data-page-node-id="iVdNEUpnYKpX9WT0tCeJG0">A</span></td><td data-page-node-id="itJSj7dzdTYuptHBpcvmtp">¥3.456</td><td class="up" data-page-node-id="h4YkoRZAbe952gYEHwUvU5">+0.38%</td><td data-page-node-id="27VBXhvJNtyHZAA41BF8oa">🟡</td></tr>
+<tr data-page-node-id="n5sjc35IxQxEvQcmEELXBE"><td data-page-node-id="qwOgfANjMVzyWdOZlaVT9p">14</td><td data-page-node-id="cD7o3ox4XfH17D011JqglV">阿里巴巴 09988</td><td data-page-node-id="SDvOvS9zQRhfEH6gvfut0w"><span class="mk mh" data-page-node-id="Vw9tomMoK8VxEbQPZPr6dE">港</span></td><td data-page-node-id="Cyor30yNmBG1znKEWMkPXC">HK$114.10</td><td class="up" data-page-node-id="uPIda5tpisL2VNXFLRcu5r">+0.18%</td><td data-page-node-id="Fk8GFlgMnDGmqAQDGrePwO">🟡</td></tr>
+<tr data-page-node-id="2gaZbEXjCT33Z7SWBV3mUy"><td data-page-node-id="BObPuQqnDYHPgvT7FEoNQP">15</td><td data-page-node-id="YqOCk9jWPCIYECE21dk5GV">贵州茅台 600519</td><td data-page-node-id="vsU3OZUiUex8ofbFvbQa8a"><span class="mk ma" data-page-node-id="x8F47oL3J6WACkILP9M9D7">A</span></td><td data-page-node-id="qGBRtvXUIybdQ1D67fLll0">¥1299.52</td><td class="up" data-page-node-id="YuZtZAnIzFVToAGYxUlreN">+0.16%</td><td data-page-node-id="4SinTTFwWHrf4Snbz9Scd6">🟡 白酒偏弱</td></tr>
+<tr data-page-node-id="eyWkOeHlxs9xBZRIEEG29C"><td data-page-node-id="h1zZEAlFzJVVqWG5dCFS6m">16</td><td data-page-node-id="Z6TvIDiO8YH8GzLs2pgWbT">沪深300ETF华泰柏瑞 510300</td><td data-page-node-id="cQ24HoSirXsy7BDi7YhVjE"><span class="mk ma" data-page-node-id="7kbiRgyKEbDGeHlIqUpMK6">A</span></td><td data-page-node-id="DYuLdbdXCHHl48zyAUbIMv">¥4.685</td><td class="up" data-page-node-id="ytMRjri2XGJ5tNxewRXHUC">+0.13%</td><td data-page-node-id="FW2B5UfYLs0YO8tTsbaCmh">🟡</td></tr>
+<tr data-page-node-id="bBPy9XJvwz1Or3PULNEInn"><td data-page-node-id="9U1tKwKf7BsvNAXxQmqNh3">17</td><td data-page-node-id="uSfwdAIQSjDhrVhyZuw14Q">A500ETF东财 159380</td><td data-page-node-id="DpX6YbcC1XqJN3VGx5sKTx"><span class="mk ma" data-page-node-id="DOu9ftPtIHLQoECfYFzc4p">A</span></td><td data-page-node-id="3vIexykkDCfSx1Vc4fOJZh">¥1.362</td><td class="" data-page-node-id="9CU1MTDBRKb1JMHcxyRwLL">0.00%</td><td data-page-node-id="f8vfYvRyEc8Zqp6VCiQkld">🟡 平盘</td></tr>
+<tr data-page-node-id="psGgSQnBzmedY8Q00bGKRP"><td data-page-node-id="3NZ05IonpP2dl574ye7wF7">18</td><td data-page-node-id="cTG2KFhYKmFPmVCURkHhid">中国平安 601318</td><td data-page-node-id="0H7oTePOVIEkiSueXh1VaN"><span class="mk ma" data-page-node-id="BljyQ9vj9MdBLgetSb0oKR">A</span></td><td data-page-node-id="li4khZPrlM4CY9zLpMK4SA">¥55.82</td><td class="dn" data-page-node-id="yNY4U9B9lWbyVqNZZNOA57">-0.05%</td><td data-page-node-id="GyWL3zDxghjsNJOrbOGCDJ">🟡</td></tr>
+<tr data-page-node-id="TSnbB6OLipdFRAigbmxmyi"><td data-page-node-id="jw4SaSJS6hMA8vNuMdbasi">19</td><td data-page-node-id="4AF7uuESE2FeaToGXiHqIv">东方财富 300059</td><td data-page-node-id="kbMB1g8B4t0uPnLGhVidZa"><span class="mk ma" data-page-node-id="823XpmfXLw7DKmmM6yJJNg">A</span></td><td data-page-node-id="KBEA3TxyIG7eTFjFNS9qnO">¥19.39</td><td class="dn" data-page-node-id="VlUYf9OvspWcUSyC6M56Km">-0.15%</td><td data-page-node-id="ks0iaoiumZSJdPAgLj5yHq">🟡</td></tr>
+<tr data-page-node-id="hfN0iW22kBUOhNLqdMjxI8"><td data-page-node-id="tqAgVCrv84PEso9ER6O8ax">20</td><td data-page-node-id="nAFzWmZsVyvei59zcLlS7v">联想集团 00992</td><td data-page-node-id="9cN7OW3AVewTdDMDBvBYkD"><span class="mk mh" data-page-node-id="w5p23CWfS4kPjY1NTC99Yx">港</span></td><td data-page-node-id="kUq1NAJFv4lCgZeBwXryHc">HK$29.86</td><td class="dn" data-page-node-id="oGpnvVCovnNzNH2q3oImfb">-0.33%</td><td data-page-node-id="idMLYLjC40lJoLheLPKryB">🟡</td></tr>
+<tr data-page-node-id="SlNnSTqD334dA46BoUgMxY"><td data-page-node-id="f5UFExofi59YPckOd88JkS">21</td><td data-page-node-id="Y03tU88EvomhNP2VRtcd5f">腾讯控股 00700</td><td data-page-node-id="jYAd4MAhQF0MFW5eh1KlHi"><span class="mk mh" data-page-node-id="bDgvANG1kYBotNGnjZaMEx">港</span></td><td data-page-node-id="oB0pxw14Jv1h5IV7fSErE3">HK$452.80</td><td class="dn" data-page-node-id="drfkFpUaRGXbEEZI71ERqx">-0.53%</td><td data-page-node-id="iFBqMsTXY49jcHPTrI6XDe">🟡 南向加仓</td></tr>
+<tr data-page-node-id="W6LnONvMK8FbItwDqA9VCR"><td data-page-node-id="gNlCDDUZyOdKMG1ylqbg28">22</td><td data-page-node-id="zAqxJYGfoSCC7CNDIM56Wj">理想汽车 02015</td><td data-page-node-id="D5VfDmHBqZZ41jaV0mBQB6"><span class="mk mh" data-page-node-id="f4Rtv3NplAg6kXE0sBrFJn">港</span></td><td data-page-node-id="l394mB8rYRHss2CBhddVHy">HK$47.72</td><td class="dn" data-page-node-id="unZthh7MFFhgjJ3GsuBWRQ">-0.54%</td><td data-page-node-id="KoL3Yp11fmpAgpLJXJgwmx">🟡</td></tr>
+<tr data-page-node-id="9QNnk2sHDI9h9gGBguA1g2"><td data-page-node-id="7Rbz11WM3zrgpXC7HxrrPp">23</td><td data-page-node-id="vmr4dTeDGcgjmcjkjR44ok">中际旭创 300308</td><td data-page-node-id="Bsxc9mMNA1kOA3ukbAbsWN"><span class="mk ma" data-page-node-id="4TJ7gpGCki3fhcYxyAJdmU">A</span></td><td data-page-node-id="A3x9kbZpCCeMr7Ab0aGnDa">¥851.90</td><td class="dn" data-page-node-id="EYBZZXjaWp1RuUy0HxuMxK">-0.75%</td><td data-page-node-id="GuL5T6AnoAZyb3cqDKA3YQ">🟡</td></tr>
+<tr data-page-node-id="JWrFcxSDFYmLYdjdRPOtnK"><td data-page-node-id="IqdJTIf3hdUXTjn28QHil1">24</td><td data-page-node-id="ndTDi3x09ldKQiUu5v4qSB">小米集团 01810</td><td data-page-node-id="olMlv9rPCptmns8nVktxDm"><span class="mk mh" data-page-node-id="b9OZl6f5wIHTFmITMkR5Hw">港</span></td><td data-page-node-id="6e4VcZGHSCnGHjAaBRET8A">HK$27.60</td><td class="dn" data-page-node-id="2OGPZVu1NQVO3Q8eeEJfWW">-0.79%</td><td data-page-node-id="YyGpJm8kV8W8nWbusw8a6F">🟡</td></tr>
+<tr data-page-node-id="ArEqW5hOg7g3IX5FZA0WmE"><td data-page-node-id="k0eIXE4ZpGQbqZxDgb5olo">25</td><td data-page-node-id="0B7W9ChUABMkz7EJrMYjNW">苹果 AAPL</td><td data-page-node-id="rmegMaZEBoEy4JoJrHzfaQ"><span class="mk mu" data-page-node-id="UZzsolzGKnGmG2xa7tdXcQ">美</span></td><td data-page-node-id="AOuC2Hw1JUfreNOOMdU7p5">$316.85</td><td class="dn" data-page-node-id="uAJkYyiHrYgvkD591iXg6k">-0.89%</td><td data-page-node-id="olqWRgVJHDfpSh3uFb2BHe">🟡</td></tr>
+<tr data-page-node-id="ICQUMiZbl0600CGh9MK0z5"><td data-page-node-id="grT9wMtqTjYcS8lnpfP5Fp">26</td><td data-page-node-id="rMDi7RIDPHEb3bCEWBhiRF">宁德时代 300750</td><td data-page-node-id="wdAmrhzGNExCQ8DCNTmHG1"><span class="mk ma" data-page-node-id="6bFGsZEOSUu6gc9OUfSQcc">A</span></td><td data-page-node-id="T4W8q0NmVxtxOzJy0ePbLi">¥363.55</td><td class="dn" data-page-node-id="OJp55DyEFl4iFiYVOdikYT">-1.34%</td><td data-page-node-id="SuEHEvTXolPLNbSTwvM1GH">🟠 光伏拖累</td></tr>
+<tr data-page-node-id="xQycW2A2Ea6sGsY8EZHL6T"><td data-page-node-id="DE8n30PCLt0poLW1Z7wyM1">27</td><td data-page-node-id="3YgHv3sXG8Z5WYCO2oPnuy">泡泡玛特 09992</td><td data-page-node-id="PppXHoWnups03BqqaGTA5L"><span class="mk mh" data-page-node-id="Wylq64YP4zzEUFABom03lV">港</span></td><td data-page-node-id="sEKGYSTCqDSxFHgTGDouS0">HK$156.50</td><td class="dn" data-page-node-id="TsRtCnL3K0rtDE3Z4OB0Fx">-1.39%</td><td data-page-node-id="90TneTE10D6vbnXhgWyzOz">🟠</td></tr>
+<tr data-page-node-id="CQikNPqnfOqAjI67R7whNw"><td data-page-node-id="4DgtG84dr6slwbcXAVozKw">28</td><td data-page-node-id="Hk6HFzpaSdAiHpHs3GjrH2">药明康德 603259</td><td data-page-node-id="wgCxZMhhS58jCYyPPaEUQi"><span class="mk ma" data-page-node-id="fLKiKN3TM7NHNaSuwaIGm8">A</span></td><td data-page-node-id="r9u24un5uQr9IgA2YlMXeb">¥154.78</td><td class="dn" data-page-node-id="6aRvTKF8Ic9bjGsUs66j3F">-1.66%</td><td data-page-node-id="cdojpJ81y1h9k7V1wWtmr4">🟠 医药调整</td></tr>
+<tr data-page-node-id="KPbMqVERm5jQXVnMUGgIIp"><td data-page-node-id="eUjzuMWSqCrzLsMb9AlJE9">29</td><td data-page-node-id="rDNxAKlA2sGuY5oryDWd7g">谷歌 GOOG</td><td data-page-node-id="tMD6YhGDFTi4rokHSJg8sT"><span class="mk mu" data-page-node-id="DXN8G1fMgEb4XXpQG9OpWG">美</span></td><td data-page-node-id="AQVm8Iucjyn72uVyyOcIZF">$335.41</td><td class="dn" data-page-node-id="jmEiwVMHJ6Vy9tlApb1NyY">-2.18%</td><td data-page-node-id="9jj9eeZm5aJtNEwDpYQVe9">🟠</td></tr>
+<tr data-page-node-id="Tr7aZ8rRPgLNA19vYLqOqr"><td data-page-node-id="Pnwe9A8FdoWaigsSbbPmhZ">30</td><td data-page-node-id="6Dpdw9OqvfBAFBLT2HcWrD">Sea SE</td><td data-page-node-id="ubCsHrieYBBWpdwkbnIX2D"><span class="mk mu" data-page-node-id="ORFiMFO8UVzohC29uNXSRM">美</span></td><td data-page-node-id="Srw2eWBFCW01C6TSnqNXTl">$113.48</td><td class="dn" data-page-node-id="nOC8R1R30cZrnoGasdZDvX">-4.93%</td><td data-page-node-id="vPjz5usprULBKsHGP7Ep9m">🔴 中概走弱</td></tr>
+<tr data-page-node-id="QExyU3iQmXEeDRrcOZRUCu"><td data-page-node-id="1Mc5tHtwUzczg7hAHBAah6">31</td><td data-page-node-id="oatxj57WyvJ80QBb2MPhqz">融创中国 01918</td><td data-page-node-id="e0Qg25XUNAalWeB7emTUEY"><span class="mk mh" data-page-node-id="hkxtMSaGAOCGkqBJnYZfHn">港</span></td><td data-page-node-id="XtI8icBvuOIeKVc1CbpBMR">HK$0.615</td><td class="dn" data-page-node-id="InkYUMNN4zP40h9pl5k1VD">-8.89%</td><td data-page-node-id="AzJwluFiBsntgMRcBZQMHJ">🔴🔴 暴跌！</td></tr>
+</table>
+<p data-page-node-id="u8HL6l8L28XFbcseJeUbY6"><strong data-page-node-id="ll8hhfAO6ckQoAZ22lBwaT">横向对比结论：</strong>31只持仓中<span class="up" data-page-node-id="5mojpBYFQilpSlp4LbUCPR">16只收红</span>、1只平盘、<span class="dn" data-page-node-id="kn8H1PQL0kVcQi8CnGyHo7">14只下跌</span>，涨多跌少。结构清晰：<strong data-page-node-id="HtlUo5IoE0YMUXpYbcjaAW">AI算力/半导体（浪潮+9.99%、特斯拉+5.51%、美光+2.77%、兆易+2.31%、英伟达+1.48%）、港股科网（美团+1.68%、京东+1.54%）领涨；中概（Sea-4.93%）、医药（药明-1.66%）、新能源（宁德-1.34%）、内房（融创-8.89%）领跌。</strong>浪潮信息涨停+9.99%是组合最大alpha来源，融创暴跌-8.89%是最大拖累。<strong data-page-node-id="rcriBRNQfKIOAAXrGVNN2h">组合风格与市场主线（AI算力+半导体）高度契合，这是今日跑赢的关键；拖累项集中在防御板块（医药/新能源/内房），与今日"卖防御买AI"的资金流向一致。</strong></p>
+</div>
+
+<!-- 自选股涨跌幅 ECharts -->
+<div class="s" data-page-node-id="g7wmOIHlSsCsOwfSqK4RvP"><h2 data-page-node-id="JIYsCgrfDyNM21zHAFVO7q">📊 自选股当日表现全景（31只）</h2>
+<div id="chart_stocks" class="chart" data-page-node-id="5kdAYGddopXwuALginj9pa"></div>
+</div>
+
+<!-- ============ 六、昨日计划执行回顾 ============ -->
+<div class="s" data-page-node-id="eqJZKx8uhUZYtqvkBKi2rM">
+<h2 data-page-node-id="gsHfVrrIj0KcCGqjTdjsZc">✅ 六、昨日计划执行回顾</h2>
+
+<h3 data-page-node-id="gHRUjUt0JQDOuJYsVkOPaM">1. 仓位执行情况</h3>
+<div class="hl" data-page-node-id="SSsFDStuWlFX8EGnZQn5y1">
+<p data-page-node-id="E9ADw0GKoGKdIyGQcDJIDM"><strong data-page-node-id="Q61RB3tupEXXya8a7Z5rEP">8/28计划（上个交易日）：</strong>维持总仓位3-4成，8月收官日不主动加仓，等9月非农+FOMC落地。</p>
+<p data-page-node-id="NH4PSPJqYojQHuudYiEADc"><strong data-page-node-id="kFP46jWrNYaxcJzxWPBEYa">8/31实际：</strong>大盘<strong data-page-node-id="s49a1CrM7V2STtc7PLdCpV">并未如期回调</strong>，而是低开高走全线收涨（上证+0.86%、创业板+0.42%、科创50+1.34%），<span class="up" data-page-node-id="NBhAsHt0qbmlJCDLh74isD">收盘价即全天最高</span>。"等非农+FOMC落地"的谨慎策略<strong data-page-node-id="TwHoBG8xQHKQtB06fuIbUl">规避了踏空风险但也错失了今日反弹</strong>——若严格空仓，则完全错过科创50 +1.34%与AI主线的爆发。<strong data-page-node-id="ScEgIuOTOBgFqGWZIEkcaz">教训：在趋势未破坏（8月沪指涨超4%）的市场中，过度防御会持续跑输；应保留底仓+跟随主线，而非全面空仓等待。</strong></p>
+</div>
+
+<h3 data-page-node-id="4XN0ym1zmdGjS2ovSVFnMs">2. 买卖执行情况</h3>
+<div class="hl" data-page-node-id="lJT5Iz5nIxVxOt13Pzoaj0">
+<p data-page-node-id="TzWHRGtdqHT5mHNKDe7T4i"><strong data-page-node-id="DuF7ZOeRnN3LPOb4zJ0j20">核心原则修正："8月收官不追高"正确，但"空仓等待"过度保守。</strong>今日主力资金明确"卖防御、买AI"——若持仓中有医药（药明-1.66%）、新能源（宁德-1.34%）等防御/顺周期仓位，今日是调仓至AI主线的窗口。组合中浪潮信息涨停+9.99%、兆易创新+2.31%验证AI仓位价值，但药明康德-1.66%、宁德时代-1.34%拖累组合。</p>
+</div>
+
+<h3 data-page-node-id="FYydi8JPcHGgxWRmdjStfX">3. 止损止盈触发</h3>
+<div class="al" data-page-node-id="hA13WmJGVUzg8DIG6nPCyr">
+<p data-page-node-id="VvrhAapRfuWqxz7bAyrDwu"><strong data-page-node-id="9GIFubPRuw33ILA50oPSoY">⚠️⚠️ 融创中国-8.89%暴跌：</strong>内房股普跌（绿城-17%），A股地产板块高开低走-1.38%，融创债务风险未解，0.6心理关口告急（最低已探至0.610）。<strong data-page-node-id="J37RQsRycJ58T1EYvCF3HH">建议跌破0.6无条件清仓，不再等待反弹。</strong></p>
+<p data-page-node-id="LmFGF5Y69yjVQF4d4AYFhs"><strong data-page-node-id="9mnQjKX9XhDs544chngeqJ">⚠️ Sea-4.93%：</strong>中概股持续走弱，从52周高回撤43%，收盘跌幅较盘中扩大。<strong data-page-node-id="fZrUMmIxEiYIId2lEjLXJA">跌破110考虑减仓。</strong></p>
+<p data-page-node-id="i9Df5xls8uuAmnJbHpIXEZ"><strong data-page-node-id="Mh31qJBJNcFBcXLomS9k8N">⚠️ 药明康德-1.66%：</strong>医药生物资金净流出46.52亿，板块持续调整。<strong data-page-node-id="8f1ij3GGtAfLTBZvZZPy7j">若重仓需审视是否减仓，等待资金回流信号。</strong></p>
+<p data-page-node-id="oRhXsBfrzwrp7QPsWSkLLB"><strong data-page-node-id="ljF9XCGGQz8UrCwp8p1Ah6">✅ 浪潮信息+9.99%涨停：</strong>组合最大亮点。但北向净卖出2966万+机构龙虎榜净卖出，<strong data-page-node-id="4zpKJunZkTeApdNPe9q7Z6">建议涨停次日冲高90-95减仓50%以上锁定利润</strong>，避免"拉高出货"回吐。</p>
+</div>
+</div>
+
+<!-- ============ 七、制定明日交易计划 ============ -->
+<div class="s" data-page-node-id="q7JjTZAxaTFeDQB5fqlcos">
+<h2 data-page-node-id="W2FhBqUP8MR0ZwgdzDCqCO">📋 七、制定明日交易计划（9月1日·周二）</h2>
+
+<h3 data-page-node-id="htuUKDZUdgFxg4bpwQqvWh">1. 市场环境评估</h3>
+<div class="pl" data-page-node-id="ybABJCHzsqU3Ryla5fthrF">
+<h4 data-page-node-id="kce7ISMMWREJD7lXVdTLPw">📌 当前市场状态：低开高走、成长占优（AI主线强势 + 等非农 + 等FOMC + 防美伊升级）</h4>
+<ul data-page-node-id="vA6faZb1DNIlppz29iO2E6">
+<li data-page-node-id="p3WDUdBqu75RJEfrFD0qJS"><strong data-page-node-id="dLJ1zdAuh44fJ65ZEu8l07">A股：</strong>低开高走全线收涨，收盘价＝全天最高（V型反转）。上涨3181只（57.37%）、涨停89只/跌停13只，成交2.13万亿，主力净流入25.13亿。风格上小盘&gt;中盘&gt;大盘，<strong data-page-node-id="9A1AWKb1U5Ea5L1VPgl6pY">资金明确"卖防御（有色/医药/地产）、买AI（传媒/电子）"</strong>。</li>
+<li data-page-node-id="dwIrrQx5w4rHpkp5KTHi0g"><strong data-page-node-id="vb1CIeTAQUFV6RJtQ7ZDC7">港股：</strong>恒指微跌-0.07%、恒生科技+0.32%，南向净买入21.39亿持续加仓科网/AI应用。内房股风险（融创-8.89%）需警惕。</li>
+<li data-page-node-id="PsFEyFbRjhGvF6h4sTerOa"><strong data-page-node-id="IopqDgODoV7G56LwHDaHAS">美股：</strong>三大指数小幅收跌（道指-0.70%、纳指-0.12%、标普-0.33%），但<strong data-page-node-id="rxJsPwfCF2pQMzoukbDuz6">费半+0.57%逆势收涨</strong>；特斯拉+5.51%、美光+2.77%、英伟达+1.48%领涨。</li>
+<li data-page-node-id="S3RbfTVYuiDxSr0JVbN4XL"><strong data-page-node-id="vtGvIMkn9WkDbVsta3N40a">仓位建议：</strong>由3-4成<strong data-page-node-id="RrqxOyjgnLTYLpza402nqj">上调至4-5成</strong>。理由：① 指数收盘＝全天最高，多头信号明确；② 8月沪指涨超4%，趋势未破坏；③ 主线清晰（AI算力+应用）。<strong data-page-node-id="6EniDjSgALP8G0WsUKRUBm">结构上做"减防御、加AI"</strong>——减持医药/新能源/内房，加仓AI算力核心（兆易/英伟达/美光）与AI应用。仍保留子弹等9/4非农与FOMC落地。</li>
+</ul>
+</div>
+
+<h3 data-page-node-id="iUogQc2r4UgDoGijgxCbMN">2. 具体操作计划</h3>
+
+<h4 data-page-node-id="ZdMVX7txD4BXt9swzR9FMD">A股操作</h4>
+<table data-page-node-id="ADe6PRX0k7oiq6zjEAWeKV">
+<tr data-page-node-id="RQd0vcGbdmKALlSShlT8rX"><th data-page-node-id="93JL4EPgwVL9dn1zcqCSD1">优先级</th><th data-page-node-id="GjJ4Q4DFuJplKkXkdLQPuc">股票</th><th data-page-node-id="Tu2VN77uo3k0Q5fxpJhYE0">方向</th><th data-page-node-id="vgEFCJPZd4XHHW1JnlSIGC">触发价格</th><th data-page-node-id="fTtpxBmqL4Vrp5tSskrYHY">仓位/金额</th><th data-page-node-id="OhIy9DYGMsfyj06s5Jf1WX">止损价</th><th data-page-node-id="agpT1AdH2C1fnBlgh221mT">止盈价</th><th data-page-node-id="fF3ZX1WhHuYJyoOraVfKTj">逻辑</th></tr>
+<tr data-page-node-id="kK8TPgEdcaQR2qFR7BZYyq"><td data-page-node-id="PMFt2ntP26pDmkuaJi9Kpf">⭐⭐⭐</td><td data-page-node-id="zGgzkrd4a3sKMeaGymLVMy">浪潮信息</td><td data-page-node-id="NoSD3F9abrTXk4VM4yUGNX"><span class="badge bw" data-page-node-id="YVQOF8iYHMqUe9AdyVUclD">冲高减仓</span></td><td data-page-node-id="gd8zrHEMZ4o3V6bJhXhkht">次日冲高90-95</td><td data-page-node-id="wqLBQIMopLjPjR8PyrmRGC">减仓50%以上</td><td data-page-node-id="D5lioATHc5qe6OPnA3KkYN">跌破80减仓</td><td data-page-node-id="6XrjbwwBKMSpDO6fW7mW7r">92-95</td><td data-page-node-id="76Plo0oBpFfwCnQdXaZ7HF">涨停但北向/机构出货，锁定利润</td></tr>
+<tr data-page-node-id="SiTIPyRAFcD4PnHxv9ON7j"><td data-page-node-id="tdCPKh2nWH05WfZK6rws6M">⭐⭐⭐</td><td data-page-node-id="f9XQNALBgBaQSPK2aNcWDY">融创中国</td><td data-page-node-id="wF3i4gwK5DKLKOgsNYAVp7"><span class="badge bd" data-page-node-id="A8wlAVHBH1pJGXz8YBcAC7">清仓</span></td><td data-page-node-id="pqvCuQMRljdRsIgvnPnQxP">跌破0.6</td><td data-page-node-id="2gpdkij2l9sRSgNY3ru06D">清仓</td><td data-page-node-id="9mGjaSG2yXLVtcnCucNov3">0.6无条件止损</td><td data-page-node-id="OTw8psjlkOgYG9G2tcFGK4">-</td><td data-page-node-id="oaMoS25HEKKepnHMLsFLAO">内房债务风险未解，暴跌-8.89%</td></tr>
+<tr data-page-node-id="RKxgvwdp0CAqWos1CrtPxT"><td data-page-node-id="jL3SlNiijbwLH8Tt9yepQR">⭐⭐⭐</td><td data-page-node-id="YrNcVwEfYnxqm6TA3okSFy">兆易创新</td><td data-page-node-id="yolGC3OH7IIeTbCFdxSXal"><span class="badge bu" data-page-node-id="PonGCzpDNhAOPnoUcuLyh6">持有/可加仓</span></td><td data-page-node-id="BRfAkxopEzsR0Qcee9nNEo">回踩396-400不破</td><td data-page-node-id="wYQovUeyWIGVDPVEnhZniC">可加1成</td><td data-page-node-id="KROoxJ3CHTYHkjEVLd3Ji9">跌破387减仓</td><td data-page-node-id="ZBdgunZYR3dO3tuCqF2kFU">420</td><td data-page-node-id="sUZzHiNPuEU83G2xIshRxd">半导体+1.93%转强，AI存储+国产替代双逻辑</td></tr>
+<tr data-page-node-id="2pMl6lsipfiABULqC2e4f3"><td data-page-node-id="2kblCo6UulTzaRd0E7NRm8">⭐⭐</td><td data-page-node-id="5DuRk8CHIMoJ9DtYIlxJ9g">科创50ETF东财</td><td data-page-node-id="qv2IaVa5eo4v2FiMFudnWW"><span class="badge bu" data-page-node-id="62d9ssGR278Yef49XXFrLs">持有/可加仓</span></td><td data-page-node-id="drFTXwoCbEYVQzpu4CrlRK">科创50放量收复1700</td><td data-page-node-id="xC4eGvaacntuRJnotBdl9d">可加1成</td><td data-page-node-id="l6SIGD8N2ahoOAqbllltO5">跌破1.55减仓</td><td data-page-node-id="9cerMnsdlPH6d3IgNXzyLR">1.70</td><td data-page-node-id="y8GavICgMMFg8q92wY1fqe">科创50月涨2.96%，V型反转最强指数</td></tr>
+<tr data-page-node-id="FPGhnt0pzhHeH3bHUr0q1i"><td data-page-node-id="kymTj80HC2EQJBzJMQZ40d">⭐⭐</td><td data-page-node-id="2KrjZSFc5XDQiUD9dG7gG6">招商银行</td><td data-page-node-id="2XLL9LDGNoPFPyRo787CIe"><span class="badge bu" data-page-node-id="anzsI8dAGE8egYx1dRAGzn">持有</span></td><td data-page-node-id="A2NHs4fWDWdI6EAP1kZUEG">-</td><td data-page-node-id="x8chme3LrlLWyEBCWSd3HH">维持底仓</td><td data-page-node-id="4ssy6TH0CmNlsUSsmawFdW">跌破39减持</td><td data-page-node-id="vmxeFYrkunWxdgWgXG0Nvk">41</td><td data-page-node-id="hPt5jJDc7OIc0NyNXnHbCY">国有大行+2.94%，高股息压舱石</td></tr>
+<tr data-page-node-id="Ipm7gM9o5yaDIuDYEVx7uD"><td data-page-node-id="HNzGdB7yZy7Q8rdlyKsSrK">⭐⭐</td><td data-page-node-id="ERSTYlizUurD11tDibF5Z3">贵州茅台</td><td data-page-node-id="3pBqPbmtu3GTZqmtX1rAKs"><span class="badge bw" data-page-node-id="xRHwqn5GPF2KVtO1vrFw8A">观望</span></td><td data-page-node-id="GRnCQhrGaZwspCKKWz5Bta">-</td><td data-page-node-id="7qbuvAucjeY4M3aBXpmGUI">维持底仓</td><td data-page-node-id="OB7ddTL5xa6qae0GYenZ8j">跌破1286减持</td><td data-page-node-id="eQgUZLiNaf7Xfu4fyKuHbt">1305</td><td data-page-node-id="4hCigbc2ieDXwPXkussdqk">白酒板块跌幅居前，短期缺催化</td></tr>
+<tr data-page-node-id="qtFrF4GDid9cNLv2FdBg3g"><td data-page-node-id="sMfycS0k0FmipfmxchwV1Q">⭐</td><td data-page-node-id="OayhFKQy9pjlDFsDGuVWRp">药明康德</td><td data-page-node-id="nuhPmKx4w3Fuh9KHWAuSHI"><span class="badge bw" data-page-node-id="XuZk2vyWvn8T34F08DuhKW">减仓</span></td><td data-page-node-id="ZMykq4OxDBe9hflK3xzbsF">反弹至157附近</td><td data-page-node-id="k9rdOHAQBHoCynoembtsAN">减仓1/3</td><td data-page-node-id="7fr1y3VgGA89V87xzds0tE">跌破150减持</td><td data-page-node-id="zP81ubDYuVthBpLqGqQa3B">-</td><td data-page-node-id="vFltlnFOC8lOHGhB6HEGeQ">医药资金净流出46.52亿，持续失血</td></tr>
+<tr data-page-node-id="kagUniqRB9WCIn0ElRHp5b"><td data-page-node-id="o6UnksfZ8ENaAAiOxqpp5b">⭐</td><td data-page-node-id="i3B4CxaAsFYWl4Clj6pxzt">宁德时代</td><td data-page-node-id="Dcmfoku3qF4wel6WaRKru9"><span class="badge bw" data-page-node-id="nsbBHWL3EkzEPsgU2Z7aaG">观察</span></td><td data-page-node-id="3ZEQQSBHRmRaN1iCOofz50">放量收复368</td><td data-page-node-id="1cDQY4mFR37PXJhEoRTe6L">不加仓</td><td data-page-node-id="PkSRjQsaXQPdRRObvDkzpl">跌破357减持</td><td data-page-node-id="Jm0LkPHj2e9rIRvOKjPcUC">-</td><td data-page-node-id="gTWR4bN1jCU3emiKHT64hS">光伏拖累新能源，等企稳信号</td></tr>
+<tr data-page-node-id="9TlgTZifpMbpLlsWYyCZ8L"><td data-page-node-id="sm2SmPM2uisGZg7H9hQ6Od">⭐</td><td data-page-node-id="jmeq6cx44qVcy4X4y02ETE">中际旭创</td><td data-page-node-id="qQrTPccXCC3vDgIBeIpIUB"><span class="badge bw" data-page-node-id="tKlA3RsrKyEZvYa8YwSi0i">观察</span></td><td data-page-node-id="TeItC79r6k7gx508SgSyVh">放量收复863</td><td data-page-node-id="T8wAog6J60gbKy0V3wxlEh">不加仓</td><td data-page-node-id="zSGZbQMm3cxMhVPuoyukyd">跌破830减持</td><td data-page-node-id="B8dM3SH3HGMIfRTVL6vLks">-</td><td data-page-node-id="wzpOAVOEPs1TWiyNyQpkEx">大盘涨+半导体涨但CPO逆势跌，相对弱势</td></tr>
+</table>
+
+<h4 data-page-node-id="NZInLp4IYwrfESBCEaMb7i">港股操作（10只）</h4>
+<table data-page-node-id="7WBFGJERLXlpdrqqxTtim1">
+<tr data-page-node-id="Py51stOU2rYIssBRNMHZcT"><th data-page-node-id="jjEWEAsbHLoledCfuHCZwc">优先级</th><th data-page-node-id="GJPEBGKTZYQSR2XlTWYJdh">股票</th><th data-page-node-id="VBSByhLXe1KGwa420lwsRm">方向</th><th data-page-node-id="4NbDeCdSLBGqTZgqcfHNOd">触发条件</th><th data-page-node-id="lwX5175tiqhunj8rzQMgTw">策略</th></tr>
+<tr data-page-node-id="mpCc9acWLb4vzL4nlLUy7a"><td data-page-node-id="zMdrgB8nfVosE0bpxcGb0h">⭐⭐⭐</td><td data-page-node-id="W3vv0FKxMUeJAaWbKhLp6g">腾讯</td><td data-page-node-id="BLEfc6TvGlH6SEbCNGfqtQ"><span class="badge bu" data-page-node-id="FgkFEiNECCU2M3pId5kENm">持有/可加仓</span></td><td data-page-node-id="AwETJYfYY45pVMeEjI38pT">回踩448-450不破</td><td data-page-node-id="3dCiMH3GXf0FBaizEJYtng">南向+4.11亿持续加仓，混元Hy4开源，PE约16低位</td></tr>
+<tr data-page-node-id="N0UZ4vV8nXjOGJNXHkEBDS"><td data-page-node-id="GJRNe6fAdc7SrKvH6LTSVO">⭐⭐</td><td data-page-node-id="LMmtGobzMmmMHEd0GARlSn">中芯国际</td><td data-page-node-id="KJnKHdwwHf2IjOE1dBNlXf"><span class="badge bu" data-page-node-id="AqMmQT2pRoGqmBFb4Jhytw">持有/可加仓</span></td><td data-page-node-id="Yiia0FvcCCfvRZttFbNHF9">南向持续买入</td><td data-page-node-id="V8wqw4IdRWkQSdmc7pLKEh">国产替代+晶圆代工全球第三，A股半导体+1.93%共振</td></tr>
+<tr data-page-node-id="iggx1sSwp5gCF93hGcYbMG"><td data-page-node-id="9obp2k2g5UFnpAnsHRZyhr">⭐⭐</td><td data-page-node-id="V3AjZqFcJlS8dX46snYR6B">美团/京东</td><td data-page-node-id="I9rBZZ8JOAPEaUh6IfLsr4"><span class="badge bw" data-page-node-id="FrHKhZf6cIUWEmEz9h2W8D">观望</span></td><td data-page-node-id="TJBEzzANkzS021qZF8h9Y6">美团南向净卖出11.89亿</td><td data-page-node-id="H82QyFI9PArYvI72lRKDHw">科网活跃但美团遭南向减仓，等方向</td></tr>
+<tr data-page-node-id="FAe3LnsteRq9iOzxhXioNz"><td data-page-node-id="P4VQaHLrCCnP6HyeegzjBB">⭐⭐</td><td data-page-node-id="FaVFBObDk0yipfizYykXza">融创中国</td><td data-page-node-id="kIsdCrsS8LOvfX1pBDDxRT"><span class="badge bd" data-page-node-id="qZMTdCsbCCuZvEViCn5szo">清仓</span></td><td data-page-node-id="bSbIqv4oByMDMgVXLQXaHs">跌破0.6</td><td data-page-node-id="yxqhF8TFhn7m4DIm8b9iXa">内房风险未解，规避</td></tr>
+</table>
+
+<h4 data-page-node-id="mgQp2wZ0lUZ8ftlz1nupSj">美股操作（8/31已收盘，等今晚9/1开盘）</h4>
+<table data-page-node-id="VDmoAW2xbWzcoHpDO78JpD">
+<tr data-page-node-id="3hoyKD1mVcp2RjzlCRNYUE"><th data-page-node-id="WPUho6DKbuw6HWs8OWh599">优先级</th><th data-page-node-id="Y7fyrDP5fdsewnoWfK47oq">股票</th><th data-page-node-id="3ByO051MhfciMD8hLbMg5p">方向</th><th data-page-node-id="C5qeHnAncRSWE5nz8ymlhd">触发条件</th></tr>
+<tr data-page-node-id="46m0Kx7F7QMTzSLq0JXm1s"><td data-page-node-id="fRLOHWQPSJHEBi8JOCuLJ9">⭐⭐⭐</td><td data-page-node-id="ZqXIjTphuStBLZCpsMufbm">特斯拉</td><td data-page-node-id="L6Xr57TDhN8lJ1Sbv2lrfU"><span class="badge bw" data-page-node-id="oRdmrbAiV5Rmp4iweWoxBG">冲高减仓</span></td><td data-page-node-id="DG0ffSbY6Nv4FFkmmAREEu">事件驱动（港澳Model3），+5.51%后若冲高380+减仓</td></tr>
+<tr data-page-node-id="qTK5QUqvgr3dI1IJqUOOpK"><td data-page-node-id="rsukrKAfOjQK7Gcau1X9TQ">⭐⭐⭐</td><td data-page-node-id="DULpOiEgBvA8gg0di0qky1">英伟达/美光</td><td data-page-node-id="F3FAbw3bz2qjejHFrRsPJP"><span class="badge bu" data-page-node-id="QowhTBesmirgXng10LtrAr">持有/可加仓</span></td><td data-page-node-id="jecatPRGjM2AzrlDDlLoWn">AI算力/存储主线，费半+0.57%逆势收涨共振，回调可加</td></tr>
+<tr data-page-node-id="xojG9exUyHb9E9QrpfUaXB"><td data-page-node-id="ytvP2aXVBsQ0gZoiBRTC03">⭐⭐</td><td data-page-node-id="9A84AtNZfRG3IbNU1hhso1">苹果/谷歌</td><td data-page-node-id="3ExYf0o5ewL1K4wiqfBqlu"><span class="badge bw" data-page-node-id="lmtwYPXl2zVPJtFN76XdoG">观望</span></td><td data-page-node-id="8n0NVLl4GG9qfwU99s7OGw">七巨头分化，谷歌从52周高回撤17%，等企稳</td></tr>
+<tr data-page-node-id="YSNf5VBJ02s9Md7CeghiBO"><td data-page-node-id="rD5QM8iVO7itynZ6dtXrTh">⭐</td><td data-page-node-id="Nuw0n9nJLQKYJy7SsaYkBG">Sea</td><td data-page-node-id="F8KKiBZcwVFldX4anrWiHj"><span class="badge bd" data-page-node-id="C8uqx4jbcp02O42nQ93yRt">减仓</span></td><td data-page-node-id="iUHyAk3Pr9IjsGAqLhp3zl">跌破110减仓，中概持续走弱，从52周高回撤43%</td></tr>
+</table>
+
+<h3 data-page-node-id="nFqBtKSfNHBgu2h5gkFT6m">3. 情景决策矩阵</h3>
+<table data-page-node-id="kSiOpxgsOjBdtxYN5YHJCC">
+<tr data-page-node-id="5KC4QbGjZA3cKdeuCoIWFx"><th data-page-node-id="o51Um0jg9N32HW155fFgFC">情景</th><th data-page-node-id="rNvvB8PrYfuJixHsWUCgIH">A股科技</th><th data-page-node-id="DPrgeWW6hEw5UoIKliQ15F">港股互联网</th><th data-page-node-id="L1aT55b8JesPfGDnVz5BBZ">美股芯片</th><th data-page-node-id="jEPjQNQ1Ci7XD9T1Aj6Php">应对</th></tr>
+<tr data-page-node-id="75GFFpvvGCZhufj3bCMZxn"><td data-page-node-id="q0aNE03VuywvLaAmUukvpj">9/4非农走弱+FOMC偏鸽</td><td data-page-node-id="5HWywfe6omdeub1oTHFisC">主线加速，科创50冲1750</td><td data-page-node-id="yzDSbVRXw2sGiFEH1ghyGD">继续上行</td><td data-page-node-id="7BIirvxeeFxkDFMAVXDFc2">反弹修复</td><td data-page-node-id="GzMwFVtcPEDHE6O5n8Skt0">仓位加至6-7成，AI算力/应用核心加满</td></tr>
+<tr data-page-node-id="lypgXjnOuPSezhFrXZB0zL"><td data-page-node-id="DCaEU5ElcEQ2WtBqbRlJs0">非农强劲+加息落地</td><td data-page-node-id="zNgjaptx8k4HjyiTb7ZQed">高位震荡，科创50回踩1650</td><td data-page-node-id="nOTThlpevtqmZigoSKN1WF">承压但南向支撑</td><td data-page-node-id="hr9Hw1IstQueHZotyq9WeH">回调</td><td data-page-node-id="RouycRhn4ZhfhpB3hAEMzD">维持4-5成，AI核心持有不减，防御底仓补回</td></tr>
+<tr data-page-node-id="AlACVv5QIzWLtqOwUoXV4Z"><td data-page-node-id="Grq0Tn54Iu902ZVHg8hSAi">美伊冲突升级→油价暴涨</td><td data-page-node-id="Gz5JjeQwKiAEHWmboMTSSN">通胀担忧，成长承压</td><td data-page-node-id="pxAZgFlEvf3zgZ9HF9wcyd">承压</td><td data-page-node-id="HgDqdITduTxHSwuAJtvUrp">承压</td><td data-page-node-id="vC55a3ciWpQw8L3Zuxgzw4">减仓高估值成长，加配银行/红利（国有大行+2.94%已验证）</td></tr>
+<tr data-page-node-id="2LtoQ8riJcxE4i8gncGMpF"><td data-page-node-id="yFE72lClUNpMlba7otcEl1">震荡观望（非农中性）</td><td data-page-node-id="YBX0vumsefJCoxuqlJsNLB">结构性行情，AI主线独强</td><td data-page-node-id="rE2eAh0IzQtWAfRffvLjGe">震荡</td><td data-page-node-id="F58jDyyEX8h3DQ1pBKpH7u">震荡</td><td data-page-node-id="1a18nAkGowTOibJrvPL0oS">维持4-5成，聚焦AI主线，非主线不加仓</td></tr>
+</table>
+
+<h3 data-page-node-id="gQdu1JiqJ2SJHEgsqPY5NZ">4. 关键观察清单（9月1日周二开盘）</h3>
+<div class="pl" data-page-node-id="3wNJHdfVBBz6mITmneVfez">
+<h4 data-page-node-id="SkMMJyhX2IIK9XOXLFIfoc">👀 明日开盘重点关注</h4>
+<ol data-page-node-id="03Dp6wUZwCbVdW68AtsyKH">
+<li data-page-node-id="2ua1sh0efI2ZSDScAEvkG4"><strong data-page-node-id="Az7LvAEtMUnsFv3K6MEUDc">🔴 美伊冲突进展（最高优先级）：</strong>油价能否稳住（布油已破90美元）？若升级→通胀→美债收益率→全球风险资产承压</li>
+<li data-page-node-id="SZib5ELFl7TDRKh26IAras"><strong data-page-node-id="hNe0ctXFGL0AL8vTgsb7ZU">🔴 AI主线持续性：</strong>短剧/AIGC涨停潮能否延续？传媒（+3.80%）能否继续放量？若高开低走→题材退潮信号</li>
+<li data-page-node-id="PqQi9mWV9bpoGjqpk14RyX"><strong data-page-node-id="Qge7Bcq3nw3HNwp1VY90Mm">🟠 科创50 1700关口：</strong>今日收1684.39（V型反转+1.34%），明日若放量收复1700→主线确认；若回落至1650下方→反弹结束</li>
+<li data-page-node-id="4ScHkTRCQuKZ0MVtWCrmIl"><strong data-page-node-id="PuDGLlE5LIEn17yIV9ZoqH">🟠 浪潮信息次日走势：</strong>涨停+9.99%但北向/机构出货，明日是否冲高回落？冲高90-95即减仓50%+</li>
+<li data-page-node-id="GSePanIQkIkWRmyadUNqsT"><strong data-page-node-id="Id7MmILhIp6Va5T7qUtIkV">🟡 成交额能否放大：</strong>今日2.13万亿未放量。若放大至2.5万亿+→增量入场确认，可加仓；若持续缩量→存量博弈，主线独强</li>
+<li data-page-node-id="FRe3PHFNa8aEgP2rkn1Gxw"><strong data-page-node-id="foGfasnY3TB8Tuc9qObBH2">🟢 南向资金持续性：</strong>连续净买入21.39亿，明日是否继续加仓腾讯/中芯→判断港股方向</li>
+<li data-page-node-id="24C43rzYPM2q6b9JU4nc2K"><strong data-page-node-id="IAktCOABHHM6qkO8GZz97w">⚡ 地产板块：</strong>今日高开低走-1.38%，房贷新政利好兑现即出货。明日若继续下跌→确认政策底≠市场底</li>
+<li data-page-node-id="A3Xp1iLRnDjve0ilB7k01V"><strong data-page-node-id="i431epNdOZnu0NcKjB0r5X">💰 美债收益率：</strong>10年期4.75%能否回落？→决定成长股估值压制是否缓解</li>
+<li data-page-node-id="VA05aH2SiEoBLSoSKPelDS"><strong data-page-node-id="vhgpCEcb9QxjMXaCJxnbRw">🌍 离岸人民币：</strong>6.7183升值趋势能否延续→利好港股/外资回流</li>
+</ol>
+</div>
+</div>
+
+<div class="fn" data-page-node-id="n3ur7cwqdhH0WzjEXzoHsf">
+📅 生成时间：2026-09-01 06:00 CST | 数据来源：新浪行情（A股/港股 8/31 收盘、美股 8/31 收盘）+ 证券时报/新华财经/科创板日报/财联社 | 免责声明：以上分析仅供参考，不构成投资建议。投资有风险，决策需谨慎。
+</div>
+</div>
+
+<script>
+// A股核心指数近10日走势
+(function(){
+var dates=['8/18', '8/19', '8/20', '8/21', '8/24', '8/25', '8/26', '8/27', '8/28', '8/31'];
+var sh=[3990.3, 3894.42, 3903.72, 3905.2, 3882.01, 3889.45, 3912.52, 3956.57, 3952.18, 3986.3];
+var sz=[14622.5, 13890.15, 13972.78, 14094.17, 13794.29, 13745.87, 13841.33, 14048.88, 13953.07, 14015.0];
+var cyb=[3705.56, 3473.49, 3495.59, 3545.58, 3431.89, 3397.51, 3414.88, 3473.36, 3424.4, 3438.68];
+var kc50=[1790.87, 1667.52, 1652.97, 1653.56, 1602.34, 1604.59, 1632.02, 1693.48, 1662.15, 1684.39];
+
+echarts.init(document.getElementById('chart_idx')).setOption({
+  tooltip:{trigger:'axis'},
+  legend:{data:['上证指数','深证成指','创业板指','科创50'],top:5},
+  grid:{left:60,right:30,top:50,bottom:30},
+  xAxis:{type:'category',data:dates},
+  yAxis:{type:'value'},
+  series:[
+    {name:'上证指数',type:'line',data:sh,smooth:true,lineStyle:{color:'#e74c3c'},itemStyle:{color:'#e74c3c'}},
+    {name:'深证成指',type:'line',data:sz,smooth:true,lineStyle:{color:'#f39c12'},itemStyle:{color:'#f39c12'}},
+    {name:'创业板指',type:'line',data:cyb,smooth:true,lineStyle:{color:'#8e44ad'},itemStyle:{color:'#8e44ad'}},
+    {name:'科创50',type:'line',data:kc50,smooth:true,lineStyle:{color:'#27ae60'},itemStyle:{color:'#27ae60'}}
+  ]
+});
+})();
+
+// 自选股涨跌幅
+(function(){
+var names=['浪潮信息', '特斯拉', '美光科技', '兆易创新', '招商银行', '美团', '机器人ETF易方达', '京东集团', '英伟达', '科创50ETF东财', '中芯国际', '恒指科技ETF博时', '创业板ETF易方达', '阿里巴巴', '贵州茅台', '沪深300ETF华泰柏瑞', 'A500ETF东财', '中国平安', '东方财富', '联想集团', '腾讯控股', '理想汽车', '中际旭创', '小米集团', '苹果', '宁德时代', '泡泡玛特', '药明康德', '谷歌', 'Sea', '融创中国'];
+var vals=[9.99, 5.51, 2.77, 2.31, 1.96, 1.68, 1.67, 1.54, 1.48, 1.06, 0.71, 0.51, 0.38, 0.18, 0.16, 0.13, 0.0, -0.05, -0.15, -0.33, -0.53, -0.54, -0.75, -0.79, -0.89, -1.34, -1.39, -1.66, -2.18, -4.93, -8.89];
+var colors=vals.map(function(v){return v>0?'#e74c3c':(v<0?'#27ae60':'#95a5a6');});
+var n2=names.slice().reverse();
+var v2=vals.slice().reverse();
+var c2=colors.slice().reverse();
+
+echarts.init(document.getElementById('chart_stocks')).setOption({
+  tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+  grid:{left:120,right:50,top:10,bottom:30},
+  xAxis:{type:'value',name:'涨跌幅(%)',axisLabel:{formatter:'{value}%'}},
+  yAxis:{type:'category',data:n2,axisLabel:{fontSize:10}},
+  series:[{
+    type:'bar',
+    data:v2.map(function(v,i){return {value:v,itemStyle:{color:c2[i]}};}),
+    label:{show:true,position:'right',formatter:'{c}%',fontSize:9}
+  }]
+});
+})();
+</script>
+</body>
+</html>

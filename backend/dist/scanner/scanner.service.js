@@ -46,95 +46,105 @@ let ScannerService = ScannerService_1 = class ScannerService {
             avgVolume3m: null,
         };
     }
-    async getAShareSnapshot() {
-        const cached = this.getCached('a_share_snapshot', SNAPSHOT_CACHE_TTL);
+    async getSnapshot(market) {
+        const key = `${market}_snapshot`;
+        const cached = this.getCached(key, SNAPSHOT_CACHE_TTL);
         if (cached)
             return cached;
-        const list = await this.akShareService.getMarketStockList('a_share');
-        this.setCache('a_share_snapshot', list);
+        const list = await this.akShareService.getMarketStockList(market);
+        this.setCache(key, list);
         return list;
     }
-    async getGainers(count = 25) {
-        const cached = this.getCached('gainers');
+    normalizeMarket(market) {
+        return market === 'hk' || market === 'us' ? market : 'a_share';
+    }
+    async getGainers(count = 25, market = 'a_share') {
+        const cacheKey = `gainers_${market}`;
+        const cached = this.getCached(cacheKey);
         if (cached)
             return cached;
         try {
-            const snapshot = await this.getAShareSnapshot();
+            const snapshot = await this.getSnapshot(market);
             const items = [...snapshot]
                 .sort((a, b) => b.change_percent - a.change_percent)
                 .slice(0, count)
                 .map((q) => this.transformQuote(q));
-            this.setCache('gainers', items);
-            this.logger.debug(`Fetched ${items.length} gainers`);
+            this.setCache(cacheKey, items);
+            this.logger.debug(`Fetched ${items.length} gainers (${market})`);
             return items;
         }
         catch (err) {
             this.logger.error(`Failed to fetch gainers: ${err.message}`);
-            return this.getCached('gainers') ?? [];
+            return this.getCached(cacheKey) ?? [];
         }
     }
-    async getLosers(count = 25) {
-        const cached = this.getCached('losers');
+    async getLosers(count = 25, market = 'a_share') {
+        const cacheKey = `losers_${market}`;
+        const cached = this.getCached(cacheKey);
         if (cached)
             return cached;
         try {
-            const snapshot = await this.getAShareSnapshot();
+            const snapshot = await this.getSnapshot(market);
             const items = [...snapshot]
                 .sort((a, b) => a.change_percent - b.change_percent)
                 .slice(0, count)
                 .map((q) => this.transformQuote(q));
-            this.setCache('losers', items);
-            this.logger.debug(`Fetched ${items.length} losers`);
+            this.setCache(cacheKey, items);
+            this.logger.debug(`Fetched ${items.length} losers (${market})`);
             return items;
         }
         catch (err) {
             this.logger.error(`Failed to fetch losers: ${err.message}`);
-            return this.getCached('losers') ?? [];
+            return this.getCached(cacheKey) ?? [];
         }
     }
-    async getActive(count = 25) {
-        const cached = this.getCached('active');
+    async getActive(count = 25, market = 'a_share') {
+        const cacheKey = `active_${market}`;
+        const cached = this.getCached(cacheKey);
         if (cached)
             return cached;
         try {
-            const snapshot = await this.getAShareSnapshot();
+            const snapshot = await this.getSnapshot(market);
             const items = [...snapshot]
                 .sort((a, b) => (b.turnover || 0) - (a.turnover || 0))
                 .slice(0, count)
                 .map((q) => this.transformQuote(q));
-            this.setCache('active', items);
-            this.logger.debug(`Fetched ${items.length} most active`);
+            this.setCache(cacheKey, items);
+            this.logger.debug(`Fetched ${items.length} most active (${market})`);
             return items;
         }
         catch (err) {
             this.logger.error(`Failed to fetch active: ${err.message}`);
-            return this.getCached('active') ?? [];
+            return this.getCached(cacheKey) ?? [];
         }
     }
-    async getTrending() {
-        const cached = this.getCached('trending');
+    async getTrending(market = 'a_share') {
+        const cacheKey = `trending_${market}`;
+        const cached = this.getCached(cacheKey);
         if (cached)
             return cached;
         try {
-            const snapshot = await this.getAShareSnapshot();
+            const snapshot = await this.getSnapshot(market);
             const symbols = [...snapshot]
                 .sort((a, b) => (b.turnover_rate || 0) - (a.turnover_rate || 0))
                 .slice(0, 25)
                 .map((q) => q.symbol);
-            const results = [{ region: 'CN', symbols }];
-            this.setCache('trending', results);
+            const region = market === 'a_share' ? 'CN' : market === 'hk' ? 'HK' : 'US';
+            const results = [{ region, symbols }];
+            this.setCache(cacheKey, results);
             return results;
         }
         catch (err) {
             this.logger.error(`Failed to fetch trending: ${err.message}`);
-            return this.getCached('trending') ?? [];
+            return this.getCached(cacheKey) ?? [];
         }
     }
-    async getTrendingWithQuotes() {
-        const cached = this.getCached('trending_quotes');
+    async getTrendingWithQuotes(market = 'a_share') {
+        const cacheKey = `trending_quotes_${market}`;
+        const cached = this.getCached(cacheKey);
         if (cached)
             return cached;
-        const trending = await this.getTrending();
+        const trending = await this.getTrending(market);
         const regionNames = { CN: 'A股', US: '美股', HK: '港股' };
         const allSymbols = trending.flatMap((t) => t.symbols);
         if (allSymbols.length === 0)
@@ -156,7 +166,7 @@ let ScannerService = ScannerService_1 = class ScannerService {
                     return this.transformQuote(q);
                 }),
             }));
-            this.setCache('trending_quotes', resultsWithQuotes);
+            this.setCache(cacheKey, resultsWithQuotes);
             return resultsWithQuotes;
         }
         catch (err) {

@@ -362,7 +362,13 @@ export interface StockReviewDetail {
   technicals: TechnicalSignals;
   patterns: PatternSignal[];
   supports: SupportResistance[];
-  trendLines: { startDate: string; startPrice: number; endDate: string; endPrice: number; type: 'up' | 'down' }[];
+  trendLines: {
+    startDate: string;
+    startPrice: number;
+    endDate: string;
+    endPrice: number;
+    type: 'up' | 'down';
+  }[];
   anomalies: AnomalyTag[];
   score: ReviewScore;
   moneyFlow: {
@@ -370,7 +376,14 @@ export interface StockReviewDetail {
     largeNetFlow: number;
     timeline: MoneyFlowTimeline[];
   } | null;
-  chartBars: Array<{ date: string; open: number; high: number; low: number; close: number; volume: number }>;
+  chartBars: Array<{
+    date: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume: number;
+  }>;
   volumePrice: VolumePricePoint[];
 }
 
@@ -416,4 +429,40 @@ export interface SentimentResult {
   indices: { symbol: string; name: string; price: number; change: number; changePercent: number }[];
   putCallRatio: number | null;
   timestamp: string;
+}
+
+// =================== News / 资讯 ===================
+
+export interface NewsCategory {
+  key: string;
+  label: string;
+  pageid: number;
+  lid: number;
+}
+
+export interface NewsArticle {
+  id: number;
+  docId: string;
+  category: string;
+  title: string;
+  url: string;
+  wapUrl?: string | null;
+  source?: string | null;
+  author?: string | null;
+  publishTime: number;
+  summary?: string | null;
+  content?: string | null;
+  topImage?: string | null;
+  images?: string[] | null;
+  keywords?: string[] | null;
+  contentCrawledAt?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface NewsListResult {
+  total: number;
+  items: NewsArticle[];
+  source: string;
+  categories: NewsCategory[];
 }

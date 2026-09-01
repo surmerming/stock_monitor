@@ -30,6 +30,8 @@ export interface LimitUpResult {
   items: LimitUpItem[];
 }
 
+export type ScannerMarket = 'a_share' | 'hk' | 'us';
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -75,106 +77,117 @@ export class ScannerService {
   }
 
   /**
-   * A股全市场快照（涨幅/跌幅/活跃/热搜榜共享，避免重复拉取全市场列表）
+   * 全市场快照（涨幅/跌幅/活跃/热搜榜共享，避免重复拉取全市场列表）
    */
-  private async getAShareSnapshot(): Promise<QuoteResult[]> {
-    const cached = this.getCached<QuoteResult[]>('a_share_snapshot', SNAPSHOT_CACHE_TTL);
+  private async getSnapshot(market: ScannerMarket): Promise<QuoteResult[]> {
+    const key = `${market}_snapshot`;
+    const cached = this.getCached<QuoteResult[]>(key, SNAPSHOT_CACHE_TTL);
     if (cached) return cached;
-    const list = await this.akShareService.getMarketStockList('a_share');
-    this.setCache('a_share_snapshot', list);
+    const list = await this.akShareService.getMarketStockList(market);
+    this.setCache(key, list);
     return list;
   }
 
-  async getGainers(count = 25): Promise<ScannerItem[]> {
-    const cached = this.getCached<ScannerItem[]>('gainers');
+  normalizeMarket(market?: string): ScannerMarket {
+    return market === 'hk' || market === 'us' ? market : 'a_share';
+  }
+
+  async getGainers(count = 25, market: ScannerMarket = 'a_share'): Promise<ScannerItem[]> {
+    const cacheKey = `gainers_${market}`;
+    const cached = this.getCached<ScannerItem[]>(cacheKey);
     if (cached) return cached;
 
     try {
-      const snapshot = await this.getAShareSnapshot();
+      const snapshot = await this.getSnapshot(market);
       const items = [...snapshot]
         .sort((a, b) => b.change_percent - a.change_percent)
         .slice(0, count)
         .map((q) => this.transformQuote(q));
 
-      this.setCache('gainers', items);
-      this.logger.debug(`Fetched ${items.length} gainers`);
+      this.setCache(cacheKey, items);
+      this.logger.debug(`Fetched ${items.length} gainers (${market})`);
       return items;
     } catch (err) {
       this.logger.error(`Failed to fetch gainers: ${err.message}`);
-      return this.getCached<ScannerItem[]>('gainers') ?? [];
+      return this.getCached<ScannerItem[]>(cacheKey) ?? [];
     }
   }
 
-  async getLosers(count = 25): Promise<ScannerItem[]> {
-    const cached = this.getCached<ScannerItem[]>('losers');
+  async getLosers(count = 25, market: ScannerMarket = 'a_share'): Promise<ScannerItem[]> {
+    const cacheKey = `losers_${market}`;
+    const cached = this.getCached<ScannerItem[]>(cacheKey);
     if (cached) return cached;
 
     try {
-      const snapshot = await this.getAShareSnapshot();
+      const snapshot = await this.getSnapshot(market);
       const items = [...snapshot]
         .sort((a, b) => a.change_percent - b.change_percent)
         .slice(0, count)
         .map((q) => this.transformQuote(q));
 
-      this.setCache('losers', items);
-      this.logger.debug(`Fetched ${items.length} losers`);
+      this.setCache(cacheKey, items);
+      this.logger.debug(`Fetched ${items.length} losers (${market})`);
       return items;
     } catch (err) {
       this.logger.error(`Failed to fetch losers: ${err.message}`);
-      return this.getCached<ScannerItem[]>('losers') ?? [];
+      return this.getCached<ScannerItem[]>(cacheKey) ?? [];
     }
   }
 
-  async getActive(count = 25): Promise<ScannerItem[]> {
-    const cached = this.getCached<ScannerItem[]>('active');
+  async getActive(count = 25, market: ScannerMarket = 'a_share'): Promise<ScannerItem[]> {
+    const cacheKey = `active_${market}`;
+    const cached = this.getCached<ScannerItem[]>(cacheKey);
     if (cached) return cached;
 
     try {
-      const snapshot = await this.getAShareSnapshot();
+      const snapshot = await this.getSnapshot(market);
       const items = [...snapshot]
         .sort((a, b) => (b.turnover || 0) - (a.turnover || 0))
         .slice(0, count)
         .map((q) => this.transformQuote(q));
 
-      this.setCache('active', items);
-      this.logger.debug(`Fetched ${items.length} most active`);
+      this.setCache(cacheKey, items);
+      this.logger.debug(`Fetched ${items.length} most active (${market})`);
       return items;
     } catch (err) {
       this.logger.error(`Failed to fetch active: ${err.message}`);
-      return this.getCached<ScannerItem[]>('active') ?? [];
+      return this.getCached<ScannerItem[]>(cacheKey) ?? [];
     }
   }
 
-  async getTrending(): Promise<{ region: string; symbols: string[] }[]> {
-    const cached = this.getCached<{ region: string; symbols: string[] }[]>('trending');
+  async getTrending(
+    market: ScannerMarket = 'a_share',
+  ): Promise<{ region: string; symbols: string[] }[]> {
+    const cacheKey = `trending_${market}`;
+    const cached = this.getCached<{ region: string; symbols: string[] }[]>(cacheKey);
     if (cached) return cached;
 
-    // 热搜无直接数据源，以换手率（人气/关注度代理）取A股Top
+    // 热搜无直接数据源，以换手率（人气/关注度代理）取该市场Top
     try {
-      const snapshot = await this.getAShareSnapshot();
+      const snapshot = await this.getSnapshot(market);
       const symbols = [...snapshot]
         .sort((a, b) => (b.turnover_rate || 0) - (a.turnover_rate || 0))
         .slice(0, 25)
         .map((q) => q.symbol);
-      const results = [{ region: 'CN', symbols }];
-      this.setCache('trending', results);
+      const region = market === 'a_share' ? 'CN' : market === 'hk' ? 'HK' : 'US';
+      const results = [{ region, symbols }];
+      this.setCache(cacheKey, results);
       return results;
     } catch (err) {
       this.logger.error(`Failed to fetch trending: ${err.message}`);
-      return this.getCached<{ region: string; symbols: string[] }[]>('trending') ?? [];
+      return this.getCached<{ region: string; symbols: string[] }[]>(cacheKey) ?? [];
     }
   }
 
-  async getTrendingWithQuotes(): Promise<
-    { region: string; regionName: string; items: ScannerItem[] }[]
-  > {
+  async getTrendingWithQuotes(
+    market: ScannerMarket = 'a_share',
+  ): Promise<{ region: string; regionName: string; items: ScannerItem[] }[]> {
+    const cacheKey = `trending_quotes_${market}`;
     const cached =
-      this.getCached<{ region: string; regionName: string; items: ScannerItem[] }[]>(
-        'trending_quotes',
-      );
+      this.getCached<{ region: string; regionName: string; items: ScannerItem[] }[]>(cacheKey);
     if (cached) return cached;
 
-    const trending = await this.getTrending();
+    const trending = await this.getTrending(market);
     const regionNames: Record<string, string> = { CN: 'A股', US: '美股', HK: '港股' };
     const allSymbols = trending.flatMap((t) => t.symbols);
 
@@ -199,7 +212,7 @@ export class ScannerService {
           }),
       }));
 
-      this.setCache('trending_quotes', resultsWithQuotes);
+      this.setCache(cacheKey, resultsWithQuotes);
       return resultsWithQuotes;
     } catch (err) {
       this.logger.error(`Failed to fetch trending quotes: ${err.message}`);

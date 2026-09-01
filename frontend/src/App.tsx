@@ -5,6 +5,7 @@ import { QuoteSSEProvider } from './hooks/useQuoteSSE';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import MarketPage from './pages/MarketPage';
+import NewsPage from './pages/NewsPage';
 import StocksPage from './pages/StocksPage';
 import IndustryPage from './pages/IndustryPage';
 import ScannerPage from './pages/ScannerPage';
@@ -28,6 +29,7 @@ function AuthenticatedApp() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/market" element={<MarketPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/stocks" element={<StocksPage />} />
             <Route path="/industry" element={<IndustryPage />} />
             <Route path="/scanner" element={<ScannerPage />} />

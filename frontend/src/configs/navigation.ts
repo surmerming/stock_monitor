@@ -6,6 +6,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: '总览' },
   { to: '/market', label: '大盘' },
+  { to: '/news', label: '资讯' },
   { to: '/stocks', label: '个股' },
   { to: '/industry', label: '行业' },
   { to: '/scanner', label: '雷达' },

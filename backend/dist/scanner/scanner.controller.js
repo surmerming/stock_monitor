@@ -19,17 +19,17 @@ let ScannerController = class ScannerController {
     constructor(scannerService) {
         this.scannerService = scannerService;
     }
-    getGainers(count) {
-        return this.scannerService.getGainers(count ? +count : 25);
+    getGainers(count, market) {
+        return this.scannerService.getGainers(count ? +count : 25, this.scannerService.normalizeMarket(market));
     }
-    getLosers(count) {
-        return this.scannerService.getLosers(count ? +count : 25);
+    getLosers(count, market) {
+        return this.scannerService.getLosers(count ? +count : 25, this.scannerService.normalizeMarket(market));
     }
-    getActive(count) {
-        return this.scannerService.getActive(count ? +count : 25);
+    getActive(count, market) {
+        return this.scannerService.getActive(count ? +count : 25, this.scannerService.normalizeMarket(market));
     }
-    getTrending() {
-        return this.scannerService.getTrendingWithQuotes();
+    getTrending(market) {
+        return this.scannerService.getTrendingWithQuotes(this.scannerService.normalizeMarket(market));
     }
     getLimitUp() {
         return this.scannerService.getLimitUp();
@@ -39,28 +39,32 @@ exports.ScannerController = ScannerController;
 __decorate([
     (0, common_1.Get)('gainers'),
     __param(0, (0, common_1.Query)('count')),
+    __param(1, (0, common_1.Query)('market')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ScannerController.prototype, "getGainers", null);
 __decorate([
     (0, common_1.Get)('losers'),
     __param(0, (0, common_1.Query)('count')),
+    __param(1, (0, common_1.Query)('market')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ScannerController.prototype, "getLosers", null);
 __decorate([
     (0, common_1.Get)('active'),
     __param(0, (0, common_1.Query)('count')),
+    __param(1, (0, common_1.Query)('market')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ScannerController.prototype, "getActive", null);
 __decorate([
     (0, common_1.Get)('trending'),
+    __param(0, (0, common_1.Query)('market')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ScannerController.prototype, "getTrending", null);
 __decorate([

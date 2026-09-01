@@ -279,6 +279,10 @@ export default function DailyReviewModal({ mode, onClose }: Props) {
 
   const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleString('zh-CN') : '—');
 
+  const uploadingRun =
+    uploadRunId !== null ? (runs.find((r) => r.id === uploadRunId) ?? null) : null;
+  const isReupload = !!(uploadingRun && uploadingRun.dailyReviewId);
+
   const isSettings = mode === 'settings';
   const title = isSettings ? '每日复盘设置' : '运行每日复盘';
   const configKeys = Object.keys(CONFIG_META);
@@ -441,7 +445,7 @@ export default function DailyReviewModal({ mode, onClose }: Props) {
                         创建 {fmtDate(r.createdAt)}
                         {r.finishedAt && <div>完成 {fmtDate(r.finishedAt)}</div>}
                       </td>
-                      <td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
                         {r.dailyReviewId && (
                           <button
                             className="rv-btn rv-btn--sm"
@@ -450,15 +454,18 @@ export default function DailyReviewModal({ mode, onClose }: Props) {
                             查看 HTML
                           </button>
                         )}
-                        {(r.status === 'pending' || r.status === 'failed') && (
-                          <button
-                            className="rv-btn rv-btn--sm"
-                            onClick={() => openUpload(r.id)}
-                            style={{ marginLeft: 4 }}
-                          >
-                            上传 HTML
-                          </button>
-                        )}
+                        <button
+                          className="rv-btn rv-btn--sm"
+                          onClick={() => openUpload(r.id)}
+                          style={{ marginLeft: r.dailyReviewId ? 4 : 0 }}
+                          title={
+                            r.status === 'completed'
+                              ? '重新上传将覆盖该日期已存在的报告'
+                              : '手动上传 HTML 报告'
+                          }
+                        >
+                          {r.status === 'completed' ? '重新上传' : '上传 HTML'}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -472,7 +479,11 @@ export default function DailyReviewModal({ mode, onClose }: Props) {
         {uploadRunId !== null && (
           <>
             <div className="rv-modal__sub-header">
-              <h5 className="rv-modal__sub-title">上传 HTML 到 #{uploadRunId}</h5>
+              <h5 className="rv-modal__sub-title">
+                {isReupload
+                  ? `重新上传 HTML 到 #${uploadRunId}（将覆盖 ${uploadingRun!.date} 的现有报告）`
+                  : `上传 HTML 到 #${uploadRunId}`}
+              </h5>
               <button className="rv-modal__close" onClick={closeUpload}>
                 ×
               </button>
@@ -530,7 +541,13 @@ export default function DailyReviewModal({ mode, onClose }: Props) {
                   onClick={submitUpload}
                   disabled={uploading || !uploadFile}
                 >
-                  {uploading ? '上传中...' : '上传并完成'}
+                  {uploading
+                    ? isReupload
+                      ? '覆盖上传中...'
+                      : '上传中...'
+                    : isReupload
+                      ? '覆盖上传'
+                      : '上传并完成'}
                 </button>
               </div>
             </div>

@@ -23,6 +23,7 @@ export interface LimitUpResult {
     stats: LimitUpStats;
     items: LimitUpItem[];
 }
+export type ScannerMarket = 'a_share' | 'hk' | 'us';
 export declare class ScannerService {
     private readonly akShareService;
     private readonly logger;
@@ -31,15 +32,16 @@ export declare class ScannerService {
     private getCached;
     private setCache;
     private transformQuote;
-    private getAShareSnapshot;
-    getGainers(count?: number): Promise<ScannerItem[]>;
-    getLosers(count?: number): Promise<ScannerItem[]>;
-    getActive(count?: number): Promise<ScannerItem[]>;
-    getTrending(): Promise<{
+    private getSnapshot;
+    normalizeMarket(market?: string): ScannerMarket;
+    getGainers(count?: number, market?: ScannerMarket): Promise<ScannerItem[]>;
+    getLosers(count?: number, market?: ScannerMarket): Promise<ScannerItem[]>;
+    getActive(count?: number, market?: ScannerMarket): Promise<ScannerItem[]>;
+    getTrending(market?: ScannerMarket): Promise<{
         region: string;
         symbols: string[];
     }[]>;
-    getTrendingWithQuotes(): Promise<{
+    getTrendingWithQuotes(market?: ScannerMarket): Promise<{
         region: string;
         regionName: string;
         items: ScannerItem[];

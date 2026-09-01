@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWatchlist } from '../../hooks/useWatchlist';
 import { formatVolume, formatMarketCap } from '../../utils/format';
 import { apiFetch } from '../../utils/apiFetch';
-import { SCANNER_TABS, SCANNER_REFRESH_INTERVAL } from '../../configs/scanner';
+import { SCANNER_TABS, SCANNER_MARKETS, SCANNER_REFRESH_INTERVAL } from '../../configs/scanner';
 import './style.less';
 
 interface ScannerItem {
@@ -60,18 +60,23 @@ interface LimitUpViewProps {
 }
 
 export default function ScannerPage() {
+  const [market, setMarket] = useState('a_share');
   const [activeTab, setActiveTab] = useState<ScannerTabKey>('gainers');
   const [data, setData] = useState<ScannerItem[] | TrendingGroup[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const { addSymbols } = useWatchlist();
 
+  // 当前市场可见的榜单（涨停板仅A股）
+  const visibleTabs = SCANNER_TABS.filter((t) => !t.markets || t.markets.includes(market));
+
   const fetchData = useCallback(async () => {
     const tab = SCANNER_TABS.find((t) => t.key === activeTab);
     if (!tab) return;
     setLoading(true);
     try {
-      const res = await apiFetch(tab.endpoint);
+      const sep = tab.endpoint.includes('?') ? '&' : '?';
+      const res = await apiFetch(`${tab.endpoint}${sep}market=${market}`);
       const json = await res.json();
       setData(json);
       setLastUpdate(new Date());
@@ -80,7 +85,7 @@ export default function ScannerPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab]);
+  }, [activeTab, market]);
 
   useEffect(() => {
     setData(null);
@@ -88,6 +93,16 @@ export default function ScannerPage() {
     const timer = setInterval(fetchData, SCANNER_REFRESH_INTERVAL);
     return () => clearInterval(timer);
   }, [fetchData]);
+
+  const handleSwitchMarket = (m: string) => {
+    if (m === market) return;
+    setMarket(m);
+    // 切换到当前 tab 不支持的市场时，回落到涨幅榜
+    const current = SCANNER_TABS.find((t) => t.key === activeTab);
+    if (current?.markets && !current.markets.includes(m)) {
+      setActiveTab('gainers');
+    }
+  };
 
   const handleAddToWatchlist = async (symbol: string) => {
     try {
@@ -113,8 +128,20 @@ export default function ScannerPage() {
         </div>
       </div>
 
+      <div className="scanner-page__markets">
+        {SCANNER_MARKETS.map((m) => (
+          <button
+            key={m.key}
+            className={`scanner-page__market ${market === m.key ? 'scanner-page__market--active' : ''}`}
+            onClick={() => handleSwitchMarket(m.key)}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
       <div className="scanner-page__tabs">
-        {SCANNER_TABS.map((tab) => (
+        {visibleTabs.map((tab) => (
           <button
             key={tab.key}
             className={`scanner-page__tab ${activeTab === tab.key ? 'scanner-page__tab--active' : ''}`}
@@ -314,7 +341,6 @@ function TrendingView({ data, loading, onAdd }: TrendingViewProps) {
     <div className="trending-view">
       {data.map((group) => (
         <div key={group.region} className="trending-view__group">
-          <h3 className="trending-view__region">{group.regionName || group.region}</h3>
           {!group.items || group.items.length === 0 ? (
             <p className="trending-view__empty">暂无数据</p>
           ) : (

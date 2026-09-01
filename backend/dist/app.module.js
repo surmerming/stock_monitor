@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const schedule_1 = require("@nestjs/schedule");
 const typeorm_1 = require("@nestjs/typeorm");
 const stock_module_1 = require("./stock/stock.module");
 const watchlist_module_1 = require("./watchlist/watchlist.module");
@@ -28,6 +29,7 @@ const review_note_module_1 = require("./review-note/review-note.module");
 const daily_review_module_1 = require("./daily-review/daily-review.module");
 const auth_module_1 = require("./auth/auth.module");
 const stock_comment_module_1 = require("./stock-comment/stock-comment.module");
+const news_module_1 = require("./news/news.module");
 const watchlist_entity_1 = require("./watchlist/watchlist.entity");
 const alert_rule_entity_1 = require("./alert/alert-rule.entity");
 const alert_history_entity_1 = require("./alert/alert-history.entity");
@@ -40,6 +42,7 @@ const run_entity_1 = require("./daily-review/run.entity");
 const user_entity_1 = require("./auth/user.entity");
 const login_attempt_entity_1 = require("./auth/login-attempt.entity");
 const comment_entity_1 = require("./stock-comment/comment.entity");
+const news_entity_1 = require("./news/news.entity");
 const jwt_auth_guard_1 = require("./auth/jwt-auth.guard");
 let AppModule = class AppModule {
 };
@@ -67,9 +70,11 @@ exports.AppModule = AppModule = __decorate([
                     user_entity_1.User,
                     login_attempt_entity_1.LoginAttempt,
                     comment_entity_1.StockComment,
+                    news_entity_1.NewsArticle,
                 ],
                 synchronize: true,
             }),
+            schedule_1.ScheduleModule.forRoot(),
             auth_module_1.AuthModule,
             stock_module_1.StockModule,
             watchlist_module_1.WatchlistModule,
@@ -88,6 +93,7 @@ exports.AppModule = AppModule = __decorate([
             review_note_module_1.ReviewNoteModule,
             daily_review_module_1.DailyReviewModule,
             stock_comment_module_1.StockCommentModule,
+            news_module_1.NewsModule,
         ],
         providers: [
             {

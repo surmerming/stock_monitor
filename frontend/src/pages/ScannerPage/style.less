@@ -50,6 +50,41 @@
     }
   }
 
+  &__markets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  &__market {
+    padding: 5px 16px;
+    border: 1px solid #d8dee8;
+    border-radius: 16px;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    color: @text-dim;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: @primary;
+      color: @primary;
+    }
+
+    &--active {
+      border-color: @primary;
+      background: @primary;
+      color: #fff;
+
+      &:hover {
+        border-color: darken(@primary, 8%);
+        background: darken(@primary, 8%);
+        color: #fff;
+      }
+    }
+  }
+
   &__tabs {
     display: flex;
     gap: 4px;
