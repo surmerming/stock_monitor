@@ -39,16 +39,75 @@ interface SummaryDetail {
 }
 
 interface FinancialData {
+  // === Yahoo Finance 风格字段（保留兼容）===
   grossMargins?: number;
   operatingMargins?: number;
   profitMargins?: number;
   returnOnEquity?: number;
   revenueGrowth?: number;
+  earningsGrowth?: number;
+  totalRevenue?: number;
   targetMeanPrice?: number;
   targetLowPrice?: number;
   targetHighPrice?: number;
   recommendationKey?: string;
   numberOfAnalystOpinions?: number;
+
+  // === 新浪财务扩展 ===
+  // 盈利能力
+  roeAvg?: number;
+  roeDiluted?: number;
+  roeNet?: number;
+  roa?: number;
+  roic?: number;
+  ebitMargin?: number;
+
+  // 财务风险
+  currentRatio?: number;
+  quickRatio?: number;
+  debtRatio?: number;
+  equityMultiplier?: number;
+  cashRatio?: number;
+
+  // 营运能力
+  arTurn?: number;
+  arDays?: number;
+  invTurn?: number;
+  invDays?: number;
+  taTurn?: number;
+
+  // 收益质量
+  ocfToProfit?: number;
+  costExpenseRatio?: number;
+
+  // 每股指标
+  basicEPS?: number;
+  dilutedEPS?: number;
+  bps?: number;
+  ocfps?: number;
+  fcps?: number;
+  udpps?: number;
+  cappps?: number;
+  surppps?: number;
+
+  // 绝对值（元）
+  revenue?: number;
+  cost?: number;
+  netProfit?: number;
+  netProfitParent?: number;
+  netProfitDeducted?: number;
+  equity?: number;
+  totalAssets?: number;
+  ocf?: number;
+}
+
+interface MoneyflowDetail {
+  date: string;
+  netFlow: number; // 主力净流入（超大单+大单）
+  superNet: number; // 超大单净流入
+  largeNet: number; // 大单净流入
+  mediumNet: number; // 中单净流入
+  smallNet: number; // 小单净流入
 }
 
 interface RecommendationTrendItem {
@@ -104,6 +163,7 @@ interface DetailResponse {
   price?: DetailPrice;
   summaryDetail?: SummaryDetail;
   financialData?: FinancialData;
+  moneyflow?: MoneyflowDetail | null;
   recommendationTrend?: RecommendationTrendItem[];
   insights?: Insights & { sigDevs?: SigDev[] };
   shortInterest?: ShortInterest;
@@ -380,14 +440,44 @@ export default function StockDetailPage() {
   );
 }
 
+function fmtAbs(v: number | null | undefined): string {
+  if (v == null) return '—';
+  if (Math.abs(v) >= 1e8) return (v / 1e8).toFixed(2) + '亿';
+  if (Math.abs(v) >= 1e4) return (v / 1e4).toFixed(2) + '万';
+  return v.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+function fmtMoney(v: number | null | undefined): string {
+  if (v == null) return '—';
+  const sign = v >= 0 ? '+' : '';
+  if (Math.abs(v) >= 1e8) return sign + (v / 1e8).toFixed(2) + '亿';
+  if (Math.abs(v) >= 1e4) return sign + (v / 1e4).toFixed(0) + '万';
+  return sign + v.toFixed(0);
+}
+
+function MoneyflowItem({ label, value }: { label: string; value?: number }) {
+  if (value == null) return null;
+  const isUp = value >= 0;
+  return (
+    <div className="fund-panel__item">
+      <span className="fund-panel__label">{label}</span>
+      <span className={`fund-panel__value fund-panel__value--${isUp ? 'up' : 'down'}`}>
+        {fmtMoney(value)}
+      </span>
+    </div>
+  );
+}
+
 function FundamentalPanel({ detail, liveQuote, loading }: FundamentalPanelProps) {
   if (loading) return <div className="fund-panel fund-panel--loading">加载中...</div>;
 
   const sd = detail?.summaryDetail;
   const fd = detail?.financialData;
   const p = detail?.price;
+  const mf = detail?.moneyflow;
 
-  const items: { label: string; value: string }[] = [
+  // 价格指标
+  const priceItems: { label: string; value: string }[] = [
     { label: '今开', value: fmt(p?.regularMarketOpen) },
     { label: '昨收', value: fmt(p?.regularMarketPreviousClose) },
     { label: '最高', value: fmt(liveQuote?.day_high ?? p?.regularMarketDayHigh) },
@@ -407,28 +497,112 @@ function FundamentalPanel({ detail, liveQuote, loading }: FundamentalPanelProps)
             ? (sd.dividendYield * 100).toFixed(2) + '%'
             : '—',
     },
-    { label: '52周最高', value: fmt(sd?.fiftyTwoWeekHigh) },
-    { label: '52周最低', value: fmt(sd?.fiftyTwoWeekLow) },
-    { label: '60日均线', value: fmt(liveQuote?.sixty_day_avg) },
-    { label: '250日均线', value: fmt(sd?.twoHundredDayAverage) },
-    { label: '毛利率', value: pctFmt(fd?.grossMargins) },
-    { label: '营业利润率', value: pctFmt(fd?.operatingMargins) },
-    { label: '净利率', value: pctFmt(fd?.profitMargins) },
-    { label: 'ROE', value: pctFmt(fd?.returnOnEquity) },
-    { label: '营收增长', value: pctFmt(fd?.revenueGrowth) },
+    { label: '52周高', value: fmt(sd?.fiftyTwoWeekHigh) },
+    { label: '52周低', value: fmt(sd?.fiftyTwoWeekLow) },
   ];
+
+  // 盈利能力（百分比）
+  const profitItems: { label: string; value: string }[] = [
+    { label: 'ROE', value: pctFmt(fd?.returnOnEquity) },
+    { label: 'ROE(平均)', value: pctFmt(fd?.roeAvg) },
+    { label: 'ROE(扣非)', value: pctFmt(fd?.roeNet) },
+    { label: 'ROA', value: pctFmt(fd?.roa) },
+    { label: 'ROIC', value: pctFmt(fd?.roic) },
+    { label: '毛利率', value: pctFmt(fd?.grossMargins) },
+    { label: '净利率', value: pctFmt(fd?.profitMargins) },
+    { label: '营业利润率', value: pctFmt(fd?.operatingMargins) },
+    { label: '息税前利润率', value: pctFmt(fd?.ebitMargin) },
+  ];
+
+  // 成长能力
+  const growthItems: { label: string; value: string }[] = [
+    { label: '营收增长', value: pctFmt(fd?.revenueGrowth) },
+    { label: '净利增长', value: pctFmt(fd?.earningsGrowth) },
+  ];
+
+  // 财务风险
+  const riskItems: { label: string; value: string }[] = [
+    { label: '流动比率', value: fmt(fd?.currentRatio) },
+    { label: '速动比率', value: fmt(fd?.quickRatio) },
+    { label: '资产负债率', value: pctFmt(fd?.debtRatio) },
+    { label: '权益乘数', value: fmt(fd?.equityMultiplier) },
+    { label: '现金比率', value: fmt(fd?.cashRatio) },
+  ];
+
+  // 营运能力
+  const turnItems: { label: string; value: string }[] = [
+    { label: '应收周转率', value: fmt(fd?.arTurn) },
+    { label: '应收周转天', value: fmt(fd?.arDays) },
+    { label: '存货周转率', value: fmt(fd?.invTurn) },
+    { label: '存货周转天', value: fmt(fd?.invDays) },
+    { label: '总资产周转率', value: fmt(fd?.taTurn) },
+  ];
+
+  // 每股指标
+  const perShareItems: { label: string; value: string }[] = [
+    { label: 'EPS(基本)', value: fmt(fd?.basicEPS) },
+    { label: 'EPS(稀释)', value: fmt(fd?.dilutedEPS) },
+    { label: '每股净资产', value: fmt(fd?.bps) },
+    { label: '每股经营现金流', value: fmt(fd?.ocfps) },
+    { label: '每股自由现金流', value: fmt(fd?.fcps) },
+    { label: '每股未分配利润', value: fmt(fd?.udpps) },
+  ];
+
+  // 绝对值
+  const absItems: { label: string; value: string }[] = [
+    { label: '营收', value: fmtAbs(fd?.revenue) },
+    { label: '营业成本', value: fmtAbs(fd?.cost) },
+    { label: '净利润', value: fmtAbs(fd?.netProfit) },
+    { label: '归母净利', value: fmtAbs(fd?.netProfitParent) },
+    { label: '扣非净利', value: fmtAbs(fd?.netProfitDeducted) },
+    { label: '股东权益', value: fmtAbs(fd?.equity) },
+    { label: '经营现金流', value: fmtAbs(fd?.ocf) },
+  ];
+
+  const renderGroup = (title: string, items: { label: string; value: string }[]) => {
+    const visible = items.filter((i) => i.value !== '—');
+    if (visible.length === 0) return null;
+    return (
+      <div className="fund-panel__group">
+        <h4 className="fund-panel__group-title">{title}</h4>
+        <div className="fund-panel__grid">
+          {items.map((item) => (
+            <div key={item.label} className="fund-panel__item">
+              <span className="fund-panel__label">{item.label}</span>
+              <span className="fund-panel__value">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fund-panel">
       <h3 className="fund-panel__title">基本面</h3>
-      <div className="fund-panel__grid">
-        {items.map((item) => (
-          <div key={item.label} className="fund-panel__item">
-            <span className="fund-panel__label">{item.label}</span>
-            <span className="fund-panel__value">{item.value}</span>
+      {renderGroup('价格指标', priceItems)}
+      {renderGroup('盈利能力', profitItems)}
+      {renderGroup('成长能力', growthItems)}
+      {renderGroup('财务风险', riskItems)}
+      {renderGroup('营运能力', turnItems)}
+      {renderGroup('每股指标', perShareItems)}
+      {renderGroup('绝对值', absItems)}
+
+      {/* 资金流向（东财 fflow daykline） */}
+      {mf && (
+        <div className="fund-panel__group">
+          <h4 className="fund-panel__group-title">
+            资金流向 <span className="fund-panel__date">({mf.date})</span>
+          </h4>
+          <div className="fund-panel__grid">
+            <MoneyflowItem label="主力净流入" value={mf.netFlow} />
+            <MoneyflowItem label="超大单净流入" value={mf.superNet} />
+            <MoneyflowItem label="大单净流入" value={mf.largeNet} />
+            <MoneyflowItem label="中单净流入" value={mf.mediumNet} />
+            <MoneyflowItem label="小单净流入" value={mf.smallNet} />
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

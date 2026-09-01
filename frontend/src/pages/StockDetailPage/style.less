@@ -351,6 +351,44 @@
   &__item:nth-last-child(-n + 2) > .fund-panel__value {
     border-bottom: none;
   }
+
+  // 分区块样式
+  &__group {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed #eee;
+
+    &:first-of-type {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+  }
+
+  &__group-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: @text-dim;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  &__date {
+    font-weight: 400;
+    color: #b0b3ba;
+    font-size: 11px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  // 涨跌颜色
+  &__value--up {
+    color: #e8364e !important;
+  }
+  &__value--down {
+    color: #00a86b !important;
+  }
 }
 
 .analyst-panel {

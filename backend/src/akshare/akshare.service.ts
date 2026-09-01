@@ -24,12 +24,64 @@ export interface QuoteResult {
   week_52_low?: number;
   sixty_day_avg?: number;
   two_hundred_fifty_day_avg?: number;
-  roe?: number;
-  gross_margin?: number;
-  net_margin?: number;
-  operating_margin?: number;
-  revenue_growth?: number;
-  earnings_growth?: number;
+
+  // ===== 财务指标（新浪 CompanyFinanceService，百分比值已 /100）=====
+  // 盈利能力
+  roe?: number; // 净资产收益率(ROE)
+  roe_avg?: number; // ROE_平均
+  roe_diluted?: number; // 摊薄ROE
+  roe_net?: number; // ROE_扣非
+  roa?: number; // 总资产报酬率
+  roic?: number; // 投入资本回报率
+  gross_margin?: number; // 毛利率
+  net_margin?: number; // 销售净利率
+  operating_margin?: number; // 营业利润率
+  ebit_margin?: number; // 息税前利润率
+
+  // 成长能力
+  revenue_growth?: number; // 营业总收入增长率
+  earnings_growth?: number; // 归母净利润增长率
+
+  // 财务风险
+  current_ratio?: number; // 流动比率
+  quick_ratio?: number; // 速动比率
+  debt_ratio?: number; // 资产负债率
+  equity_multiplier?: number; // 权益乘数
+  cash_ratio?: number; // 现金比率
+
+  // 营运能力
+  ar_turn?: number; // 应收账款周转率
+  ar_days?: number; // 应收账款周转天数
+  inv_turn?: number; // 存货周转率
+  inv_days?: number; // 存货周转天数
+  ta_turn?: number; // 总资产周转率
+
+  // 收益质量
+  ocf_to_profit?: number; // 经营现金/净利润
+  cost_expense_ratio?: number; // 成本费用率
+
+  // 每股指标
+  basic_eps?: number; // 基本每股收益
+  diluted_eps?: number; // 稀释每股收益
+  bps?: number; // 每股净资产
+  ocfps?: number; // 每股经营现金流
+  fcps?: number; // 每股自由现金流
+  udpps?: number; // 每股未分配利润
+  cappps?: number; // 每股资本公积
+  surppps?: number; // 每股盈余公积
+
+  // 绝对值（元）
+  revenue?: number; // 营业总收入
+  cost?: number; // 营业成本
+  net_profit?: number; // 净利润
+  net_profit_parent?: number; // 归母净利润
+  net_profit_deducted?: number; // 扣非净利润
+  equity?: number; // 股东权益(净资产)
+  total_assets?: number; // 总资产
+  total_liabilities?: number; // 总负债
+  ocf?: number; // 经营现金流净额
+  dividend_rate?: number; // 分红率（小数，0.1848 = 18.48%）
+
   change: number;
   change_percent: number;
   market: string;
@@ -225,9 +277,11 @@ export class AkShareService {
         return null;
       }
 
-      // 腾讯接口的 35 是冗余的“价格/成交量/成交额”复合字段；37 才是
-      // 标准成交额字段，单位为万元。使用 37 可以避免复合字段格式变化及单位错配。
-      const turnover = this.safeFloat(data[37]) * 10_000;
+      // 腾讯接口的 35 是冗余的"价格/成交量/成交额"复合字段；37 才是
+      // 标准成交额字段。A 股 field37 单位为万元，需乘 10000；港股/美股 field37
+      // 本身已是元（HKD/USD），不再额外换算。
+      const rawTurnover = this.safeFloat(data[37]);
+      const turnover = market === 'a_share' ? rawTurnover * 10_000 : rawTurnover;
 
       const result: QuoteResult = {
         symbol: data[2],
@@ -245,39 +299,77 @@ export class AkShareService {
         currency: '',
       };
 
-      if (data[38]) {
-        result.turnover_rate = this.safeFloat(data[38]);
+      // ════════════════════════════════════════════════════════
+      // 字段号因市场而异！A 股和港股 field 映射**完全不同**。
+      // 下文注释里标注 [A] = 仅 A 股正确, [HK] = 仅港股正确, [A/HK] = 通用
+      // ════════════════════════════════════════════════════════
+
+      if (market === 'hk') {
+        // ─── 港股专属字段号 ───
+        result.turnover_rate = this.safeFloat(data[38]) || undefined;
+        result.pe_ratio = this.safeFloat(data[39]) || undefined;
+        result.pe_ratio_dynamic = this.safeFloat(data[52]) || undefined;
+        result.pe_ratio_static = this.safeFloat(data[53]) || undefined;
+        // field44 市值：港股单位是"亿港元"，乘 1e8 → 元
+        const mcap = this.safeFloat(data[44]);
+        if (mcap && mcap > 0) result.market_cap = mcap * 100_000_000;
+        // field43 PB — 港股值可能不准（东财 MAININDICATOR 会覆盖）
+        result.pb_ratio = this.safeFloat(data[43]) || undefined;
+        // field47 股息率 % — 港股真实字段！如 1.20 = 1.2%
+        const divRate = this.safeFloat(data[47]);
+        if (divRate != null && divRate >= 0) {
+          result.dividend_yield = divRate / 100;
+        }
+        // field48 = 52周最高价（真实价格！腾讯 677.7 港元）
+        const w52h = this.safeFloat(data[48]);
+        if (w52h && w52h > 0 && w52h > result.current_price * 0.8) {
+          result.week_52_high = w52h;
+        }
+        // field49 不是 52 周低，跳过。field67/68 是距高点/低点 % 而非价格，跳过。
+        // field51 港股值乱跳（如 47.99，腾讯 450 价位明显错位），跳过。
+        // field73 看起来像均价
+        const avg = this.safeFloat(data[73]);
+        if (avg && avg > 0 && avg > result.current_price * 0.5 && avg < result.current_price * 2) {
+          result.two_hundred_fifty_day_avg = avg;
+        }
+        // 注：总股本由东财 MAININDICATOR 的 HK_COMMON_SHARES 提供，不在此处赋值
+      } else {
+        // ─── A 股 / 美股通用字段号（沿用历史） ───
+        if (data[38]) {
+          result.turnover_rate = this.safeFloat(data[38]);
+        }
+        if (data[39]) {
+          result.pe_ratio = this.safeFloat(data[39]);
+        }
+        if (data[52]) {
+          result.pe_ratio_dynamic = this.safeFloat(data[52]);
+        }
+        if (data[53]) {
+          result.pe_ratio_static = this.safeFloat(data[53]);
+        }
+        if (data[44]) {
+          result.market_cap = this.safeFloat(data[44]) * 100_000_000;
+        }
+        if (data[46]) {
+          result.pb_ratio = this.safeFloat(data[46]);
+        }
+        if (data[49]) {
+          result.volume_ratio = this.safeFloat(data[49]);
+        }
+        if (data[64]) {
+          result.dividend_yield = this.safeFloat(data[64]) / 100;
+        }
+        if (data[67]) {
+          result.week_52_high = this.safeFloat(data[67]);
+        }
+        if (data[68]) {
+          result.week_52_low = this.safeFloat(data[68]);
+        }
+        if (data[51]) {
+          result.sixty_day_avg = this.safeFloat(data[51]);
+        }
       }
-      if (data[39]) {
-        result.pe_ratio = this.safeFloat(data[39]);
-      }
-      if (data[52]) {
-        result.pe_ratio_dynamic = this.safeFloat(data[52]);
-      }
-      if (data[53]) {
-        result.pe_ratio_static = this.safeFloat(data[53]);
-      }
-      if (data[44]) {
-        result.market_cap = this.safeFloat(data[44]) * 100000000;
-      }
-      if (data[46]) {
-        result.pb_ratio = this.safeFloat(data[46]);
-      }
-      if (data[49]) {
-        result.volume_ratio = this.safeFloat(data[49]);
-      }
-      if (data[64]) {
-        result.dividend_yield = this.safeFloat(data[64]) / 100;
-      }
-      if (data[67]) {
-        result.week_52_high = this.safeFloat(data[67]);
-      }
-      if (data[68]) {
-        result.week_52_low = this.safeFloat(data[68]);
-      }
-      if (data[51]) {
-        result.sixty_day_avg = this.safeFloat(data[51]);
-      }
+
       return result;
     } catch (e: any) {
       this.logger.error(`Parse gtimg data failed: ${e}`);
@@ -303,39 +395,340 @@ export class AkShareService {
 
       const reportList = data.result.data.report_list;
       const latestDate = Object.keys(reportList)[0];
-      if (!latestDate) {
-        return null;
-      }
+      if (!latestDate) return null;
 
-      const latestReport = reportList[latestDate];
-      const financialItems = latestReport.data;
+      const financialItems: any[] = reportList[latestDate]?.data || [];
+
+      // 字段映射表：[新浪标题精确匹配, 目标键, 是否百分比(/100)]
+      const PERCENT = true;
+      const ABSOLUTE = false;
+      const MATCHES: [string, keyof QuoteResult, boolean][] = [
+        // --- 盈利能力 ---
+        ['净资产收益率(ROE)', 'roe', PERCENT],
+        ['净资产收益率_平均', 'roe_avg', PERCENT],
+        ['净资产收益率_平均_扣除非经常损益', 'roe_net', PERCENT],
+        ['总资产报酬率', 'roa', PERCENT],
+        ['投入资本回报率', 'roic', PERCENT],
+        ['毛利率', 'gross_margin', PERCENT],
+        ['销售净利率', 'net_margin', PERCENT],
+        ['营业利润率', 'operating_margin', PERCENT],
+        ['息税前利润率', 'ebit_margin', PERCENT],
+
+        // --- 成长能力 ---
+        ['营业总收入增长率', 'revenue_growth', PERCENT],
+        ['归属母公司净利润增长率', 'earnings_growth', PERCENT],
+
+        // --- 财务风险 ---
+        ['流动比率', 'current_ratio', ABSOLUTE],
+        ['速动比率', 'quick_ratio', ABSOLUTE],
+        ['资产负债率', 'debt_ratio', PERCENT],
+        ['权益乘数', 'equity_multiplier', ABSOLUTE],
+        ['现金比率', 'cash_ratio', ABSOLUTE],
+
+        // --- 营运能力 ---
+        ['应收账款周转率', 'ar_turn', ABSOLUTE],
+        ['应收账款周转天数', 'ar_days', ABSOLUTE],
+        ['存货周转率', 'inv_turn', ABSOLUTE],
+        ['存货周转天数', 'inv_days', ABSOLUTE],
+        ['总资产周转率', 'ta_turn', ABSOLUTE],
+
+        // --- 收益质量 ---
+        ['经营活动净现金/归属母公司的净利润', 'ocf_to_profit', ABSOLUTE],
+        ['成本费用率', 'cost_expense_ratio', PERCENT],
+
+        // --- 每股指标 ---
+        ['基本每股收益', 'basic_eps', ABSOLUTE],
+        ['稀释每股收益', 'diluted_eps', ABSOLUTE],
+        ['每股净资产', 'bps', ABSOLUTE],
+        ['每股经营现金流', 'ocfps', ABSOLUTE],
+        ['每股企业自由现金流量', 'fcps', ABSOLUTE],
+        ['每股未分配利润', 'udpps', ABSOLUTE],
+        ['每股资本公积金', 'cappps', ABSOLUTE],
+        ['每股盈余公积金', 'surppps', ABSOLUTE],
+
+        // --- 绝对值（元） ---
+        ['营业总收入', 'revenue', ABSOLUTE],
+        ['营业成本', 'cost', ABSOLUTE],
+        ['净利润', 'net_profit', ABSOLUTE],
+        ['归母净利润', 'net_profit_parent', ABSOLUTE],
+        ['扣非净利润', 'net_profit_deducted', ABSOLUTE],
+        ['股东权益合计(净资产)', 'equity', ABSOLUTE],
+        ['经营现金流量净额', 'ocf', ABSOLUTE],
+      ];
 
       const result: Partial<QuoteResult> = {};
 
       for (const item of financialItems) {
         const title = item.item_title;
-        const value = parseFloat(item.item_value);
-
+        const rawVal = item.item_value;
+        if (!title || rawVal == null || rawVal === 'None' || rawVal === '') continue;
+        const value = parseFloat(rawVal);
         if (isNaN(value)) continue;
 
-        if (title.includes('净资产收益率') && !title.includes('摊薄') && !title.includes('平均')) {
-          result.roe = value / 100;
-        } else if (title === '毛利率') {
-          result.gross_margin = value / 100;
-        } else if (title === '销售净利率') {
-          result.net_margin = value / 100;
-        } else if (title === '营业利润率') {
-          result.operating_margin = value / 100;
-        } else if (title.includes('营业总收入增长率')) {
-          result.revenue_growth = value / 100;
-        } else if (title.includes('归属母公司净利润增长率')) {
-          result.earnings_growth = value / 100;
+        for (const [sinaTitle, targetKey, isPercent] of MATCHES) {
+          if (title === sinaTitle) {
+            (result as any)[targetKey] = isPercent ? value / 100 : value;
+            break;
+          }
         }
       }
 
       return result;
     } catch (e: any) {
       this.logger.debug(`Fetch financial data from Sina failed: ${e.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * 通用 helper: fetch datacenter report rows, filter to latest report date,
+   * pivot into code->amount map.
+   */
+  private async fetchEmPivotRows(
+    reportName: string,
+    code5: string,
+    pageSize = 50,
+  ): Promise<{
+    byCode: Record<string, number>;
+    byName: Record<string, number>;
+    reportDate: string | null;
+  }> {
+    const url =
+      'https://datacenter.eastmoney.com/securities/api/data/v1/get' +
+      `?sortColumns=REPORT_DATE&sortTypes=-1&pageSize=${pageSize}&pageNumber=1` +
+      `&reportName=${reportName}&columns=ALL` +
+      `&filter=(SECURITY_CODE%3D%22${code5}%22)` +
+      '&source=WEB&client=WEB';
+    const resp = await axios.get(url, {
+      timeout: 10000,
+      headers: { ...this.PUSH2_HEADERS, Referer: 'https://hkf10.eastmoney.com/' },
+    });
+    const rows: any[] = resp.data?.result?.data ?? [];
+    if (rows.length === 0) return { byCode: {}, byName: {}, reportDate: null };
+
+    // 取最新的报告期
+    const latestDate = rows[0].REPORT_DATE?.slice(0, 10);
+    const latestRows = rows.filter((r) => r.REPORT_DATE?.slice(0, 10) === latestDate);
+
+    const byCode: Record<string, number> = {};
+    const byName: Record<string, number> = {};
+    for (const r of latestRows) {
+      const amount = r.AMOUNT;
+      if (amount == null || isNaN(Number(amount))) continue;
+      const num = Number(amount);
+      if (r.STD_ITEM_CODE) byCode[r.STD_ITEM_CODE] = num;
+      if (r.STD_ITEM_NAME) byName[r.STD_ITEM_NAME] = num;
+    }
+    return { byCode, byName, reportDate: latestDate };
+  }
+
+  /**
+   * 港股 F10 财务数据 — 东方财富 datacenter.
+   *
+   * 数据来源:
+   *   1. RPT_HKF10_FN_MAININDICATOR — 89 字段宽表，覆盖盈利能力/成长/风险/营运/每股
+   *   2. RPT_HKF10_FN_BALANCE_PC    — 资产负债表 (long format)
+   *      用来计算 quick_ratio, cash_ratio, udpps, cappps, surppps
+   *   3. RPT_HKF10_FN_INCOME_PC      — 利润表 (long format)
+   *      用来补 net_profit / 验证净利润
+   *
+   * ⚠️ 百分比陷阱: 东财 MAININDICATOR 百分比是"直接百分数"(9.97=9.97%)，
+   *   而新浪 A 股是小数(0.1057=10.57%)。这里全部 ÷100 归一化。
+   *   但 BALANCE_PC/INCOME_PC 里的 AMOUNT 是绝对值（原币），直接用。
+   */
+  private async fetchFinancialDataFromEastMoneyHK(
+    code5: string,
+  ): Promise<Partial<QuoteResult> | null> {
+    const CACHE_KEY = `hk_fin_em:${code5}`;
+    const cached = this.CACHE.get(CACHE_KEY);
+    const now = Date.now();
+    if (cached && now - cached.timestamp < this.CACHE_TTL) {
+      return cached.data as any;
+    }
+
+    try {
+      // ===== 1. MAININDICATOR 宽表 =====
+      const mainUrl =
+        'https://datacenter.eastmoney.com/securities/api/data/v1/get' +
+        '?sortColumns=REPORT_DATE&sortTypes=-1&pageSize=1&pageNumber=1' +
+        '&reportName=RPT_HKF10_FN_MAININDICATOR&columns=ALL' +
+        `&filter=(SECURITY_CODE%3D%22${code5}%22)` +
+        '&source=WEB&client=WEB';
+
+      const mainResp = await axios.get(mainUrl, {
+        timeout: 10000,
+        headers: { ...this.PUSH2_HEADERS, Referer: 'https://hkf10.eastmoney.com/' },
+      });
+      const row = mainResp.data?.result?.data?.[0];
+      if (!row) {
+        this.logger.debug(`HK finance from EM: no mainindicator for ${code5}`);
+        return null;
+      }
+
+      const pct = (v: any): number | undefined =>
+        v != null && !isNaN(Number(v)) ? Number(v) / 100 : undefined;
+      const abs = (v: any): number | undefined =>
+        v != null && !isNaN(Number(v)) ? Number(v) : undefined;
+      const ratio = (v: any): number | undefined =>
+        v != null && !isNaN(Number(v)) ? Number(v) : undefined;
+
+      const result: Partial<QuoteResult> = {};
+
+      // --- 盈利能力 ---
+      result.roe = pct(row.ROE_YEARLY);
+      result.roe_avg = pct(row.ROE_AVG);
+      result.roa = pct(row.ROA);
+      result.roic = pct(row.ROIC_YEARLY);
+      result.gross_margin = pct(row.GROSS_PROFIT_RATIO);
+      result.net_margin = pct(row.NET_PROFIT_RATIO);
+      const opIncome = abs(row.OPERATE_INCOME);
+      const opProfit = abs(row.OPERATE_PROFIT);
+      if (opIncome && opProfit) {
+        result.operating_margin = opIncome > 0 ? opProfit / opIncome : undefined;
+        result.ebit_margin = result.operating_margin;
+      }
+
+      // --- 成长能力 ---
+      result.revenue_growth = pct(row.OPERATE_INCOME_YOY);
+      result.earnings_growth = pct(row.HOLDER_PROFIT_YOY);
+
+      // --- 财务风险（先填 MAININDICATOR 有的）---
+      result.current_ratio = ratio(row.CURRENT_RATIO);
+      result.debt_ratio = pct(row.DEBT_ASSET_RATIO);
+      result.equity_multiplier = ratio(row.EQUITY_MULTIPLIER);
+
+      // --- 营运能力 ---
+      result.ar_days = abs(row.ACCOUNTS_RECE_TDAYS);
+      result.inv_days = abs(row.INVENTORY_TDAYS);
+      result.ar_turn = result.ar_days && result.ar_days > 0 ? 365 / result.ar_days : undefined;
+      result.inv_turn = result.inv_days && result.inv_days > 0 ? 365 / result.inv_days : undefined;
+
+      // --- 每股指标 ---
+      result.basic_eps = abs(row.BASIC_EPS);
+      result.diluted_eps = abs(row.DILUTED_EPS);
+      result.bps = abs(row.BPS);
+      result.ocfps = abs(row.PER_NETCASH_OPERATE);
+
+      // --- 绝对值 ---
+      result.revenue = abs(row.OPERATE_INCOME);
+      result.net_profit_parent = abs(row.HOLDER_PROFIT);
+      result.equity = abs(row.TOTAL_PARENT_EQUITY);
+      result.total_assets = abs(row.TOTAL_ASSETS);
+      result.ocf = abs(row.NETCASH_OPERATE);
+      result.total_liabilities = abs(row.TOTAL_LIABILITIES);
+
+      const grossProfit = abs(row.GROSS_PROFIT);
+      if (result.revenue && grossProfit) {
+        result.cost = result.revenue - grossProfit;
+      }
+
+      result.pe_ratio = ratio(row.PE_TTM);
+      result.pb_ratio = ratio(row.PB_TTM);
+      result.dividend_rate = pct(row.DIVIDEND_RATE);
+
+      // ===== 2. 并行拉 BALANCE + INCOME 三张 long-format 表 =====
+      try {
+        const [bal, inc] = await Promise.all([
+          this.fetchEmPivotRows('RPT_HKF10_FN_BALANCE_PC', code5, 50),
+          this.fetchEmPivotRows('RPT_HKF10_FN_INCOME_PC', code5, 30),
+        ]);
+
+        // --- 资产负债表科目 (STD_ITEM_CODE) ---
+        const currentAssets = bal.byCode['004002999']; // 流动资产合计
+        const currentLiab = bal.byCode['004011999']; // 流动负债合计
+        const inventory = bal.byCode['004002001']; // 存货
+        const cashEquiv = bal.byCode['004002010']; // 现金及等价物
+        const parentEquity = bal.byCode['004030999']; // 股东权益
+        const retainedEarnings = bal.byCode['004030004']; // 保留溢利(累计亏损)
+        const sharePremium = bal.byCode['004030003']; // 股本溢价
+        const totalEquity = bal.byCode['004036999']; // 总权益
+        const treasuryStock = bal.byCode['004030012']; // 库存股（通常负数）
+
+        // === 速动比率 = (流动资产 - 存货) / 流动负债 ===
+        if (
+          result.quick_ratio == null &&
+          currentAssets != null &&
+          currentLiab != null &&
+          currentLiab > 0
+        ) {
+          const quickAssets = currentAssets - (inventory ?? 0);
+          result.quick_ratio = quickAssets / currentLiab;
+        }
+
+        // === 现金比率 = 现金及等价物 / 流动负债 ===
+        if (
+          result.cash_ratio == null &&
+          cashEquiv != null &&
+          currentLiab != null &&
+          currentLiab > 0
+        ) {
+          result.cash_ratio = cashEquiv / currentLiab;
+        }
+
+        // === 每股未分配利润 = 保留溢利 / 总股本 ===
+        // 但香港公司经常不披露法定每股公积金，udpps/cappps/surppps 依赖总股本
+        // 总股本在 MAININDICATOR. COMMON_ACS / HK_COMMON_SHARES
+        const totalShares = abs(row.HK_COMMON_SHARES) ?? abs(row.COMMON_ACS);
+        if (totalShares && totalShares > 0) {
+          // 每股未分配利润 udpps = 保留溢利 / 总股本
+          if (retainedEarnings != null) {
+            result.udpps = retainedEarnings / totalShares;
+          }
+          // 每股资本公积金 cappps = 股本溢价 / 总股本
+          if (sharePremium != null) {
+            result.cappps = sharePremium / totalShares;
+          }
+          // 每股盈余公积 surppps — 香港公司极少单独披露法定盈余公积，
+          // 可近似用 (总权益 - 股本溢价 - 保留溢利 - 库存股 - 股本面值) 估算
+          // 但直接留 undefined 让前端显示 "—" 会更诚实
+          // 如果有 "其他储备"(004030009)，可近似作为盈余公积
+          const otherReserves = bal.byCode['004030009'];
+          if (otherReserves != null) {
+            result.surppps = otherReserves / totalShares;
+          }
+        }
+
+        // === 扣非净利润 ≈ 税后净利润 - 少数股东损益 ===
+        const afterTaxProfit = inc.byCode['004012999']; // 除税后溢利
+        const minority = inc.byCode['004025001']; // 少数股东损益
+        if (afterTaxProfit != null) {
+          result.net_profit = afterTaxProfit;
+          if (minority != null) {
+            result.net_profit_deducted = afterTaxProfit - minority;
+          }
+        }
+
+        // === ocf_to_profit = 经营现金流 / 归母净利润 ===
+        if (
+          result.ocf != null &&
+          result.net_profit_parent != null &&
+          result.net_profit_parent !== 0
+        ) {
+          result.ocf_to_profit = result.ocf / result.net_profit_parent;
+        }
+
+        // === 成本费用率 = 营运支出(期间费用) / 营运收入 ===
+        // 港股 004005001 "营运支出" 指期间费用（销售+行政+研发），不是 A 股"营业总成本"
+        // 所以这里用 期间费用率 = 营运支出 / 营收，与 A 股口径 ((营业总成本-营业成本)/营收) 一致
+        const opExpense = inc.byName['营运支出'] ?? inc.byCode['004005001'];
+        if (result.revenue != null && opExpense != null && result.revenue > 0) {
+          result.cost_expense_ratio = opExpense / result.revenue;
+        }
+
+        // === 总资产周转率 = 营收 / 总资产 ===
+        if (result.revenue != null && result.total_assets != null && result.total_assets > 0) {
+          result.ta_turn = result.revenue / result.total_assets;
+        }
+      } catch (e2: any) {
+        this.logger.debug(`HK balance/income pivot partial failure: ${e2.message}`);
+        // MAININDICATOR 数据已经填好，三张表失败不致命
+      }
+
+      const cacheEntry = { data: result, timestamp: now };
+      this.CACHE.set(CACHE_KEY, cacheEntry);
+      return result;
+    } catch (e: any) {
+      this.logger.debug(`HK finance from EM failed: ${e.message}`);
       return null;
     }
   }
@@ -674,6 +1067,19 @@ export class AkShareService {
               `${normalized.prefix}${normalized.code}`,
               normalized.market,
             );
+            // 港股额外拉东财 F10 财务数据
+            if (normalized.market === 'hk') {
+              const hkFin = await this.fetchFinancialDataFromEastMoneyHK(normalized.code);
+              if (hkFin) {
+                Object.assign(data, hkFin);
+                this.logger.debug(
+                  `Enriched HK ${symbol} with EM financial data: ` +
+                    `roe=${hkFin.roe}, gross=${hkFin.gross_margin}, net=${hkFin.net_margin}`,
+                );
+              } else {
+                this.logger.debug(`No HK financial data from EM for ${symbol}`);
+              }
+            }
           }
           break;
         case 'futures':
@@ -1306,6 +1712,13 @@ export class AkShareService {
             `${normalized.prefix}${normalized.code}`,
             normalized.market,
           );
+          // 港股额外拉东财 F10 财务（有 CACHE，不怕并发）
+          if (normalized.market === 'hk') {
+            const hkFin = await this.fetchFinancialDataFromEastMoneyHK(normalized.code);
+            if (hkFin) {
+              Object.assign(quote, hkFin);
+            }
+          }
         }
       }),
     );
@@ -1602,16 +2015,31 @@ export class AkShareService {
    * 东财 push2 单股接口统一入口：push2 不可达时依次回退
    * push2delay / 82.push2（延迟行情，可接受）。
    */
+  /** 东财 push2 系列接口（含港股 fflow）必须带 UA/Referer 头才能通过 WAF。 */
+  private readonly PUSH2_HEADERS = {
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    Referer: 'https://quote.eastmoney.com/',
+    Accept: '*/*',
+  };
+
   private async fetchFromPush2(pathWithQuery: string): Promise<any> {
+    // push2delay 最稳（之前实测多次），放第一位避免 push2 频繁 ECONNRESET 卡 15s
     const hosts = [
-      'https://push2.eastmoney.com',
       'https://push2delay.eastmoney.com',
+      'https://push2.eastmoney.com',
       'https://82.push2.eastmoney.com',
     ];
     let lastErr: any;
-    for (const host of hosts) {
+    for (let i = 0; i < hosts.length; i++) {
+      const host = hosts[i];
+      // 首个 host 给短超时 5s（快速失败），回退用 15s
+      const timeout = i === 0 ? 5000 : 15000;
       try {
-        const response = await axios.get(`${host}${pathWithQuery}`, { timeout: 15000 });
+        const response = await axios.get(`${host}${pathWithQuery}`, {
+          timeout,
+          headers: this.PUSH2_HEADERS,
+        });
         return response.data;
       } catch (e: any) {
         lastErr = e;
@@ -1683,6 +2111,123 @@ export class AkShareService {
       return null;
     } catch (error) {
       this.logger.error(`Failed to get moneyflow timeline for ${symbol}:`, error.message);
+      return null;
+    }
+  }
+
+  /**
+   * 个股资金流 5 档净额（东财 fflow daykline）。
+   * 支持 A 股 / 港股，比 trends2 接口更详细（主力/超大/大/中/小 各档）。
+   *
+   * 返回各档位净流入额（元）：
+   *   net_flow   = 主力净流入（超大单+大单，东财 f52）
+   *   super_net  = 超大单净流入（f53）
+   *   large_net  = 大单净流入（f54）
+   *   medium_net = 中单净流入（f55）
+   *   small_net  = 小单净流入（f56）
+   */
+  async getMoneyflowDetail(symbol: string): Promise<{
+    date: string;
+    net_flow: number;
+    super_net: number;
+    large_net: number;
+    medium_net: number;
+    small_net: number;
+  } | null> {
+    const CACHE_KEY = `mf_detail:${symbol}`;
+    const cached = this.CACHE.get(CACHE_KEY);
+    const now = Date.now();
+    if (cached && now - cached.timestamp < this.CACHE_TTL) {
+      return cached.data as any;
+    }
+
+    try {
+      const { market, code } = this.normalizeSymbol(symbol);
+
+      let emMarket: string;
+      let emCode: string;
+      if (market === 'hk') {
+        emMarket = '116';
+        emCode = code;
+      } else if (market === 'a_share') {
+        const first = code.charAt(0);
+        emMarket = first === '6' || first === '9' ? '1' : '0';
+        emCode = code;
+      } else {
+        return null;
+      }
+
+      const data = await this.fetchFromPush2(
+        `/api/qt/stock/fflow/daykline/get?lmt=1&klt=101&secid=${emMarket}.${emCode}&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56`,
+      );
+
+      const klines: string[] = data?.data?.klines ?? [];
+      if (klines.length === 0) return null;
+
+      const parts = klines[klines.length - 1].split(',');
+      if (parts.length < 6) return null;
+
+      const result = {
+        date: parts[0] ?? '',
+        net_flow: this.safeFloat(parts[1]),
+        super_net: this.safeFloat(parts[2]),
+        large_net: this.safeFloat(parts[3]),
+        medium_net: this.safeFloat(parts[4]),
+        small_net: this.safeFloat(parts[5]),
+      };
+
+      this.CACHE.set(CACHE_KEY, { data: result, timestamp: now });
+      return result;
+    } catch (error) {
+      this.logger.debug(`Moneyflow detail unavailable for ${symbol}: ${error.message}`);
+      return null;
+    }
+  }
+
+  /**
+   * 港股个股资金流（东财 push2 fflow daykline）。
+   * secid 港股主板用 116.股票代码（如 116.00700）。
+   * 接口只返回各档位「净流入额」，不拆分 inflow/outflow，
+   * 所以 MoneyflowResult 里 inflow/outflow 字段填 0。
+   *
+   * 字段映射：
+   *   f52 = 主力净流入 (超大单 + 大单，用户口径的"净流入")
+   *   f53 = 超大单净流入
+   *   f54 = 大单净流入
+   *   f55 = 中单净流入
+   *   f56 = 小单净流入
+   */
+  async getHKMoneyflow(symbol: string): Promise<MoneyflowResult | null> {
+    try {
+      const normalized = this.normalizeSymbol(symbol);
+      if (normalized.market !== 'hk') return null;
+
+      // normalized.code 已带 5 位前导零（如 00700），东财 secid=116.00700 正好匹配
+      const code = normalized.code;
+      const data = await this.fetchFromPush2(
+        `/api/qt/stock/fflow/daykline/get?lmt=1&klt=101&secid=116.${code}&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56`,
+      );
+
+      const klines: string[] = data?.data?.klines ?? [];
+      if (klines.length === 0) return null;
+
+      const parts = klines[klines.length - 1].split(',');
+      if (parts.length < 6) return null;
+
+      return {
+        symbol,
+        date: parts[0] ?? '',
+        net_flow: this.safeFloat(parts[1]),
+        // 接口只给净额，无 inflow/outflow，填 0
+        large_inflow: 0,
+        large_outflow: 0,
+        medium_inflow: 0,
+        medium_outflow: 0,
+        small_inflow: 0,
+        small_outflow: 0,
+      };
+    } catch (error) {
+      this.logger.debug(`HK moneyflow unavailable for ${symbol}: ${error.message}`);
       return null;
     }
   }

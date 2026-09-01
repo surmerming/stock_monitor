@@ -261,7 +261,17 @@ export class MoneyFlowService {
     try {
       const results = await this.akShareService.getQuotesBatch(HK_STOCK_POOL.slice(0, 30));
       const quotes = results.filter((r) => r.data).map((r) => r.data!);
-      return quotes.map((q) => this.transformQuoteToFlowItem(q, '港股', null));
+
+      // 东财港股 fflow 接口连续快速请求会被 WAF 断连，必须串行 + 限速
+      const DELAY_MS = 350;
+      const flowMap = new Map<string, MoneyflowResult>();
+      for (const q of quotes.slice(0, 30)) {
+        const flow = await this.akShareService.getHKMoneyflow(q.symbol);
+        if (flow) flowMap.set(q.symbol, flow);
+        await new Promise((res) => setTimeout(res, DELAY_MS));
+      }
+
+      return quotes.map((q) => this.transformQuoteToFlowItem(q, '港股', flowMap.get(q.symbol)));
     } catch (err) {
       this.logger.error(`HK flow fetch failed: ${err.message}`);
       return [];
@@ -288,6 +298,9 @@ export class MoneyFlowService {
     const volRatio = 0;
     const flowIntensity = Math.abs(q.change_percent);
 
+    // 港股/美股当前没有资金流向接口，flow 为 null 时将所有资金字段置 0，
+    // 不再用成交额 * 涨跌方向冒充净流入（成交额是买卖总和，不等于净流入）。
+    const hasFlow = !!flow;
     return {
       symbol: q.symbol,
       name: q.name,
@@ -300,11 +313,11 @@ export class MoneyFlowService {
       volumeRatio: volRatio,
       turnover,
       marketCap: q.market_cap || null,
-      netFlow: flow?.net_flow ?? turnover * Math.sign(q.change),
+      netFlow: hasFlow ? flow!.net_flow : 0,
       flowIntensity,
-      largeNetFlow: (flow?.large_inflow || 0) - (flow?.large_outflow || 0),
-      largeInflow: flow?.large_inflow || 0,
-      largeOutflow: flow?.large_outflow || 0,
+      largeNetFlow: hasFlow ? (flow!.large_inflow || 0) - (flow!.large_outflow || 0) : 0,
+      largeInflow: hasFlow ? flow!.large_inflow || 0 : 0,
+      largeOutflow: hasFlow ? flow!.large_outflow || 0 : 0,
       exchange: market,
     };
   }
@@ -348,7 +361,7 @@ export class MoneyFlowService {
         volumeRatio: 0,
         turnover,
         marketCap: q.market_cap || null,
-        netFlow: turnover * Math.sign(q.change),
+        netFlow: 0, // 历史行情无资金流向数据，不再用成交额冒充
         flowIntensity: Math.abs(q.change_percent),
         largeNetFlow: 0,
         largeInflow: 0,

@@ -150,6 +150,7 @@ export class DetailService {
           price: null,
           summaryDetail: null,
           financialData: null,
+          moneyflow: null,
           shortInterest: null,
           majorHolders: null,
           recommendationTrend: [],
@@ -157,6 +158,9 @@ export class DetailService {
           news: [],
         };
       }
+
+      // 东财 fflow daykline 串行拉，避免触发 WAF
+      const mf = await this.akShareService.getMoneyflowDetail(symbol);
 
       return {
         price: {
@@ -168,7 +172,6 @@ export class DetailService {
           marketState: null,
           regularMarketPrice: quote.current_price,
           regularMarketChange: quote.change,
-          // 前端按小数约定展示（×100），quote.change_percent 是百分数值，需除以100
           regularMarketChangePercent: quote.change_percent / 100,
           regularMarketDayHigh: quote.day_high,
           regularMarketDayLow: quote.day_low,
@@ -181,7 +184,9 @@ export class DetailService {
           trailingPE: quote.pe_ratio || null,
           forwardPE: null,
           priceToBook: quote.pb_ratio || null,
-          dividendYield: null,
+          // 港股：腾讯 field47 股息率(÷100) 和东财 MAININDICATOR DIVIDEND_RATE(÷100) 都给正确值。
+          // 东财覆盖顺序在后，dividend_rate 更权威；A 股无此字段则回退 dividend_yield。
+          dividendYield: quote.dividend_rate ?? quote.dividend_yield ?? null,
           dividendRate: null,
           beta: null,
           fiftyTwoWeekHigh: quote.week_52_high || null,
@@ -193,6 +198,7 @@ export class DetailService {
           marketCap: quote.market_cap || null,
         },
         financialData: {
+          // === 原有字段（Yahoo Finance 风格 key 保留兼容）===
           targetHighPrice: null,
           targetLowPrice: null,
           targetMeanPrice: null,
@@ -200,7 +206,7 @@ export class DetailService {
           recommendationKey: null,
           recommendationMean: null,
           numberOfAnalystOpinions: null,
-          totalRevenue: null,
+          totalRevenue: quote.revenue || null,
           revenueGrowth: quote.revenue_growth || null,
           grossMargins: quote.gross_margin || null,
           operatingMargins: quote.operating_margin || null,
@@ -208,7 +214,59 @@ export class DetailService {
           returnOnEquity: quote.roe || null,
           debtToEquity: null,
           earningsGrowth: quote.earnings_growth || null,
+
+          // === 新浪财务新增 ===
+          roeAvg: quote.roe_avg || null,
+          roeDiluted: quote.roe_diluted || null,
+          roeNet: quote.roe_net || null,
+          roa: quote.roa || null,
+          roic: quote.roic || null,
+          ebitMargin: quote.ebit_margin || null,
+
+          currentRatio: quote.current_ratio || null,
+          quickRatio: quote.quick_ratio || null,
+          debtRatio: quote.debt_ratio || null,
+          equityMultiplier: quote.equity_multiplier || null,
+          cashRatio: quote.cash_ratio || null,
+
+          arTurn: quote.ar_turn || null,
+          arDays: quote.ar_days || null,
+          invTurn: quote.inv_turn || null,
+          invDays: quote.inv_days || null,
+          taTurn: quote.ta_turn || null,
+
+          ocfToProfit: quote.ocf_to_profit || null,
+          costExpenseRatio: quote.cost_expense_ratio || null,
+
+          basicEPS: quote.basic_eps || null,
+          dilutedEPS: quote.diluted_eps || null,
+          bps: quote.bps || null,
+          ocfps: quote.ocfps || null,
+          fcps: quote.fcps || null,
+          udpps: quote.udpps || null,
+          cappps: quote.cappps || null,
+          surppps: quote.surppps || null,
+
+          revenue: quote.revenue || null,
+          cost: quote.cost || null,
+          netProfit: quote.net_profit || null,
+          netProfitParent: quote.net_profit_parent || null,
+          netProfitDeducted: quote.net_profit_deducted || null,
+          equity: quote.equity || null,
+          totalAssets: quote.total_assets || null,
+          totalLiabilities: quote.total_liabilities || null,
+          ocf: quote.ocf || null,
         },
+        moneyflow: mf
+          ? {
+              date: mf.date,
+              netFlow: mf.net_flow,
+              superNet: mf.super_net,
+              largeNet: mf.large_net,
+              mediumNet: mf.medium_net,
+              smallNet: mf.small_net,
+            }
+          : null,
         shortInterest: null,
         majorHolders: null,
         recommendationTrend: [],

@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
-import { getCnName } from '../common/cn-names';
+import axios from 'axios';
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
+
+// ═══════════════════════════════════════════════════════════
+// 行业分类 ETF 清单（港股/美股无东财真实板块接口，用 ETF 模拟）
+// ═══════════════════════════════════════════════════════════
 
 const US_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
   { symbol: 'XLK', name: '科技', sector: 'Technology' },
@@ -24,6 +28,7 @@ const HK_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
   { symbol: 'HK3188', name: '华夏沪深300', sector: '内地' },
 ];
 
+// A 股 ETF 仅作为 fallback — 优先用东财真实板块
 const CN_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
   { symbol: 'SH512480', name: '半导体ETF', sector: '半导体' },
   { symbol: 'SH515030', name: '新能源车ETF', sector: '新能源' },
@@ -41,6 +46,23 @@ const CN_SECTOR_ETFS: { symbol: string; name: string; sector: string }[] = [
   { symbol: 'SZ159825', name: '农业ETF', sector: '农业' },
 ];
 
+// ═══════════════════════════════════════════════════════════
+// 接口定义
+// ═══════════════════════════════════════════════════════════
+
+/** 东财真实板块（A 股行业/概念）排行项 */
+export interface EmSectorItem {
+  code: string; // BK 板块代码，如 BK1296
+  name: string; // 板块名称
+  change1d: number; // 当日涨跌幅 %
+  turnover: number; // 成交额（元）
+  turnoverRate: number; // 换手率 %
+  totalMarketCap: number; // 总市值（元）
+  amplitude: number; // 振幅 %
+  leadingStock?: string; // 领涨股（暂不填充）
+}
+
+/** ETF 模拟的板块轮动项（兼容旧接口） */
 export interface SectorRotationItem {
   symbol: string;
   name: string;
@@ -72,6 +94,30 @@ interface BarData {
   volume: number;
 }
 
+// ═══════════════════════════════════════════════════════════
+// 东财 clist 常量
+// ═══════════════════════════════════════════════════════════
+
+const EM_PUSH_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  Referer: 'https://data.eastmoney.com/bkzjhy/hybk.html',
+};
+
+/**
+ * 东财板块分类 fs 参数:
+ *   m:90+t:2 = A 股行业板块（申万全分级，496 个）
+ *   m:90+t:3 = A 股概念板块（504 个）
+ */
+const EM_SECTOR_FS: Record<'industry' | 'concept', string> = {
+  industry: 'm:90+t:2',
+  concept: 'm:90+t:3',
+};
+
+// ═══════════════════════════════════════════════════════════
+// SectorService
+// ═══════════════════════════════════════════════════════════
+
 @Injectable()
 export class SectorService {
   private readonly logger = new Logger(SectorService.name);
@@ -79,6 +125,144 @@ export class SectorService {
   private readonly CACHE_TTL = 3 * 60 * 1000;
 
   constructor(private readonly akShareService: AkShareService) {}
+
+  // ─── 缓存 ─────────────────────────────────────────────────
+
+  private getCached<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (entry && Date.now() - entry.timestamp < this.CACHE_TTL) {
+      return entry.data as T;
+    }
+    return null;
+  }
+
+  private setCache(key: string, data: any) {
+    this.cache.set(key, { data, timestamp: Date.now() });
+  }
+
+  // ─── 东财 clist 抓取 ────────────────────────────────────────
+
+  /**
+   * 调东财 push2delay clist 接口拿真实板块排行。
+   * 按涨跌幅降序返回，最多取 top limit 个。
+   * 仅覆盖 A 股（东财港股无分类板块）。
+   */
+  async fetchEmSectorClist(
+    type: 'industry' | 'concept',
+    sortBy: 'change' | 'turnover' | 'marketcap' = 'change',
+    limit = 50,
+  ): Promise<EmSectorItem[]> {
+    const cacheKey = `em_sector:${type}:${sortBy}:${limit}`;
+    const cached = this.getCached<EmSectorItem[]>(cacheKey);
+    if (cached) return cached;
+
+    const fs = EM_SECTOR_FS[type];
+    const fid = sortBy === 'change' ? 'f3' : sortBy === 'turnover' ? 'f6' : 'f20';
+
+    const urls = [
+      `https://push2delay.eastmoney.com/api/qt/clist/get?pn=1&pz=${limit}&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=${fid}&fs=${fs}&fields=f2,f3,f6,f7,f8,f12,f14,f20`,
+      // fallback host
+      `https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=${limit}&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=${fid}&fs=${fs}&fields=f2,f3,f6,f7,f8,f12,f14,f20`,
+    ];
+
+    let lastError: unknown = null;
+    for (const url of urls) {
+      try {
+        const resp = await axios.get(url, {
+          timeout: 8000,
+          headers: EM_PUSH_HEADERS,
+        });
+        const diff = resp.data?.data?.diff;
+        if (!Array.isArray(diff) || diff.length === 0) {
+          continue;
+        }
+
+        const items: EmSectorItem[] = diff
+          .map((r: any) => {
+            const change1d = Number(r.f3);
+            // 东财用 '-' 表示停牌/无数据
+            if (isNaN(change1d) || r.f3 === '-' || r.f3 == null) return null;
+            return {
+              code: String(r.f12 ?? ''),
+              name: String(r.f14 ?? ''),
+              change1d,
+              turnover: Number(r.f6) || 0,
+              turnoverRate: Number(r.f8) || 0,
+              totalMarketCap: Number(r.f20) || 0,
+              amplitude: Number(r.f7) || 0,
+            };
+          })
+          .filter((x): x is EmSectorItem => x != null && !!x.name && !!x.code);
+
+        if (items.length > 0) {
+          this.setCache(cacheKey, items);
+          this.logger.debug(
+            `EM ${type} sector: ${items.length} items, top=${items[0].name}(${items[0].change1d.toFixed(2)}%)`,
+          );
+          return items;
+        }
+      } catch (e: any) {
+        lastError = e;
+        this.logger.debug(`EM sector ${type} fail: ${e.message}, trying next host...`);
+      }
+    }
+
+    this.logger.warn(`EM sector ${type} all hosts failed: ${(lastError as Error)?.message}`);
+    return [];
+  }
+
+  // ─── 公开 API: 板块排行 ────────────────────────────────────
+
+  /**
+   * 板块排行 — A 股走东财真实数据，港股/美股 fallback ETF。
+   */
+  async getSectorRanking(
+    market = 'A股',
+    type: 'industry' | 'concept' = 'industry',
+    sortBy: 'change' | 'turnover' | 'marketcap' = 'change',
+    limit = 50,
+  ): Promise<{
+    market: string;
+    type: string;
+    byChange: EmSectorItem[];
+    byFlow: EmSectorItem[];
+    byMarketCap: EmSectorItem[];
+  } | null> {
+    if (market !== 'A股') {
+      // 港股/美股暂无真实板块，返回 null 让前端 fallback 到 rotation
+      return null;
+    }
+
+    const cacheKey = `ranking:${market}:${type}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.data as {
+        market: string;
+        type: string;
+        byChange: EmSectorItem[];
+        byFlow: EmSectorItem[];
+        byMarketCap: EmSectorItem[];
+      };
+    }
+
+    const items = await this.fetchEmSectorClist(type, sortBy, limit * 2);
+    if (items.length === 0) return null;
+
+    const result = {
+      market,
+      type,
+      byChange: [...items].sort((a, b) => b.change1d - a.change1d).slice(0, limit),
+      byFlow: [...items].sort((a, b) => b.turnover - a.turnover).slice(0, limit),
+      byMarketCap: [...items].sort((a, b) => b.totalMarketCap - a.totalMarketCap).slice(0, limit),
+    };
+
+    this.setCache(cacheKey, result);
+    return result;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // 旧接口兼容 (rotation / heatmap) — 港股/美股 ETF 模拟 + A股 fallback
+  // ══════════════════════════════════════════════════════════
 
   private getETFs(market: string) {
     switch (market) {
@@ -149,6 +333,33 @@ export class SectorService {
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
       return cached.data;
+    }
+
+    // A 股：优先用东财真实板块（按 change1d 排序的 ETF 模拟逻辑）
+    if (market === 'A股') {
+      const realItems = await this.fetchEmSectorClist('industry', 'change', 50);
+      if (realItems.length > 0) {
+        // 把 EmSectorItem 映射成 SectorRotationItem（缺 price / 多周期涨跌幅字段）
+        // 东财 clist 没给 5d/1m 等数据，所以置 0
+        const rotationItems: SectorRotationItem[] = realItems.map((s) => ({
+          symbol: s.code,
+          name: s.name,
+          sector: s.name,
+          price: 0,
+          change1d: s.change1d,
+          change5d: 0,
+          change1m: 0,
+          change3m: 0,
+          volume: s.turnover,
+          avgVolume: 0,
+          volumeRatio: 0,
+          rsScore: s.change1d, // 简单按 1d 涨跌幅排
+          momentum: 0,
+        }));
+        this.cache.set(cacheKey, { data: rotationItems, timestamp: Date.now() });
+        return rotationItems;
+      }
+      // fallback 到 ETF
     }
 
     const etfs = this.getETFs(market);
