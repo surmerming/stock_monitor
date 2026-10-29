@@ -10,7 +10,14 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["node"],
+    "typeRoots": ["../backend/node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "typeorm": ["../backend/node_modules/typeorm"],
+      "reflect-metadata": ["../backend/node_modules/reflect-metadata"]
+    }
   },
   "include": ["**/*.ts"],
   "ts-node": {

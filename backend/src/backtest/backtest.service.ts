@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 import { StockService } from '../stock/stock.service';
 import { getCnName } from '../common/cn-names';
-import { OHLCV, computeIndicators, TECHNICAL_FIELDS } from '../screener/technical.util';
+import { OHLCV, computeIndicators } from '../screener/technical.util';
 
 export interface BacktestFilter {
   field: string;

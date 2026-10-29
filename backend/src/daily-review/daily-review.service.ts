@@ -199,8 +199,7 @@ export class DailyReviewService {
     const defaultRunner = resolve(process.cwd(), '..', 'scripts', 'run-daily-review.sh');
     const runnerPath = process.env.DAILY_REVIEW_RUNNER || defaultRunner;
     const baseUrl =
-      process.env.DAILY_REVIEW_API_BASE ||
-      `http://127.0.0.1:${process.env.PORT || 4444}`;
+      process.env.DAILY_REVIEW_API_BASE || `http://127.0.0.1:${process.env.PORT || 4444}`;
 
     if (!existsSync(runnerPath)) {
       saved.message = `runner 脚本不存在: ${runnerPath}，保持 pending；可手动上传 HTML`;
@@ -247,13 +246,16 @@ export class DailyReviewService {
 
       // runner 进程退出后清理临时目录（5 分钟兜底）
       child.on('exit', () => {
-        setTimeout(() => {
-          try {
-            rmSync(runDir, { recursive: true, force: true });
-          } catch {
-            /* ignore */
-          }
-        }, 5 * 60 * 1000);
+        setTimeout(
+          () => {
+            try {
+              rmSync(runDir, { recursive: true, force: true });
+            } catch {
+              /* ignore */
+            }
+          },
+          5 * 60 * 1000,
+        );
       });
     } catch (err: any) {
       this.logger.error(`triggerRun spawn failed: ${err.message}`);

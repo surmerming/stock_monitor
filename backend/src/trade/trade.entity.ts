@@ -38,6 +38,12 @@ export class Trade {
   @Column({ type: 'text', nullable: true })
   notes: string;
 
+  @Column('decimal', { precision: 12, scale: 4, nullable: true })
+  takeProfit: number | null;
+
+  @Column('decimal', { precision: 12, scale: 4, nullable: true })
+  stopLoss: number | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

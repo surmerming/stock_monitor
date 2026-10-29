@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AkShareService, QuoteResult, ChartQuote } from '../akshare/akshare.service';
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 
 export interface SentimentItem {
   symbol: string;

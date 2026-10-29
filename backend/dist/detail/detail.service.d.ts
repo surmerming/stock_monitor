@@ -5,7 +5,7 @@ export declare class DetailService {
     private readonly akShareService;
     private readonly logger;
     constructor(stockService: StockService, akShareService: AkShareService);
-    getChart(rawSymbol: string, interval?: '1m' | '5m' | '15m' | '1d' | '1wk' | '1mo' | '3mo' | '1y', range?: string): Promise<{
+    getChart(rawSymbol: string, interval?: '1m' | '5m' | '15m' | '1d' | '1wk' | '1mo' | '3mo' | '1y', _range?: string): Promise<{
         meta: {
             symbol: string;
             currency: string;

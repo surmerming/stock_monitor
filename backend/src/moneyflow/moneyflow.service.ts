@@ -169,8 +169,10 @@ export class MoneyFlowService {
     let items: MoneyFlowItem[];
     if (today) {
       items = await this.fetchTodayOverview(m);
+    } else if (date) {
+      items = await this.fetchHistoricalOverview(m, date);
     } else {
-      items = await this.fetchHistoricalOverview(m, date!);
+      items = [];
     }
 
     items.sort((a, b) => Math.abs(b.netFlow) - Math.abs(a.netFlow));
@@ -238,7 +240,7 @@ export class MoneyFlowService {
   private async fetchCNFlowToday(): Promise<MoneyFlowItem[]> {
     try {
       const results = await this.akShareService.getQuotesBatch(A_SHARE_POOL.slice(0, 50));
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+      const quotes = results.flatMap((r) => (r.data ? [r.data] : []));
       const flowResults = await Promise.all(
         quotes.slice(0, 20).map(async (q) => {
           const flow = await this.akShareService.getMoneyflow(q.symbol);
@@ -260,7 +262,7 @@ export class MoneyFlowService {
   private async fetchHKFlowToday(): Promise<MoneyFlowItem[]> {
     try {
       const results = await this.akShareService.getQuotesBatch(HK_STOCK_POOL.slice(0, 30));
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+      const quotes = results.flatMap((r) => (r.data ? [r.data] : []));
 
       // 东财港股 fflow 接口连续快速请求会被 WAF 断连，必须串行 + 限速
       const DELAY_MS = 350;
@@ -281,7 +283,7 @@ export class MoneyFlowService {
   private async fetchUSFlowToday(): Promise<MoneyFlowItem[]> {
     try {
       const results = await this.akShareService.getQuotesBatch(US_STOCK_POOL.slice(0, 40));
-      const quotes = results.filter((r) => r.data).map((r) => r.data!);
+      const quotes = results.flatMap((r) => (r.data ? [r.data] : []));
       return quotes.map((q) => this.transformQuoteToFlowItem(q, '美股', null));
     } catch (err) {
       this.logger.error(`US flow fetch failed: ${err.message}`);
@@ -300,7 +302,6 @@ export class MoneyFlowService {
 
     // 港股/美股当前没有资金流向接口，flow 为 null 时将所有资金字段置 0，
     // 不再用成交额 * 涨跌方向冒充净流入（成交额是买卖总和，不等于净流入）。
-    const hasFlow = !!flow;
     return {
       symbol: q.symbol,
       name: q.name,
@@ -313,23 +314,23 @@ export class MoneyFlowService {
       volumeRatio: volRatio,
       turnover,
       marketCap: q.market_cap || null,
-      netFlow: hasFlow ? flow!.net_flow : 0,
+      netFlow: flow?.net_flow ?? 0,
       flowIntensity,
-      largeNetFlow: hasFlow ? (flow!.large_inflow || 0) - (flow!.large_outflow || 0) : 0,
-      largeInflow: hasFlow ? flow!.large_inflow || 0 : 0,
-      largeOutflow: hasFlow ? flow!.large_outflow || 0 : 0,
+      largeNetFlow: flow ? (flow.large_inflow || 0) - (flow.large_outflow || 0) : 0,
+      largeInflow: flow?.large_inflow || 0,
+      largeOutflow: flow?.large_outflow || 0,
       exchange: market,
     };
   }
 
-  private async fetchHistoricalOverview(m: string, date: string): Promise<MoneyFlowItem[]> {
+  private async fetchHistoricalOverview(m: string, _date: string): Promise<MoneyFlowItem[]> {
     const pool: string[] = [];
     if (m === 'all' || m === 'cn') pool.push(...A_SHARE_POOL.slice(0, 40));
     if (m === 'all' || m === 'hk') pool.push(...HK_STOCK_POOL.slice(0, 20));
     if (m === 'all' || m === 'us') pool.push(...US_STOCK_POOL.slice(0, 20));
 
     const results = await this.akShareService.getQuotesBatch(pool);
-    const quotes = results.filter((r) => r.data).map((r) => r.data!);
+    const quotes = results.flatMap((r) => (r.data ? [r.data] : []));
 
     quotes.sort((a, b) => b.volume - a.volume);
 
@@ -392,7 +393,7 @@ export class MoneyFlowService {
 
     try {
       const results = await this.akShareService.getQuotesBatch(akshareSymbols);
-      const quotes = results.filter((r) => r.data && r.data.volume > 0).map((r) => r.data!);
+      const quotes = results.flatMap((r) => (r.data && r.data.volume > 0 ? [r.data] : []));
       const marketLabel =
         market === 'cn' ? 'A股' : market === 'hk' ? '港股' : market === 'us' ? '美股' : '';
       return quotes.map((q) => this.transformQuoteToFlowItem(q, marketLabel, null));

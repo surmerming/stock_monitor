@@ -187,6 +187,41 @@
     font-size: 12px;
     border-radius: 6px;
   }
+
+  &--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: @text;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: transparent;
+      color: @text;
+    }
+  }
+
+  &--with-badge {
+    position: relative;
+    padding-right: 28px;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    background: @primary;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
 }
 
 .rv-input {
@@ -640,6 +675,10 @@
       left: 0;
       z-index: 1;
     }
+  }
+
+  .text-right {
+    text-align: right;
   }
 
   &__sort-arrow {
@@ -1289,6 +1328,12 @@
     margin-bottom: 16px;
   }
 
+  &__header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
   &__filter {
     background: @card;
     border: 1px solid @border;
@@ -1374,6 +1419,134 @@
     border-radius: 12px;
     overflow: hidden;
   }
+
+  // 我的持仓弹窗
+  &__holdings-body {
+    padding: 20px;
+  }
+
+  &__holdings-summary {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 16px;
+    padding: 6px 0 14px;
+    border-bottom: 1px solid @border;
+  }
+
+  &__holdings-sum-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__holdings-sum-label {
+    font-size: 12px;
+    color: @text-dim;
+    margin-bottom: 4px;
+  }
+
+  &__holdings-sum-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: @text;
+    font-family: @mono;
+
+    &.up {
+      color: @up;
+    }
+    &.down {
+      color: @down;
+    }
+  }
+
+  &__holdings-table-wrap {
+    overflow-x: auto;
+  }
+
+  // 止盈止损输入
+  &__form-row--tp-sl {
+    .rv-input {
+      flex: 1;
+    }
+
+    .rv-input--tp {
+      border-color: rgba(232, 54, 78, 0.4);
+
+      &:focus {
+        border-color: @up;
+        box-shadow: 0 0 0 2px rgba(232, 54, 78, 0.15);
+      }
+    }
+
+    .rv-input--sl {
+      border-color: rgba(0, 168, 107, 0.4);
+
+      &:focus {
+        border-color: @down;
+        box-shadow: 0 0 0 2px rgba(0, 168, 107, 0.15);
+      }
+    }
+  }
+
+  &__form-hint {
+    font-size: 11px;
+    color: @text-dim;
+    margin-left: auto;
+  }
+
+  // 表格中止盈止损列
+  .rv-table__td--tp {
+    color: @up;
+    font-weight: 600;
+    font-family: @mono;
+  }
+
+  .rv-table__td--sl {
+    color: @down;
+    font-weight: 600;
+    font-family: @mono;
+  }
+
+  .rv-table__td--num {
+    font-family: @mono;
+  }
+
+  // 持仓行可点击
+  .rv-journal__holding-row {
+    cursor: pointer;
+  }
+}
+
+// 持仓明细弹窗
+.rv-journal {
+  &__detail-section {
+    margin-bottom: 22px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__detail-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: @text;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  &__detail-section-sub {
+    font-size: 12px;
+    font-weight: 400;
+    color: @text-dim;
+  }
+
+  &__partial-tag {
+    font-size: 11px;
+    color: @text-dim;
+    margin-left: 6px;
+  }
 }
 
 // ── Modal ──────────────────────────────────────────────────
@@ -1397,6 +1570,14 @@
     overflow-y: auto;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     padding: 20px;
+
+    &--lg {
+      max-width: 880px;
+    }
+
+    &--xl {
+      max-width: 1100px;
+    }
   }
 
   &__header {
@@ -1412,6 +1593,33 @@
     font-weight: 600;
     color: @text;
     margin: 0;
+    display: flex;
+    align-items: center;
+
+    &-sub {
+      font-size: 12px;
+      font-weight: 400;
+      color: @text-dim;
+      margin-left: 6px;
+    }
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+    border-radius: 6px;
+    color: @text-dim;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: @text;
+    }
   }
 
   &__close {

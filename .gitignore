@@ -14,3 +14,5 @@ frontend/.env
 .workbuddy
 comment_attachments
 daily_review
+outputs
+docs

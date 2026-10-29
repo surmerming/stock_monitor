@@ -1,7 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Between, MoreThanOrEqual, LessThan, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Trade } from './trade.entity';
+
+export interface HoldingSummary {
+  symbol: string;
+  stockName: string;
+  remainingQuantity: number;
+  averageCost: number;
+  totalCost: number;
+}
+
+export interface BuyLot {
+  id: number;
+  symbol: string;
+  stockName: string;
+  price: number;
+  quantity: number;
+  remaining: number;
+  tradeTime: string;
+  takeProfit: number | null;
+  stopLoss: number | null;
+  notes: string;
+}
+
+export interface LotBreakdown {
+  symbol: string;
+  stockName: string;
+  lots: BuyLot[];
+}
 
 export interface TradeStats {
   totalTrades: number;
@@ -170,6 +197,150 @@ export class TradeService {
       totalPnl,
       maxWin,
       maxLoss,
+    };
+  }
+
+  async getHoldings(userId: number, keyword?: string): Promise<HoldingSummary[]> {
+    let query = this.repo.createQueryBuilder('trade').where('trade.userId = :userId', { userId });
+
+    if (keyword) {
+      const kw = `%${keyword.toUpperCase()}%`;
+      const kwLower = `%${keyword}%`;
+      query = query.andWhere('(trade.symbol LIKE :kw OR trade.stockName LIKE :kwLower)', {
+        kw,
+        kwLower,
+      });
+    }
+
+    const trades = await query.orderBy('trade.tradeTime', 'ASC').getMany();
+
+    // 按 symbol 分组 + FIFO 精确计算持仓
+    const groupedTrades = new Map<string, { trades: Trade[]; stockName: string }>();
+    for (const t of trades) {
+      const entry = groupedTrades.get(t.symbol) || { trades: [], stockName: t.stockName || '' };
+      entry.trades.push(t);
+      if (t.stockName) entry.stockName = t.stockName;
+      groupedTrades.set(t.symbol, entry);
+    }
+
+    const result: HoldingSummary[] = [];
+
+    for (const [symbol, { trades: symbolTrades, stockName }] of groupedTrades) {
+      const buys: { price: number; remaining: number }[] = [];
+      let totalRemaining = 0;
+      let totalCost = 0;
+
+      for (const t of symbolTrades) {
+        const price = Number(t.price);
+        const qty = Number(t.quantity);
+        if (t.direction === 'BUY') {
+          buys.push({ price, remaining: qty });
+          totalRemaining += qty;
+          totalCost += price * qty;
+        } else if (t.direction === 'SELL') {
+          let sellQty = qty;
+          while (sellQty > 0 && buys.length > 0) {
+            const head = buys[0];
+            const matched = Math.min(sellQty, head.remaining);
+            totalCost -= head.price * matched;
+            head.remaining -= matched;
+            sellQty -= matched;
+            if (head.remaining === 0) buys.shift();
+          }
+          totalRemaining -= qty;
+        }
+      }
+
+      if (totalRemaining <= 0) continue;
+
+      const avgCost = totalRemaining > 0 ? totalCost / totalRemaining : 0;
+      result.push({
+        symbol,
+        stockName,
+        remainingQuantity: totalRemaining,
+        averageCost: avgCost,
+        totalCost,
+      });
+    }
+
+    result.sort((a, b) => b.totalCost - a.totalCost);
+    return result;
+  }
+
+  async getLots(userId: number, symbol: string): Promise<LotBreakdown> {
+    const upperSymbol = symbol.toUpperCase();
+    const trades = await this.repo
+      .createQueryBuilder('trade')
+      .where('trade.userId = :userId AND trade.symbol = :symbol', {
+        userId,
+        symbol: upperSymbol,
+      })
+      .orderBy('trade.tradeTime', 'ASC')
+      .getMany();
+
+    // FIFO: 用带 id 的买入队列追踪每笔剩余
+    interface LotWithId {
+      id: number;
+      symbol: string;
+      stockName: string;
+      price: number;
+      quantity: number;
+      remaining: number;
+      tradeTime: string;
+      takeProfit: number | null;
+      stopLoss: number | null;
+      notes: string;
+    }
+
+    const buyLots: LotWithId[] = [];
+    for (const t of trades) {
+      const price = Number(t.price);
+      const qty = Number(t.quantity);
+      if (t.direction === 'BUY') {
+        buyLots.push({
+          id: t.id,
+          symbol: t.symbol,
+          stockName: t.stockName || '',
+          price,
+          quantity: qty,
+          remaining: qty,
+          tradeTime: t.tradeTime instanceof Date ? t.tradeTime.toISOString() : String(t.tradeTime),
+          takeProfit: t.takeProfit != null ? Number(t.takeProfit) : null,
+          stopLoss: t.stopLoss != null ? Number(t.stopLoss) : null,
+          notes: t.notes || '',
+        });
+      } else if (t.direction === 'SELL') {
+        let sellQty = qty;
+        while (sellQty > 0 && buyLots.length > 0) {
+          const head = buyLots[0];
+          const matched = Math.min(sellQty, head.remaining);
+          head.remaining -= matched;
+          sellQty -= matched;
+          if (head.remaining === 0) buyLots.shift();
+        }
+      }
+    }
+
+    const lots = buyLots
+      .filter((l) => l.remaining > 0)
+      .map((l) => ({
+        id: l.id,
+        symbol: l.symbol,
+        stockName: l.stockName,
+        price: l.price,
+        quantity: l.quantity,
+        remaining: l.remaining,
+        tradeTime: l.tradeTime,
+        takeProfit: l.takeProfit,
+        stopLoss: l.stopLoss,
+        notes: l.notes,
+      }))
+      .sort((a, b) => new Date(b.tradeTime).getTime() - new Date(a.tradeTime).getTime());
+
+    return {
+      symbol: upperSymbol,
+      stockName: trades.find((t) => t.stockName)?.stockName || upperSymbol,
+      lots,
     };
   }
 }

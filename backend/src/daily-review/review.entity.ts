@@ -33,10 +33,12 @@ export class DailyReview {
 
   @Column({ type: 'json', nullable: true })
   meta: {
-    source?: 'runner' | 'manual' | 'migration';
+    source?: 'runner' | 'manual' | 'migration' | 'sync';
     runnerCommand?: string;
     generatedAt?: string;
+    syncedAt?: string;
     fileSize?: number;
+    originalFileName?: string;
   } | null;
 
   @CreateDateColumn()

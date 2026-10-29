@@ -151,7 +151,7 @@ let ScannerService = ScannerService_1 = class ScannerService {
             return [];
         try {
             const results = await this.akShareService.getQuotesBatch(allSymbols);
-            const quotes = results.filter((r) => r.data).map((r) => r.data);
+            const quotes = results.flatMap((r) => (r.data ? [r.data] : []));
             const quoteMap = new Map();
             for (const q of quotes) {
                 quoteMap.set(q.symbol, q);
@@ -160,11 +160,9 @@ let ScannerService = ScannerService_1 = class ScannerService {
                 region: t.region,
                 regionName: regionNames[t.region] || t.region,
                 items: t.symbols
-                    .filter((s) => quoteMap.has(s))
-                    .map((s) => {
-                    const q = quoteMap.get(s);
-                    return this.transformQuote(q);
-                }),
+                    .map((s) => quoteMap.get(s))
+                    .filter((q) => q != null)
+                    .map((q) => this.transformQuote(q)),
             }));
             this.setCache(cacheKey, resultsWithQuotes);
             return resultsWithQuotes;

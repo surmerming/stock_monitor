@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Request } from '@nestjs/common';
 import { TradeService } from './trade.service';
 
 @Controller('trades')
@@ -34,6 +34,23 @@ export class TradeController {
     });
   }
 
+  @Get('holdings')
+  async getHoldings(
+    @Request() req: any,
+    @Query('keyword') keyword?: string,
+  ) {
+    return this.tradeService.getHoldings(req.user.userId, keyword);
+  }
+
+  @Get('lots')
+  async getLots(
+    @Request() req: any,
+    @Query('symbol') symbol?: string,
+  ) {
+    if (!symbol) return { lots: [] };
+    return this.tradeService.getLots(req.user.userId, symbol);
+  }
+
   @Post()
   async create(
     @Request() req: any,
@@ -46,8 +63,23 @@ export class TradeController {
       quantity: number;
       tradeTime: string;
       notes?: string;
+      takeProfit?: number;
+      stopLoss?: number;
     },
   ) {
+    // 买入时止盈止损必填
+    if (body.direction === 'BUY') {
+      if (body.takeProfit == null || body.stopLoss == null) {
+        throw new BadRequestException('买入时必须填写止盈价和止损价');
+      }
+      if (body.takeProfit <= body.price) {
+        throw new BadRequestException('止盈价必须大于买入价');
+      }
+      if (body.stopLoss >= body.price) {
+        throw new BadRequestException('止损价必须小于买入价');
+      }
+    }
+
     const trade = await this.tradeService.create(req.user.userId, {
       symbol: body.symbol.toUpperCase(),
       stockName: body.stockName,
@@ -56,6 +88,8 @@ export class TradeController {
       quantity: body.quantity,
       tradeTime: new Date(body.tradeTime),
       notes: body.notes || '',
+      takeProfit: body.direction === 'BUY' ? body.takeProfit : null,
+      stopLoss: body.direction === 'BUY' ? body.stopLoss : null,
     });
     return trade;
   }
@@ -73,6 +107,8 @@ export class TradeController {
       quantity: number;
       tradeTime: string;
       notes: string;
+      takeProfit: number | null;
+      stopLoss: number | null;
     }>,
   ) {
     const data: any = { ...body };

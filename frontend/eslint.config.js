@@ -36,7 +36,10 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
       '@typescript-eslint/no-explicit-any': 'off',
       'react-hooks/set-state-in-effect': 'off',
-      'react-refresh/only-export-components': ['warn', { allowExportNames: ['useAuth', 'AuthProvider', 'useQuoteSSE', 'QuoteSSEProvider'] }],
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowExportNames: ['useAuth', 'AuthProvider', 'useQuoteSSE', 'QuoteSSEProvider'] },
+      ],
     },
   },
   {

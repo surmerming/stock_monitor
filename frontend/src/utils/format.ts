@@ -16,7 +16,8 @@ export function formatMarketCap(cap: number | null | undefined): string {
 
 export function formatPrice(val: number | string | null | undefined): string {
   const num = typeof val === 'string' ? parseFloat(val) : val;
-  return num != null && !isNaN(num) ? num.toFixed(3) : '—';
+  if (num == null || isNaN(num)) return '—';
+  return num.toFixed(3);
 }
 
 export function formatDateTime(val: string | Date | null | undefined): string {

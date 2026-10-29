@@ -47,16 +47,6 @@ export interface ScanResult {
   items: ScreenerResultItem[];
 }
 
-const SORT_FIELD_MAP: Record<string, string> = {
-  price: 'price',
-  changePercent: 'changePercent',
-  volume: 'volume',
-  marketCap: 'marketCap',
-  peTTM: 'peTTM',
-  dividendYield: 'dividendYield',
-  pbRatio: 'pbRatio',
-};
-
 const LOCAL_FIELD_MAP: Record<string, (q: QuoteResult) => number | null> = {
   price: (q) => q.current_price,
   changePercent: (q) => q.change_percent,
@@ -162,7 +152,7 @@ export class ScreenerService {
           );
         }
         const results = await this.akShareService.getQuotesBatch(fallbackSymbols(m));
-        return results.filter((r) => r.data).map((r) => r.data!);
+        return results.flatMap((r) => (r.data ? [r.data] : []));
       }),
     );
 
@@ -331,9 +321,10 @@ export class ScreenerService {
 
     if (sortIsTech) {
       const dir = (query.sortType || 'DESC') === 'DESC' ? -1 : 1;
+      const sortField = query.sortField;
       techFiltered.sort((a, b) => {
-        const va = (techMap.get(a.symbol)?.[query.sortField!] as number) ?? 0;
-        const vb = (techMap.get(b.symbol)?.[query.sortField!] as number) ?? 0;
+        const va = (techMap.get(a.symbol)?.[sortField as keyof TechnicalValues] as number) ?? 0;
+        const vb = (techMap.get(b.symbol)?.[sortField as keyof TechnicalValues] as number) ?? 0;
         return (va - vb) * dir;
       });
     } else {

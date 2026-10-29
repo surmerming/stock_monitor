@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useAuth, type LoginResponse } from '../../hooks/useAuth';
 import './style.less';
 
@@ -9,18 +9,31 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+  const [lockedRemaining, setLockedRemaining] = useState<string | null>(null);
 
-  const lockedRemaining = (() => {
-    if (!lockedUntil) return null;
-    const diff = new Date(lockedUntil).getTime() - Date.now();
-    if (diff <= 0) return null;
-    const mins = Math.ceil(diff / 60000);
-    if (mins > 60) {
-      const hrs = Math.ceil(mins / 60);
-      return `${hrs}小时`;
+  useEffect(() => {
+    if (!lockedUntil) {
+      setLockedRemaining(null);
+      return;
     }
-    return `${mins}分钟`;
-  })();
+    const update = () => {
+      const diff = new Date(lockedUntil).getTime() - Date.now();
+      if (diff <= 0) {
+        setLockedRemaining(null);
+        return;
+      }
+      const mins = Math.ceil(diff / 60000);
+      if (mins > 60) {
+        const hrs = Math.ceil(mins / 60);
+        setLockedRemaining(`${hrs}小时`);
+      } else {
+        setLockedRemaining(`${mins}分钟`);
+      }
+    };
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, [lockedUntil]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

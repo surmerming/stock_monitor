@@ -21,7 +21,7 @@ let DetailService = DetailService_1 = class DetailService {
         this.akShareService = akShareService;
         this.logger = new common_1.Logger(DetailService_1.name);
     }
-    async getChart(rawSymbol, interval = '1m', range = '1d') {
+    async getChart(rawSymbol, interval = '1m', _range = '1d') {
         const { akshare: symbol, market } = this.stockService.normalizeSymbol(rawSymbol);
         const intervalMap = {
             '1m': '1m',

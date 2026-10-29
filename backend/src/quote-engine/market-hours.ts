@@ -19,7 +19,10 @@ function getNowInTimezone(tz: string): {
     hour12: false,
   }).formatToParts(now);
 
-  const get = (type: string) => parseInt(parts.find((p) => p.type === type)!.value);
+  const get = (type: string) => {
+    const part = parts.find((p) => p.type === type);
+    return part ? parseInt(part.value) : NaN;
+  };
 
   const year = get('year');
   const month = get('month');

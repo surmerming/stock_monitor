@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  AkShareService,
-  ChartQuote,
-  QuoteResult,
-  FinancialResult,
-} from '../akshare/akshare.service';
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 import { StockService } from '../stock/stock.service';
 import { getCnName } from '../common/cn-names';
 
@@ -20,7 +15,7 @@ export class DetailService {
   async getChart(
     rawSymbol: string,
     interval: '1m' | '5m' | '15m' | '1d' | '1wk' | '1mo' | '3mo' | '1y' = '1m',
-    range = '1d',
+    _range = '1d',
   ) {
     const { akshare: symbol, market } = this.stockService.normalizeSymbol(rawSymbol);
 

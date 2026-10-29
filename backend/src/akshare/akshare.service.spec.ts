@@ -4,9 +4,18 @@ describe('AkShareService Tencent quote parsing', () => {
   it('infers the correct exchange for bare six-digit A-share codes', () => {
     const service = new AkShareService();
 
-    expect((service as any).normalizeSymbol('300750')).toMatchObject({ prefix: 'sz', code: '300750' });
-    expect((service as any).normalizeSymbol('600519')).toMatchObject({ prefix: 'sh', code: '600519' });
-    expect((service as any).normalizeSymbol('830799')).toMatchObject({ prefix: 'bj', code: '830799' });
+    expect((service as any).normalizeSymbol('300750')).toMatchObject({
+      prefix: 'sz',
+      code: '300750',
+    });
+    expect((service as any).normalizeSymbol('600519')).toMatchObject({
+      prefix: 'sh',
+      code: '600519',
+    });
+    expect((service as any).normalizeSymbol('830799')).toMatchObject({
+      prefix: 'bj',
+      code: '830799',
+    });
   });
 
   it('uses the documented amount, turnover-rate, and PE fields without mislabeling them as volume ratio', () => {

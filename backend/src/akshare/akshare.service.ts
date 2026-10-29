@@ -638,11 +638,8 @@ export class AkShareService {
         const currentLiab = bal.byCode['004011999']; // 流动负债合计
         const inventory = bal.byCode['004002001']; // 存货
         const cashEquiv = bal.byCode['004002010']; // 现金及等价物
-        const parentEquity = bal.byCode['004030999']; // 股东权益
         const retainedEarnings = bal.byCode['004030004']; // 保留溢利(累计亏损)
         const sharePremium = bal.byCode['004030003']; // 股本溢价
-        const totalEquity = bal.byCode['004036999']; // 总权益
-        const treasuryStock = bal.byCode['004030012']; // 库存股（通常负数）
 
         // === 速动比率 = (流动资产 - 存货) / 流动负债 ===
         if (

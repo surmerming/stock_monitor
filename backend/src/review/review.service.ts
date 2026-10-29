@@ -6,7 +6,7 @@ import { PatternService, PatternSignal, SupportResistance } from '../pattern/pat
 import { SentimentService } from '../sentiment/sentiment.service';
 import { SectorService } from '../sector/sector.service';
 import { DetailService } from '../detail/detail.service';
-import { AkShareService, ChartQuote, QuoteResult } from '../akshare/akshare.service';
+import { AkShareService, ChartQuote } from '../akshare/akshare.service';
 import { computeIndicators, TechnicalValues, OHLCV } from '../screener/technical.util';
 import { getCnName } from '../common/cn-names';
 
@@ -496,9 +496,8 @@ export class ReviewService {
     return points;
   }
 
-  private buildMaStatus(bars: OHLCV[], indicators: TechnicalValues): MaStatus {
+  private buildMaStatus(bars: OHLCV[], _indicators: TechnicalValues): MaStatus {
     const closes = bars.map((b) => b.close);
-    const price = closes.length > 0 ? closes[closes.length - 1] : 0;
 
     const sma = (data: number[], period: number): number | null => {
       if (data.length < period) return null;
